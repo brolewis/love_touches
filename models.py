@@ -1,0 +1,73 @@
+'''Database model object'''
+# Third Party
+import flask.ext.security
+# Local
+from main import db
+
+# Users and Roles
+roles_users = db.Table('roles_users',
+                       db.Column('user_id', db.Integer,
+                                 db.ForeignKey('user.id')),
+                       db.Column('role_id', db.Integer,
+                                 db.ForeignKey('role.id')))
+users_actions = db.Table('users_actions',
+                         db.Column('user_id', db.Integer,
+                                   db.ForeignKey('user.id')),
+                         db.Column('action_id', db.Integer,
+                                   db.ForeignKey('action.id')))
+groups_actions = db.Table('groups_actions',
+                          db.Column('group_id', db.Integer,
+                                    db.ForeignKey('group.id')),
+                          db.Column('action_id', db.Integer,
+                                    db.ForeignKey('action.id')))
+methods_groups = db.Table('methods_groups',
+                          db.Column('method_id', db.Integer,
+                                    db.ForeignKey('method.id')),
+                          db.Column('group_id', db.Integer,
+                                    db.ForeignKey('group.id')))
+
+
+class Role(db.Model, flask.ext.security.RoleMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, unique=True)
+    description = db.Column(db.String)
+
+    def __repr__(self):
+        return self.name
+
+
+class User(db.Model, flask.ext.security.UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    password = db.Column(db.String)
+    active = db.Column(db.Boolean)
+    email = db.Column(db.String, unique=True)
+    phone_number = db.Column(db.String)
+    confirmed_at = db.Column(db.DateTime)
+    last_login_at = db.Column(db.DateTime)
+    current_login_at = db.Column(db.DateTime)
+    last_login_ip = db.Column(db.String)
+    current_login_ip = db.Column(db.String)
+    login_count = db.Column(db.Integer)
+    roles = db.relationship('Role', secondary=roles_users,
+                            backref=db.backref('users', lazy='dynamic'))
+    actions = db.relationship('Action', secondary=users_actions)
+
+    def __repr__(self):
+        return self.email or self.phone_number
+
+
+class Action(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    label = db.Column(db.String)
+
+
+class Group(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    actions = db.relationship('Action', secondary=groups_actions)
+
+
+class Method(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    groups = db.relationship('Group', secondary=methods_groups)

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Love Touches - Step One{% endblock %}
+
+{% block content %}
+    <div class="signup-section">
+        <div class="intro-body">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-2">
+                        <h1 class="signup-text">Step One: Contact Info</h1>
+                        <p>How do you want the reminders sent to you?</p>
+                        <form method="post" role="form" class="form-horizontal" action="{{ url_for('step_one') }}">
+                            {{ profile_form.hidden_tag() }}
+                            {% for field in profile_form %}
+                            {% if field|simple_field_filter %}
+                            <div class="form-group">
+                                {{ field.label(class='col-sm-3 col-lg-offset-2 control-label') }}
+                                <div class="col-sm-5">
+                                    {{ field(class='form-control') }}
+                                    {% if field.errors %}
+                                    <span class="help-inline">
+                                        {{ field.errors|join('<br />')|safe }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                            <div class="page-scroll">
+                                <button name="submit" type="submit" class="btn btn-circle btn-circle-right">
+                                    <i class="fa fa-angle-double-right animated"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

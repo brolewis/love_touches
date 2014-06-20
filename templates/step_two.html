@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Love Touches - Step Two{% endblock %}
+
+{% block content %}
+    <div class="signup-section">
+        <div class="intro-body">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <h1 class="signup-text">Step Two: Select Your Actions</h1>
+                        <div class="flip">
+                            <div class="card">
+                                <div class="face front">
+                                    <p>First, pick a method</p>
+                                    {% for method in methods %}
+                                    <p><a href="#" id="{{ method.name }}" class="btn btn-default btn-lg toggle">{{ method.name }}</a></p>
+                                    {% endfor %}
+                                    <p><a href="#" class="btn btn-default btn-lg toggle">All</a></p>
+                                </div>
+                                <div class="face back"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        var action_results = function(data) {
+            var html = '<form method="post" role="form" class="form-horizontal" action="' + $SCRIPT_ROOT + '/step_three">';
+            html += '<div class="container-fluid">';
+            for (var group in data.result) {
+                var count = 0;
+                if (data.result.hasOwnProperty(group)) {
+                    html += '<div class="row"><h3 class="signup-text">' + group + '</h3></div>';
+                    html += '<div class="row">'
+                    for (var key in data.result[group]) {
+                        html += '<div class="col-lg-4" style="margin-bottom: 1em;" data-toggle="buttons">'
+                        html += '<label class="btn btn-default btn-block"><input type="checkbox" name="action" value="' + key + '">' + data.result[group][key] + '</label>';
+                        html += '</div>'
+                        ++count;
+                        if (count % 3 == 0) {
+                            html += '</div><div class="row">';
+                        }
+                    }
+                    html += '</div>';
+                }
+            }
+            html += '</div></div>';
+            html += '<div class="page-scroll">';
+            html += '<button name="submit" type="submit" class="btn btn-circle btn-circle-right">';
+            html += '<i class="fa fa-angle-double-right animated"></i>';
+            html += '</button></div>';
+            $(".face.back").html(html);
+        }
+        $(".toggle").click(function(){
+            $.getJSON($SCRIPT_ROOT + '/_get_actions', {method_name: $(this).attr('id')},
+                      action_results);
+            $(".flip").find(".card").toggleClass("flipped");
+            return false;
+        });
+    </script>
+{% endblock %}
