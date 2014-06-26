@@ -50,15 +50,29 @@ class User(db.Model, flask.ext.security.UserMixin):
     login_count = db.Column(db.Integer)
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users', lazy='dynamic'))
+    method_id = db.Column(db.Integer, db.ForeignKey('method.id'))
+    method = db.relationship('Method')
     actions = db.relationship('Action', secondary=users_actions)
+    schedule = db.relationship('Crontab', backref='user')
 
     def __repr__(self):
         return self.email or self.phone_number
 
 
+class Crontab(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    day_of_week = db.Column(db.Integer)
+    hour = db.Column(db.Integer)
+    minute = db.Column(db.Integer)
+
+
 class Action(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     label = db.Column(db.String)
+
+    def __repr__(self):
+        return self.label
 
 
 class Group(db.Model):

@@ -3,14 +3,29 @@
 
 {% block content %}
     <div class="signup-section">
-        <div class="intro-body">
-            <div class="container-fluid">
+        <div class="signup-body">
+            {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+            {% for category, m in messages %}
+            <div class="container" id="messages">
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-2">
+                        <div class="alert alert-error">
+                            {{ m }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <div class="container">
                 <div class="row">
                     <div class="col-lg-10 col-lg-offset-1">
-                        <h1 class="signup-text">Step Two: Select Your Actions</h1>
                         <div class="flip">
                             <div class="card">
                                 <div class="face front">
+                                    <h1 class="signup-text">Step Two: Select Your Actions</h1>
                                     <p>First, pick a method</p>
                                     {% for method in methods %}
                                     <p><a href="#" id="{{ method.name }}" class="btn btn-default btn-lg toggle">{{ method.name }}</a></p>
@@ -32,8 +47,10 @@
     <script>
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
         var action_results = function(data) {
-            var html = '<form method="post" role="form" class="form-horizontal" action="' + $SCRIPT_ROOT + '/step_three">';
-            html += '<div class="container-fluid">';
+            var html = '<h1 class="signup-text">Step Two: Select Your Actions</h1>';
+            html += '<p>Next, pick some actions</p>';
+            html += '<form method="post" role="form" class="form-horizontal" action="' + $SCRIPT_ROOT + '/step_two">';
+            html += '<input type="hidden" name="method_name" value="' + data.method_name + '" />';
             for (var group in data.result) {
                 var count = 0;
                 if (data.result.hasOwnProperty(group)) {
@@ -51,12 +68,14 @@
                     html += '</div>';
                 }
             }
-            html += '</div></div>';
+            html += '</div>';
             html += '<div class="page-scroll">';
             html += '<button name="submit" type="submit" class="btn btn-circle btn-circle-right">';
             html += '<i class="fa fa-angle-double-right animated"></i>';
             html += '</button></div>';
             $(".face.back").html(html);
+            $(".face.front").hide();
+            $("#messages").hide();
         }
         $(".toggle").click(function(){
             $.getJSON($SCRIPT_ROOT + '/_get_actions', {method_name: $(this).attr('id')},

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Love Touches - Step Three{% endblock %}
+
+{% block content %}
+    <div class="signup-section">
+        <div class="signup-body" style="padding-top: 100px">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <h1 class="signup-text">Confirm Your Choices</h1>
+                        <h2 class="signup-text">Contact Method{% if user.email and user.phone_number %}s{% endif %}</h2>
+                        <p>
+                            {% if user.email %}
+                            <strong>Email:</strong> {{ user.email }}
+                            {% if user.phone_number %}<br />{% endif %}
+                            {% endif %}
+                            {% if user.phone_number %}
+                            <strong>Phone Number:</strong> {{ user.phone_number }}</p>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <h2 class="signup-text">Action{% if user.actions|length > 1 %}s{% endif %}</h2>
+                        <p>
+                            {% for action in user.actions %}
+                            <span class="fa fa-check fa-fw"></span>{{ action }}{% if not loop.last %}<br />{% endif %}
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <h2 class="signup-text">Schedule</h2>
+                        <p>
+                            {% for crontab in user.schedule %}
+                                <span class="fa fa-clock-o fa-fw"></span>{{ crontab.day_of_week }} at {{ crontab.hour }}:{{ '%02d' % crontab.minute }}{% if not loop.last %}<br />{% endif %}
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2">
+                <ul class="list-inline banner-social-buttons">
+                    <li><a href="https://github.com/IronSummitMedia/startbootstrap" class="btn btn-lg">Cancel</span></a></li>
+                    <li><a href="https://twitter.com/SBootstrap" class="btn btn-default btn-lg">Confirm</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

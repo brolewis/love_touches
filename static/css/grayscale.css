@@ -54,6 +54,13 @@ p {
     }
 }
 
+.signup-body {
+    display: table-cell;
+    vertical-align: middle;
+    padding-top: 90px;
+    padding-bottom: 25px;
+}
+
 .signup-text {
     font-family: 'Yanone Kaffeesatz', sans-serif;
     text-transform:none;
@@ -310,6 +317,10 @@ a:focus {
     margin: 0px;
 }
 
+.footer a {
+    color: #1FA4B6;
+}
+
 .btn {
     text-transform: uppercase;
     font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -404,14 +415,6 @@ body {
     -o-backface-visibility: hidden; /* Opera */
 }
 
-.flip .card .front {
-    position: absolute;
-    z-index: 1;
-    color: white;
-    cursor: pointer;
-    line-height: 227px;
-}
-
 .flip .card .back {
     line-height: normal;
     transform:rotatey(-180deg);
@@ -419,4 +422,28 @@ body {
     -moz-transform:rotatey(-180deg); /* Firefox */
     -webkit-transform:rotatey(-180deg); /* Safari and Chrome */
     -o-transform:rotatey(-180deg); /* Opera */
+}
+
+.alert-error {
+  color: #fbdedb;
+  background-color: #b84d45;
+  border-color: #a5423b;
+}
+
+.alert-error hr {
+  border-top-color: #e4b9c0;
+}
+
+.alert-error .alert-link {
+  color: #ffffff;
+}
+
+input[type="text"], input[type="number"] {
+    border: 1px solid #28c3ab;
+    color: #28c3ab;
+    background-color: transparent;
+    padding: 6px 12px;
+    font-size:14px;
+    line-height:1.42857143;
+    border-radius:4px;
 }

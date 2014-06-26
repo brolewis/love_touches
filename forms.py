@@ -20,6 +20,24 @@ class ProfileForm(flask.ext.wtf.Form):
     email = wtforms.TextField(validators=[wtforms.validators.Email()])
 
 
+hour_validator = wtforms.validators.NumberRange(min=1, max=12)
+minute_validator = wtforms.validators.NumberRange(min=0, max=59)
+week_choices = [(0, 'Sunday'), (1, 'Monday'), (2, 'Tuesday'),
+                (3, 'Wednesday'), (4, 'Thursday'), (5, 'Friday'),
+                (6, 'Saturday')]
+
+
+class ScheduleForm(flask.ext.wtf.Form):
+    days_of_week = wtforms.SelectMultipleField('Days of the Week',
+                                               [wtforms.validators.Required()],
+                                               choices=week_choices,
+                                               coerce=int)
+    hour = wtforms.IntegerField(validators=[hour_validator])
+    minute = wtforms.IntegerField(validators=[minute_validator], default='00')
+    am_pm = wtforms.RadioField('Time of Day',
+                               choices=[('am', 'am'), ('pm', 'pm')])
+
+
 class PasswordChangeForm(flask.ext.wtf.Form):
     new_password = wtforms.PasswordField('New Password',
                                          [wtforms.validators.Required(),
