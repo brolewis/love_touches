@@ -1,6 +1,8 @@
 # Third Party
 import flask
 import flask.ext.security
+import flask.ext.security.confirmable
+import flask.ext.security.utils
 # Local
 import forms
 import main
@@ -81,11 +83,15 @@ def step_three():
     schedule_form = forms.ScheduleForm()
     if flask.request.method == 'POST' and schedule_form.validate_on_submit():
         user = models.User.query.get(flask.session['user'])
+        hour = schedule_form.data['hour']
+        minute = schedule_form.data['minute']
         for day_of_week in schedule_form.data['days_of_week']:
-            crontab = models.Crontab(day_of_week=day_of_week,
-                                     hour=schedule_form.data['hour'],
-                                     minute=schedule_form.data['minute'])
-            user.schedule.append(crontab)
+            crontab = models.Crontab.query.filter_by(day_of_week=day_of_week,
+                                                     hour=hour, minute=minute)
+            if not crontab.first():
+                crontab = models.Crontab(day_of_week=day_of_week, hour=hour,
+                                         minute=minute)
+                user.schedule.append(crontab)
         models.db.session.commit()
         return flask.redirect(flask.url_for('confirm'))
     return flask.render_template('step_three.html',
@@ -93,12 +99,28 @@ def step_three():
 
 
 @main.app.route('/confirm')
-def confirm():
-    if flask.session.get('user'):
-        user = models.User.query.get(flask.session['user'])
-        return flask.render_template('confirm.html', user=user)
-    else:
+@main.app.route('/confirm/<action>')
+def confirm(action=None):
+    if not flask.session.get('user'):
         return flask.redirect(flask.url_for('step_one'))
+    user = models.User.query.get(flask.session['user'])
+    if action == 'submit':
+        if user.email:
+            confirmable = flask.ext.security.confirmable
+            link = confirmable.generate_confirmation_link(user)[0]
+            message = 'Thank you. Confirmation instructions have been sent.'
+            flask.flash(message, 'success')
+            flask.ext.security.utils.send_mail('Welcome', user.email,
+                                               'welcome', user=user,
+                                               confirmation_link=link)
+    return flask.render_template('confirm.html', user=user)
+
+
+@main.app.route('/cancel')
+def cancel():
+    if flask.session.get('user'):
+        models.db.session.delete(models.User.query.get(flask.session['user']))
+        models.db.session.commit()
 
 
 @main.app.route('/post_login')

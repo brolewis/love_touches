@@ -25,10 +25,12 @@ app.config['SECURITY_PASSWORD_HASH'] = 'bcrypt'
 app.config['SECURITY_PASSWORD_SALT'] = 'Fa_vX`u`>W52|:+6NFCV_-f+sU#BdUGC:s+!*n'
 app.config['SECURITY_REMEMBER_SALT'] = 'sCZ;2Hd$n~4;}8<2iG3dqgkr~=HQz b7j-yK@,'
 app.config['SECURITY_TRACKABLE'] = True
+app.config['SECURITY_CONFIRMABLE'] = True
+app.config['SECURITY_CONFIRM_URL'] = '/confirm_email'
 app.config['SECURITY_POST_LOGIN_VIEW'] = 'post_login'
 user_datastore = flask.ext.security.SQLAlchemyUserDatastore(db, models.User,
                                                             models.Role)
-flask.ext.security.Security(app, user_datastore)
+app.security = flask.ext.security.Security(app, user_datastore)
 # Debug Toolbar
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 flask_debugtoolbar.DebugToolbarExtension(app)
