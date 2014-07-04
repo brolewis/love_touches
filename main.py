@@ -6,6 +6,7 @@ import flask
 import flask_bootstrap
 import flask_debugtoolbar
 import flask_sqlalchemy
+import flask_sslify
 import flask.ext.migrate
 
 # General Setup
@@ -13,6 +14,8 @@ app = flask.Flask(__name__)
 app.config['DEBUG'] = str(os.getenv('DEBUG', False)).lower() == 'true'
 DEV_SECRET_KEY = 'v=&3w2fsnn+all#(av21nbj9w&w5+$yd71tg*(zng_qwrw=)k*'
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', DEV_SECRET_KEY)
+# SSLify
+flask_sslify.SSLify(app, permanent=True)
 # SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///love_touches.sqlite'
 db = flask_sqlalchemy.SQLAlchemy(app)
