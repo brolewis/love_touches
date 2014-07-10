@@ -10,7 +10,7 @@
             <div class="container" id="messages">
                 <div class="row">
                     <div class="col-md-8 col-md-offset-2">
-                        <div class="alert alert-error">
+                        <div class="alert alert-{{ category }}">
                             {{ m }}
                         </div>
                     </div>
@@ -47,33 +47,7 @@
     <script>
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
         var action_results = function(data) {
-            var html = '<h1 class="signup-text">Step Two: Select Your Actions</h1>';
-            html += '<p>Next, pick some actions</p>';
-            html += '<form method="post" role="form" class="form-horizontal" action="' + $SCRIPT_ROOT + '/step_two">';
-            html += '<input type="hidden" name="method_name" value="' + data.method_name + '" />';
-            for (var group in data.result) {
-                var count = 0;
-                if (data.result.hasOwnProperty(group)) {
-                    html += '<div class="row"><h3 class="signup-text">' + group + '</h3></div>';
-                    html += '<div class="row">'
-                    for (var key in data.result[group]) {
-                        html += '<div class="col-lg-4" style="margin-bottom: 1em;" data-toggle="buttons">'
-                        html += '<label class="btn btn-default btn-block"><input type="checkbox" name="action" value="' + key + '">' + data.result[group][key] + '</label>';
-                        html += '</div>'
-                        ++count;
-                        if (count % 3 == 0) {
-                            html += '</div><div class="row">';
-                        }
-                    }
-                    html += '</div>';
-                }
-            }
-            html += '</div>';
-            html += '<div class="page-scroll">';
-            html += '<button name="submit" type="submit" class="btn btn-circle btn-circle-right">';
-            html += '<i class="fa fa-angle-double-right animated"></i>';
-            html += '</button></div>';
-            $(".face.back").html(html);
+            $(".face.back").html(data.template);
             $(".face.front").hide();
             $("#messages").hide();
         }

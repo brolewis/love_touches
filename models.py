@@ -1,6 +1,7 @@
 '''Database model object'''
 # Third Party
 import flask.ext.security
+import sqlalchemy.ext.hybrid
 # Local
 from main import db
 
@@ -41,7 +42,7 @@ class User(db.Model, flask.ext.security.UserMixin):
     password = db.Column(db.String)
     active = db.Column(db.Boolean)
     email = db.Column(db.String, unique=True)
-    phone_number = db.Column(db.String)
+    phone = db.Column(db.String)
     confirmed_at = db.Column(db.DateTime)
     last_login_at = db.Column(db.DateTime)
     current_login_at = db.Column(db.DateTime)
@@ -56,7 +57,7 @@ class User(db.Model, flask.ext.security.UserMixin):
     schedule = db.relationship('Crontab', backref='user')
 
     def __repr__(self):
-        return self.email or self.phone_number
+        return self.email or self.phone
 
 
 class Crontab(db.Model):
@@ -65,6 +66,12 @@ class Crontab(db.Model):
     day_of_week = db.Column(db.Integer)
     hour = db.Column(db.Integer)
     minute = db.Column(db.Integer)
+
+    @sqlalchemy.ext.hybrid.hybrid_property
+    def day_label(self):
+        day_names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
+                     'Friday', 'Saturday']
+        return day_names[self.day_of_week]
 
 
 class Action(db.Model):

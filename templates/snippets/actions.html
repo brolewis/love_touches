@@ -1,0 +1,25 @@
+<h1 class="signup-text">Step Two: Select Your Actions</h1>
+<p>Next, pick some actions</p>
+<form method="post" role="form" class="form-horizontal" action="{{ url_for('step_two') }}">
+    <input type="hidden" name="method_name" value="{{ method_name }}" />
+    {% for group in result %}
+    <div class="row"><h3 class="signup-text">{{ group }}</h3></div>
+    <div class="row">
+        {% for key in result[group] %}
+        <div class="col-lg-4" style="margin-bottom: 1em;" data-toggle="buttons">
+            <label class="btn btn-default btn-block{% if key in actions %} active{% endif %}">
+                <input type="checkbox" name="action" value="{{ key }}"{% if key in actions %} checked="checked"{% endif %}>{{ result[group][key] }}
+            </label>
+        </div>
+        {% endfor %}
+    {% if loop.index is divisibleby 3 %}
+    </div>
+    <div class="row">
+    {% endif %}
+    </div>
+        {% endfor %}
+    <div class="page-scroll">
+        <button name="submit" type="submit" class="btn btn-circle btn-circle-right">
+            <i class="fa fa-angle-double-right animated"></i>
+        </button>
+    </div>

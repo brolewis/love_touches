@@ -330,6 +330,13 @@ a:focus {
     transition: all .3s ease-in-out;
 }
 
+.btn:hover,
+.btn:focus {
+    color: #28c3ab;
+    outline: 0;
+    background-color: rgba(255,255,255,.2);
+}
+
 .btn-default {
     border: 1px solid #28c3ab;
     color: #28c3ab;
@@ -446,4 +453,12 @@ input[type="text"], input[type="number"] {
     font-size:14px;
     line-height:1.42857143;
     border-radius:4px;
+}
+
+.modal-content {
+    background-color: #7A7A7A;
+}
+
+.modal-header, .modal-footer {
+    background-color: #5A5A5A;
 }

@@ -17,47 +17,41 @@ def index():
 @main.app.route('/step_one', methods=['GET', 'POST'])
 def step_one():
     profile_form = forms.ProfileForm()
-    user = None
-    if flask.request.method == 'POST' and profile_form.validate_on_submit():
+    previous = False
+    if profile_form.validate_on_submit():
         query = models.User.query
-        phone_number = profile_form.data['phone_number']
-        if phone_number:
-            user = query.filter_by(phone_number=phone_number).first()
-        if profile_form.data['email'] and not user:
-            user = query.filter_by(email=profile_form.data['email']).first()
-        if user and main.app.debug:
-            flask.session['user'] = user.id
-            return flask.redirect(flask.url_for('step_two'))
-        if not user:
-            user = models.User()
-            profile_form.populate_obj(user)
-            models.db.session.add(user)
-            models.db.session.commit()
-            flask.session['user'] = user.id
-            return flask.redirect(flask.url_for('step_two'))
-    return flask.render_template('step_one.html', profile_form=profile_form,
-                                 user=user)
+        if query.filter_by(phone=profile_form.data['phone']).first():
+            previous = True
+        if profile_form.data['email'] and not previous:
+            if query.filter_by(email=profile_form.data['email']).first():
+                previous = True
+        if previous and not main.app.debug:
+            message = '''Hrm. Are you sure you haven't been here before?'''
+            flask.flash(message, 'error')
+            return flask.redirect(flask.url_for('security.login'))
+        flask.session.update(profile_form.data)
+        endpoint = flask.session.get('action') or 'step_two'
+        return flask.redirect(flask.url_for(endpoint))
+    profile_form.email.data = flask.session.get('email')
+    profile_form.phone = flask.session.get('phone')
+    return flask.render_template('step_one.html', profile_form=profile_form)
 
 
 @main.app.route('/step_two', methods=['GET', 'POST'])
 def step_two():
-    if not flask.session.get('user'):
+    if not (flask.session.get('email') or flask.session.get('phone')):
         return flask.redirect(flask.url_for('step_one'))
     if flask.request.method == 'POST':
-        user = models.User.query.get(flask.session['user'])
-        name = flask.request.form.get('method_name', '')
-        actions = flask.request.form.getlist('action')
-        if actions:
-            for action_id in actions:
-                action = models.Action.query.get(action_id)
-                user.actions.append(action)
-            if name:
-                method = models.Method.query.filter_by(name=name).first()
-                user.method = method
-            models.db.session.commit()
-            return flask.redirect(flask.url_for('step_three'))
+        if flask.request.form.getlist('action'):
+            method_name = flask.request.form.get('method_name', '')
+            flask.session['method_name'] = method_name
+            actions = flask.request.form.getlist('action', type=int)
+            flask.session['actions'] = actions
+            endpoint = flask.session.get('action') or 'step_three'
+            return flask.redirect(flask.url_for(endpoint))
         else:
-            flask.flash('Uh oh. You need to pick at least one action.')
+            message = 'Uh oh. You need to pick at least one action.'
+            flask.flash(message, 'error')
     methods = models.Method.query.all()
     return flask.render_template('step_two.html', methods=methods)
 
@@ -73,26 +67,21 @@ def _get_actions():
     else:
         actions = models.Action.query.all()
         result = {'All': {x.id: x.label for x in actions}}
-    return flask.jsonify(result=result, method_name=method_name)
+    actions = flask.session.get('actions') or []
+    template = flask.render_template('snippets/actions.html', result=result,
+                                     method_name=method_name, actions=actions)
+    return flask.jsonify(template=template)
 
 
 @main.app.route('/step_three', methods=['GET', 'POST'])
 def step_three():
-    if not flask.session.get('user'):
+    if not (flask.session.get('email') or flask.session.get('phone')):
         return flask.redirect(flask.url_for('step_one'))
+    if not flask.session.get('actions'):
+        return flask.redirect(flask.url_for('step_two'))
     schedule_form = forms.ScheduleForm()
-    if flask.request.method == 'POST' and schedule_form.validate_on_submit():
-        user = models.User.query.get(flask.session['user'])
-        hour = schedule_form.data['hour']
-        minute = schedule_form.data['minute']
-        for day_of_week in schedule_form.data['days_of_week']:
-            crontab = models.Crontab.query.filter_by(day_of_week=day_of_week,
-                                                     hour=hour, minute=minute)
-            if not crontab.first():
-                crontab = models.Crontab(day_of_week=day_of_week, hour=hour,
-                                         minute=minute)
-                user.schedule.append(crontab)
-        models.db.session.commit()
+    if schedule_form.validate_on_submit():
+        flask.session.update(schedule_form.data)
         return flask.redirect(flask.url_for('confirm'))
     return flask.render_template('step_three.html',
                                  schedule_form=schedule_form)
@@ -101,19 +90,57 @@ def step_three():
 @main.app.route('/confirm')
 @main.app.route('/confirm/<action>')
 def confirm(action=None):
-    if not flask.session.get('user'):
+    if not (flask.session.get('email') or flask.session.get('phone')):
         return flask.redirect(flask.url_for('step_one'))
-    user = models.User.query.get(flask.session['user'])
+    if not flask.session.get('actions'):
+        return flask.redirect(flask.url_for('step_two'))
+    flask.session['action'] = 'confirm'
+    actions = [models.Action.query.get(x) for x in flask.session['actions']]
+    days_dict = dict(forms.weekday_choices)
+    days_of_week = flask.session['days_of_week']
+    if len(days_of_week) == 1:
+        days_label = days_dict[days_of_week[0]]
+    elif len(days_of_week) == 2:
+        days_label = ' and '.join(days_dict[x] for x in days_of_week)
+    else:
+        days_label = ', '.join(days_dict[x] for x in days_of_week[:-1])
+        days_label += ', and {}'.format(days_dict[days_of_week[-1]])
     if action == 'submit':
+        user = None
+        query = models.User.query
+        if flask.session.get('phone'):
+            user = query.filter_by(phone=flask.session['phone']).first()
+        if flask.session.get('email') and not user:
+            user = query.filter_by(email=flask.session['email']).first()
+        if not user:
+            user = models.User()
+        user.email = flask.session['email']
+        user.phone = flask.session['phone']
+        for action_id in flask.session['actions']:
+            action = models.Action.query.get(action_id)
+            user.actions.append(action)
+        name = flask.session.get('method_name')
+        if name:
+            method = models.Method.query.filter_by(name=name).first()
+            user.method = method
+        for day_of_week in days_of_week:
+            crontab = models.Crontab(day_of_week=day_of_week,
+                                     hour=flask.session['hour'],
+                                     minute=flask.session['minute'])
+            user.schedule.append(crontab)
+        models.db.session.add(user)
+        models.db.session.commit()
         if user.email:
             confirmable = flask.ext.security.confirmable
             link = confirmable.generate_confirmation_link(user)[0]
-            message = 'Thank you. Confirmation instructions have been sent.'
-            flask.flash(message, 'success')
+            message = 'Email confirmation instructions have been sent.'
+            flask.flash(message)
             flask.ext.security.utils.send_mail('Welcome', user.email,
                                                'welcome', user=user,
                                                confirmation_link=link)
-    return flask.render_template('confirm.html', user=user)
+            return flask.redirect(flask.url_for('index'))
+    return flask.render_template('confirm.html', actions=actions,
+                                 days_label=days_label)
 
 
 @main.app.route('/cancel')

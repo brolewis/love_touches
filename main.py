@@ -5,6 +5,7 @@ import os
 import flask
 import flask_bootstrap
 import flask_debugtoolbar
+import flask_mail
 import flask_sqlalchemy
 import flask.ext.migrate
 
@@ -21,9 +22,12 @@ migrate = flask.ext.migrate.Migrate(app, db)
 flask_bootstrap.Bootstrap(app)
 # Flask-Security
 import models
+app.config['SECURITY_EMAIL_SENDER'] = 'info@love-touches.org'
 app.config['SECURITY_PASSWORD_HASH'] = 'bcrypt'
-app.config['SECURITY_PASSWORD_SALT'] = 'Fa_vX`u`>W52|:+6NFCV_-f+sU#BdUGC:s+!*n'
-app.config['SECURITY_REMEMBER_SALT'] = 'sCZ;2Hd$n~4;}8<2iG3dqgkr~=HQz b7j-yK@,'
+pw_salt = 'Fa_vX`u`>W52|:+6NFCV_-f+sU#BdUGC:s+!*n'
+app.config['SECURITY_PASSWORD_SALT'] = os.getenv('PASSWORD_SALT', pw_salt)
+store_salt = 'sCZ;2Hd$n~4;}8<2iG3dqgkr~=HQz b7j-yK@,'
+app.config['SECURITY_REMEMBER_SALT'] = os.getenv('REMEMBER_SALT', store_salt)
 app.config['SECURITY_TRACKABLE'] = True
 app.config['SECURITY_CONFIRMABLE'] = True
 app.config['SECURITY_CONFIRM_URL'] = '/confirm_email'
@@ -34,6 +38,11 @@ app.security = flask.ext.security.Security(app, user_datastore)
 # Debug Toolbar
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 flask_debugtoolbar.DebugToolbarExtension(app)
+# Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.postmarkapp.com'
+app.config['MAIL_USERNAME'] = 'a032c02e-a437-472f-b666-6a1dd8db40fe'
+app.config['MAIL_PASSWORD'] = 'a032c02e-a437-472f-b666-6a1dd8db40fe'
+flask_mail.Mail(app)
 
 
 # Local

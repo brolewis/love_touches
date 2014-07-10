@@ -4,17 +4,21 @@
 {% block content %}
     <div class="signup-section">
         <div class="signup-body">
-            {% if user %}
-            <div class="container">
+            {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+            {% for category, m in messages %}
+            <div class="container" id="messages">
                 <div class="row">
                     <div class="col-md-8 col-md-offset-2">
-                        <div class="alert alert-error">
-                            Hrm. Are you sure you haven't been here before? Maybe you should try to <a class="alert-link" href="#">Login</a> or <a class="alert-link" href="#">create an account</a>.
+                        <div class="alert alert-{{ category }}">
+                            {{ m|safe }}
                         </div>
                     </div>
                 </div>
             </div>
+            {% endfor %}
             {% endif %}
+            {% endwith %}
             <div class="container">
                 <div class="row">
                     <div class="col-md-8 col-md-offset-2">
