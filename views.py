@@ -138,7 +138,8 @@ def confirm(action=None):
             flask.ext.security.utils.send_mail('Welcome', user.email,
                                                'welcome', user=user,
                                                confirmation_link=link)
-            return flask.redirect(flask.url_for('index'))
+        flask.session.clear()
+        return flask.redirect(flask.url_for('index'))
     return flask.render_template('confirm.html', actions=actions,
                                  days_label=days_label)
 
