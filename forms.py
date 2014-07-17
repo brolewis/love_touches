@@ -2,10 +2,13 @@
 import flask
 import flask.ext.security as security
 import flask.ext.wtf
+import phonenumbers
+import pytz
 import wtforms
 import wtforms.ext.sqlalchemy.fields
 # Local
 import main
+import utils
 
 
 def simple_field_filter(field):
@@ -16,8 +19,25 @@ main.app.jinja_env.filters['simple_field_filter'] = simple_field_filter
 
 
 class ProfileForm(flask.ext.wtf.Form):
-    phone = wtforms.TextField(label='Phone Number')
-    email = wtforms.TextField(validators=[wtforms.validators.Email()])
+    phone = wtforms.TextField(label='Mobile Number', description='For SMS')
+    country_code = wtforms.TextField(default='1')
+    email = wtforms.TextField(validators=[wtforms.validators.Email(),
+                                          wtforms.validators.Optional()])
+
+    def __init__(self, *args, **kwargs):
+        super(ProfileForm, self).__init__(*args, **kwargs)
+
+    def validate(self):
+        if not super(ProfileForm, self).validate():
+            return False
+        try:
+            utils.format_phone(self.country_code.data, self.phone.data)
+        except phonenumbers.NumberParseException:
+            message = "The phone number doesn't appear to be valid..."
+            self.phone.errors.append(message)
+            return False
+        else:
+            return True
 
 
 hour_validator = wtforms.validators.NumberRange(min=1, max=12)
@@ -25,6 +45,8 @@ minute_validator = wtforms.validators.NumberRange(min=0, max=59)
 weekday_choices = [(0, 'Sunday'), (1, 'Monday'), (2, 'Tuesday'),
                    (3, 'Wednesday'), (4, 'Thursday'), (5, 'Friday'),
                    (6, 'Saturday')]
+timezone_choices = zip(pytz.common_timezones, pytz.common_timezones)
+timezone_choices.insert(0, ('', ''))
 
 
 class ScheduleForm(flask.ext.wtf.Form):
@@ -36,6 +58,7 @@ class ScheduleForm(flask.ext.wtf.Form):
     minute = wtforms.IntegerField(validators=[minute_validator], default='00')
     am_pm = wtforms.RadioField('Time of Day',
                                choices=[('am', 'am'), ('pm', 'pm')])
+    timezone = wtforms.SelectField('Time Zone', choices=timezone_choices)
 
 
 class PasswordChangeForm(flask.ext.wtf.Form):
@@ -47,7 +70,7 @@ class PasswordChangeForm(flask.ext.wtf.Form):
 
 
 class LoginForm(security.forms.Form, security.forms.NextFormMixin):
-    email = wtforms.TextField('Email Address')
+    user_id = wtforms.TextField('Email Address / Phone Number')
     password = wtforms.PasswordField('Password')
     remember = wtforms.BooleanField('Remember Me')
     offset = wtforms.HiddenField()
@@ -57,7 +80,7 @@ class LoginForm(security.forms.Form, security.forms.NextFormMixin):
         super(LoginForm, self).__init__(*args, **kwargs)
 
     def validate(self):
-        email = self.email.data.strip()
+        user_id = self.user_id.data.strip()
         password = self.password.data
         try:
             flask.session['offset'] = int(self.offset.data)
@@ -67,8 +90,8 @@ class LoginForm(security.forms.Form, security.forms.NextFormMixin):
         if not super(LoginForm, self).validate():
             return False
 
-        if email == '':
-            message = security.utils.get_message('EMAIL_NOT_PROVIDED')[0]
+        if user_id == '':
+            message = 'Please enter either an email address or phone number.'
             self.email.errors.append(message)
             return False
 
@@ -77,7 +100,7 @@ class LoginForm(security.forms.Form, security.forms.NextFormMixin):
             self.password.errors.append(message)
             return False
 
-        emails = main.user_datastore.user_model.email.ilike(email)
+        emails = main.user_datastore.user_model.email.ilike('lewis')
         self.user = main.user_datastore.user_model.query.filter(emails).first()
 
         if self.user is None:

@@ -63,7 +63,7 @@ p {
 
 .signup-text {
     font-family: 'Yanone Kaffeesatz', sans-serif;
-    text-transform:none;
+    text-transform: none;
 }
 
 @media(min-width:767px) {
@@ -388,11 +388,11 @@ body {
 }
 
 .flip .card.flipped {
-    transform:rotatey(-180deg);
-    -ms-transform:rotatey(-180deg); /* IE 9 */
-    -moz-transform:rotatey(-180deg); /* Firefox */
-    -webkit-transform:rotatey(-180deg); /* Safari and Chrome */
-    -o-transform:rotatey(-180deg); /* Opera */
+    transform: rotatey(-180deg);
+    -ms-transform: rotatey(-180deg); /* IE 9 */
+    -moz-transform: rotatey(-180deg); /* Firefox */
+    -webkit-transform: rotatey(-180deg); /* Safari and Chrome */
+    -o-transform: rotatey(-180deg); /* Opera */
 }
 
 .flip .card {
@@ -424,11 +424,11 @@ body {
 
 .flip .card .back {
     line-height: normal;
-    transform:rotatey(-180deg);
-    -ms-transform:rotatey(-180deg); /* IE 9 */
-    -moz-transform:rotatey(-180deg); /* Firefox */
-    -webkit-transform:rotatey(-180deg); /* Safari and Chrome */
-    -o-transform:rotatey(-180deg); /* Opera */
+    transform: rotatey(-180deg);
+    -ms-transform: rotatey(-180deg); /* IE 9 */
+    -moz-transform: rotatey(-180deg); /* Firefox */
+    -webkit-transform: rotatey(-180deg); /* Safari and Chrome */
+    -o-transform: rotatey(-180deg); /* Opera */
 }
 
 .alert-error {
@@ -450,9 +450,9 @@ input[type="text"], input[type="number"], input[type="password"] {
     color: #28c3ab;
     background-color: transparent;
     padding: 6px 12px;
-    font-size:14px;
-    line-height:1.42857143;
-    border-radius:4px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    border-radius: 4px;
 }
 
 .modal-content {
@@ -461,4 +461,19 @@ input[type="text"], input[type="number"], input[type="password"] {
 
 .modal-header, .modal-footer {
     background-color: #5A5A5A;
+}
+
+select {
+    border: 1px solid #28c3ab;
+    color: #28c3ab;
+    background-color: transparent;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    border-radius: 4px;
+    height: 34px;
+}
+
+.help-error {
+    color: #B84D45 !important;
 }

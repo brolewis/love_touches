@@ -7,6 +7,7 @@ import flask.ext.security.utils
 import forms
 import main
 import models
+import utils
 
 
 @main.app.route('/')
@@ -32,8 +33,9 @@ def step_one():
         flask.session.update(profile_form.data)
         endpoint = flask.session.get('action') or 'step_two'
         return flask.redirect(flask.url_for(endpoint))
+    profile_form.phone.data = flask.session.get('phone')
+    profile_form.country_code.data = flask.session.get('country_code')
     profile_form.email.data = flask.session.get('email')
-    profile_form.phone = flask.session.get('phone')
     return flask.render_template('step_one.html', profile_form=profile_form)
 
 
@@ -87,6 +89,23 @@ def step_three():
                                  schedule_form=schedule_form)
 
 
+def _days_label():
+    days_of_week = flask.session['days_of_week']
+    days_dict = dict(forms.weekday_choices)
+    if len(days_of_week) == 1:
+        days_label = days_dict[days_of_week[0]]
+    elif len(days_of_week) == 2:
+        days_label = ' and '.join(days_dict[x] for x in days_of_week)
+    elif len(days_of_week) == 5 and {1, 2, 3, 4, 5} == set(days_of_week):
+        days_label = 'Weekdays'
+    elif len(days_of_week) == 7:
+        days_label = 'Every day'
+    else:
+        days_label = ', '.join(days_dict[x] for x in days_of_week[:-1])
+        days_label += ', and {}'.format(days_dict[days_of_week[-1]])
+    return days_label
+
+
 @main.app.route('/confirm')
 @main.app.route('/confirm/<action>')
 def confirm(action=None):
@@ -96,26 +115,22 @@ def confirm(action=None):
         return flask.redirect(flask.url_for('step_two'))
     flask.session['action'] = 'confirm'
     actions = [models.Action.query.get(x) for x in flask.session['actions']]
-    days_dict = dict(forms.weekday_choices)
-    days_of_week = flask.session['days_of_week']
-    if len(days_of_week) == 1:
-        days_label = days_dict[days_of_week[0]]
-    elif len(days_of_week) == 2:
-        days_label = ' and '.join(days_dict[x] for x in days_of_week)
-    else:
-        days_label = ', '.join(days_dict[x] for x in days_of_week[:-1])
-        days_label += ', and {}'.format(days_dict[days_of_week[-1]])
     if action == 'submit':
         user = None
         query = models.User.query
-        if flask.session.get('phone'):
-            user = query.filter_by(phone=flask.session['phone']).first()
-        if flask.session.get('email') and not user:
-            user = query.filter_by(email=flask.session['email']).first()
+        country_code, phone = utils.format_phone(flask.session, split=True)
+        email = flask.session.get('email', '')
+        if country_code and phone:
+            user = query.filter_by(country_code=country_code, phone=phone)
+            user = user.first()
+        if email and not user:
+            user = query.filter_by(email=email).first()
         if not user:
             user = models.User()
-        user.email = flask.session['email']
-        user.phone = flask.session['phone']
+        user.country_code = country_code
+        user.phone = phone
+        user.email = email
+        user.timezone = flask.session['timezone']
         for action_id in flask.session['actions']:
             action = models.Action.query.get(action_id)
             user.actions.append(action)
@@ -123,25 +138,29 @@ def confirm(action=None):
         if name:
             method = models.Method.query.filter_by(name=name).first()
             user.method = method
-        for day_of_week in days_of_week:
+        for day_of_week in flask.session['days_of_week']:
             crontab = models.Crontab(day_of_week=day_of_week,
                                      hour=flask.session['hour'],
                                      minute=flask.session['minute'])
             user.schedule.append(crontab)
         models.db.session.add(user)
         models.db.session.commit()
+        if user.phone:
+            flask.flash('Mobile confirmation instructions have been sent.')
         if user.email:
             confirmable = flask.ext.security.confirmable
             link = confirmable.generate_confirmation_link(user)[0]
-            message = 'Email confirmation instructions have been sent.'
-            flask.flash(message)
-            flask.ext.security.utils.send_mail('Welcome', user.email,
+            flask.flash('Email confirmation instructions have been sent.')
+            subject = 'Welcome to Love Touches!'
+            flask.ext.security.utils.send_mail(subject, user.email,
                                                'welcome', user=user,
                                                confirmation_link=link)
-        flask.session.clear()
+        for key in (x for x in flask.session.keys() if not x.startswith('_')):
+            del flask.session[key]
         return flask.redirect(flask.url_for('index'))
-    return flask.render_template('confirm.html', actions=actions,
-                                 days_label=days_label)
+    phone = utils.format_phone(flask.session)
+    return flask.render_template('confirm.html', actions=actions, phone=phone,
+                                 days_label=_days_label())
 
 
 @main.app.route('/cancel')

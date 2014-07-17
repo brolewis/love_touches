@@ -40,8 +40,10 @@ class Role(db.Model, flask.ext.security.RoleMixin):
 class User(db.Model, flask.ext.security.UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     password = db.Column(db.String)
+    timezone = db.Column(db.String)
     active = db.Column(db.Boolean)
     email = db.Column(db.String, unique=True)
+    country_code = db.Column(db.String)
     phone = db.Column(db.String)
     confirmed_at = db.Column(db.DateTime)
     last_login_at = db.Column(db.DateTime)

@@ -26,7 +26,7 @@
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
                     <i class="fa fa-bars"></i>
                 </button>
-                <a class="navbar-brand" href="{{ url_for('index') }}#page-top"><span class="fa fa-heart-o"></span>Love Touches</a>
+                <a class="navbar-brand" href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#page-top"><span class="fa fa-heart-o"></span>Love Touches</a>
             </div>
 
             <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
@@ -34,20 +34,20 @@
                     {% if 'step' not in request.path %}
                     <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
                     <li class="hidden">
-                        <a href="#page-top"></a>
+                        <a href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#page-top"></a>
                     </li>
                     {% endif %}
                     <li class="page-scroll">
-                        <a href="#details">About</a>
+                    <a href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#details">About</a>
                     </li>
                     <li class="page-scroll">
-                        <a href="#steps">Steps</a>
+                        <a href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#steps">Steps</a>
                     </li>
                     <li class="page-scroll{% if 'step' in request.path %} active{% endif %}">
                         <a href="{{ url_for('step_one') }}">Get Started</a>
                     </li>
                     <li class="page-scroll">
-                        <a href="#">Login</a>
+                        <a href="{{ url_for('security.login') }}">Login</a>
                     </li>
                 </ul>
             </div>

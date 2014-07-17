@@ -27,13 +27,27 @@
                         <form method="post" role="form" class="form-horizontal" action="{{ url_for('step_one') }}">
                             {{ profile_form.hidden_tag() }}
                             {% for field in profile_form %}
-                            {% if field|simple_field_filter %}
+                            {% if field|simple_field_filter and field.name != 'country_code' %}
                             <div class="form-group">
                                 {{ field.label(class='col-sm-3 col-lg-offset-2 control-label') }}
                                 <div class="col-sm-5">
+                                    {% if field.name == 'phone' %}
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                        {{ profile_form.country_code(maxlength='2', class='form-control col-xs-2') }}
+                                        </div>
+                                        <div class="col-xs-9">
+                                        {{ field(class='form-control col-xs-9') }}
+                                        </div>
+                                    </div>
+                                    {% else %}
                                     {{ field(class='form-control') }}
+                                    {% endif %}
+                                    {% if field.description %}
+                                        <span class="help-block">{{ field.description|safe }}</span>
+                                    {% endif %}
                                     {% if field.errors %}
-                                    <span class="help-inline">
+                                    <span class="help-block help-error">
                                         {{ field.errors|join('<br />')|safe }}
                                     </span>
                                     {% endif %}
