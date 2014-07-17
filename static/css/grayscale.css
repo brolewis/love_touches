@@ -445,7 +445,7 @@ body {
   color: #ffffff;
 }
 
-input[type="text"], input[type="number"] {
+input[type="text"], input[type="number"], input[type="password"] {
     border: 1px solid #28c3ab;
     color: #28c3ab;
     background-color: transparent;
