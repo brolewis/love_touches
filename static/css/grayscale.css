@@ -431,21 +431,28 @@ body {
     -o-transform: rotatey(-180deg); /* Opera */
 }
 
+.alert-message {
+    color: #CCCCCC;
+    background-color: #969696;
+    border-color: #222222;
+}
 .alert-error {
-  color: #fbdedb;
-  background-color: #b84d45;
-  border-color: #a5423b;
+    color: #fbdedb;
+    background-color: #b84d45;
+    border-color: #a5423b;
 }
 
 .alert-error hr {
-  border-top-color: #e4b9c0;
+    border-top-color: #e4b9c0;
 }
 
 .alert-error .alert-link {
-  color: #ffffff;
+    color: #ffffff;
 }
 
-input[type="text"], input[type="number"], input[type="password"] {
+input[type="text"],
+input[type="number"],
+input[type="password"] {
     border: 1px solid #28c3ab;
     color: #28c3ab;
     background-color: transparent;
@@ -459,7 +466,8 @@ input[type="text"], input[type="number"], input[type="password"] {
     background-color: #7A7A7A;
 }
 
-.modal-header, .modal-footer {
+.modal-header,
+.modal-footer {
     background-color: #5A5A5A;
 }
 
@@ -476,4 +484,10 @@ select {
 
 .help-error {
     color: #B84D45 !important;
+}
+
+.input-group-addon {
+    background-color: #7A7A7A;
+    border: 1px solid #28c3ab;
+    color: #FFFFFF;
 }

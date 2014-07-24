@@ -3,6 +3,7 @@ import flask
 import flask.ext.security
 import flask.ext.security.confirmable
 import flask.ext.security.utils
+import pyotp
 # Local
 import forms
 import main
@@ -12,6 +13,9 @@ import utils
 
 @main.app.route('/')
 def index():
+    for key in ('_email_sent', '_phone_sent'):
+        if key in flask.session:
+            del flask.session[key]
     return flask.render_template('index.html')
 
 
@@ -33,9 +37,9 @@ def step_one():
         flask.session.update(profile_form.data)
         endpoint = flask.session.get('action') or 'step_two'
         return flask.redirect(flask.url_for(endpoint))
-    profile_form.phone.data = flask.session.get('phone')
-    profile_form.country_code.data = flask.session.get('country_code')
-    profile_form.email.data = flask.session.get('email')
+    keys = ('phone', 'country_code', 'email')
+    for key in (x for x in keys if flask.session.get(x)):
+        getattr(profile_form, key).data = flask.session[key]
     return flask.render_template('step_one.html', profile_form=profile_form)
 
 
@@ -113,21 +117,20 @@ def confirm(action=None):
         return flask.redirect(flask.url_for('step_one'))
     if not flask.session.get('actions'):
         return flask.redirect(flask.url_for('step_two'))
+    phone = utils.format_phone(flask.session)
     flask.session['action'] = 'confirm'
     actions = [models.Action.query.get(x) for x in flask.session['actions']]
     if action == 'submit':
         user = None
         query = models.User.query
-        country_code, phone = utils.format_phone(flask.session, split=True)
         email = flask.session.get('email', '')
-        if country_code and phone:
-            user = query.filter_by(country_code=country_code, phone=phone)
+        if phone:
+            user = query.filter_by(phone=phone)
             user = user.first()
         if email and not user:
             user = query.filter_by(email=email).first()
         if not user:
             user = models.User()
-        user.country_code = country_code
         user.phone = phone
         user.email = email
         user.timezone = flask.session['timezone']
@@ -143,11 +146,11 @@ def confirm(action=None):
                                      hour=flask.session['hour'],
                                      minute=flask.session['minute'])
             user.schedule.append(crontab)
+        user.secret = pyotp.random_base32()
         models.db.session.add(user)
         models.db.session.commit()
-        if user.phone:
-            flask.flash('Mobile confirmation instructions have been sent.')
-        if user.email:
+        redirect = 'index'
+        if user.email and not flask.session.get('_email_sent'):
             confirmable = flask.ext.security.confirmable
             link = confirmable.generate_confirmation_link(user)[0]
             flask.flash('Email confirmation instructions have been sent.')
@@ -155,19 +158,43 @@ def confirm(action=None):
             flask.ext.security.utils.send_mail(subject, user.email,
                                                'welcome', user=user,
                                                confirmation_link=link)
+            flask.session['_email_sent'] = True
+            redirect = 'index'
+        if user.phone and not flask.session.get('_phone_sent'):
+            utils.send_code(user)
+            flask.session['_user_id'] = user.id
+            redirect = 'verify_phone'
+            flask.session['_phone_sent'] = True
         for key in (x for x in flask.session.keys() if not x.startswith('_')):
             del flask.session[key]
-        return flask.redirect(flask.url_for('index'))
-    phone = utils.format_phone(flask.session)
+        return flask.redirect(flask.url_for(redirect))
     return flask.render_template('confirm.html', actions=actions, phone=phone,
                                  days_label=_days_label())
 
 
+@main.app.route('/verify_phone', methods=['GET', 'POST'])
+@main.app.route('/verify_phone/<action>', methods=['GET', 'POST'])
+def verify_phone(action=None):
+    user = models.User.query.get(flask.session['_user_id'])
+    if action == 're-send':
+        utils.send_code(user)
+    verify_form = forms.PhoneVerifyForm()
+    if verify_form.validate_on_submit():
+        if verify_form.data['code'] == pyotp.HOTP(user.secret).at(0):
+            user.phone_confirmed_at = datetime.datetime.now()
+            models.db.session.add(user)
+            models.db.session.commit()
+            flask.flash('Mobile Number confirmed')
+            return flask.redirect(flask.url_for('index'))
+        else:
+            flask.flash('Verification code does not match.', 'error')
+    return flask.render_template('verify_phone.html', verify_form=verify_form)
+
+
 @main.app.route('/cancel')
 def cancel():
-    if flask.session.get('user'):
-        models.db.session.delete(models.User.query.get(flask.session['user']))
-        models.db.session.commit()
+    for key in (x for x in flask.session.keys() if not x.startswith('_')):
+        del flask.session[key]
 
 
 @main.app.route('/post_login')

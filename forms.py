@@ -19,8 +19,8 @@ main.app.jinja_env.filters['simple_field_filter'] = simple_field_filter
 
 
 class ProfileForm(flask.ext.wtf.Form):
-    phone = wtforms.TextField(label='Mobile Number', description='For SMS')
     country_code = wtforms.TextField(default='1')
+    phone = wtforms.TextField(label='Mobile Number')
     email = wtforms.TextField(validators=[wtforms.validators.Email(),
                                           wtforms.validators.Optional()])
 
@@ -31,7 +31,7 @@ class ProfileForm(flask.ext.wtf.Form):
         if not super(ProfileForm, self).validate():
             return False
         try:
-            utils.format_phone(self.country_code.data, self.phone.data)
+            utils.format_phone(self.data)
         except phonenumbers.NumberParseException:
             message = "The phone number doesn't appear to be valid..."
             self.phone.errors.append(message)
@@ -58,7 +58,12 @@ class ScheduleForm(flask.ext.wtf.Form):
     minute = wtforms.IntegerField(validators=[minute_validator], default='00')
     am_pm = wtforms.RadioField('Time of Day',
                                choices=[('am', 'am'), ('pm', 'pm')])
-    timezone = wtforms.SelectField('Time Zone', choices=timezone_choices)
+    timezone = wtforms.SelectField('Time Zone', choices=timezone_choices,
+                                   validators=[wtforms.validators.Required()])
+
+
+class PhoneVerifyForm(flask.ext.wtf.Form):
+    code = wtforms.IntegerField()
 
 
 class PasswordChangeForm(flask.ext.wtf.Form):
@@ -70,63 +75,63 @@ class PasswordChangeForm(flask.ext.wtf.Form):
 
 
 class LoginForm(security.forms.Form, security.forms.NextFormMixin):
-    user_id = wtforms.TextField('Email Address / Phone Number')
+    country_code = wtforms.TextField(default='1')
+    phone = wtforms.TextField(label='Mobile Number')
+    email = wtforms.TextField(validators=[wtforms.validators.Email(),
+                                          wtforms.validators.Optional()])
     password = wtforms.PasswordField('Password')
     remember = wtforms.BooleanField('Remember Me')
-    offset = wtforms.HiddenField()
     submit = wtforms.SubmitField('Login')
 
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
 
     def validate(self):
-        user_id = self.user_id.data.strip()
-        password = self.password.data
-        try:
-            flask.session['offset'] = int(self.offset.data)
-        except:
-            flask.session['offset'] = 360
-
         if not super(LoginForm, self).validate():
             return False
-
-        if user_id == '':
-            message = 'Please enter either an email address or phone number.'
+        try:
+            phone = utils.format_phone(self.data)
+        except phonenumbers.NumberParseException:
+            message = "The phone number doesn't appear to be valid."
+            self.phone.errors.append(message)
+            return False
+        email = self.email.data.strip()
+        password = self.password.data
+        if not (phone or email):
+            message = 'Please enter either an email address or mobile number.'
+            self.phone.errors.append(message)
             self.email.errors.append(message)
             return False
-
         if password.strip() == '' or password is None:
             message = security.utils.get_message('PASSWORD_NOT_PROVIDED')[0]
             self.password.errors.append(message)
             return False
-
-        emails = main.user_datastore.user_model.email.ilike('lewis')
-        self.user = main.user_datastore.user_model.query.filter(emails).first()
-
-        if self.user is None:
-            message = security.utils.get_message('USER_DOES_NOT_EXIST')[0]
+        email_filter = main.user_datastore.user_model.email.ilike(email)
+        query = main.user_datastore.user_model.query
+        user = query.filter(email_filter).first()
+        if user is None:
+            user = query.filter_by(phone=phone).first()
+        if user is None:
+            message = "There doesn't seem to be an account associated with "
+            message += 'either the provided email address or mobile number.'
+            self.phone.errors.append(message)
             self.email.errors.append(message)
             return False
-        if self.user.type == 'client':
-            success = False
-            for case in self.user.cases:
-                if password == case.token:
-                    flask.session['case_id'] = case.id
-                    success = True
-        else:
-            success = security.utils.verify_and_update_password(password,
-                                                                self.user)
-
+        if user.phone_confirmed_at is None:
+            self.phone.errors.append('Phone number requires confirmation.')
+            return False
+        if security.confirmable.requires_confirmation(user):
+            message = security.utils.get_message('CONFIRMATION_REQUIRED')[0]
+            self.email.errors.append(message)
+            return False
+        success = security.utils.verify_and_update_password(password, user)
         if not success:
             message = security.utils.get_message('INVALID_PASSWORD')[0]
             self.password.errors.append(message)
             return False
-        if security.confirmable.requires_confirmation(self.user):
-            message = security.utils.get_message('CONFIRMATION_REQUIRED')[0]
-            self.email.errors.append(message)
-            return False
-        if not self.user.is_active():
+        if not user.is_active():
             message = security.utils.get_message('DISABLED_ACCOUNT')[0]
             self.email.errors.append(message)
             return False
+        self.user = user
         return True

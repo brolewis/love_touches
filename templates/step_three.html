@@ -39,8 +39,8 @@
                             <div class="form-group">
                                 <div class="btn-group" data-toggle="buttons">
                                     {% for subfield in schedule_form.days_of_week %}
-                                    <label class="btn btn-default">
-                                        <input type="checkbox" name="{{ schedule_form.days_of_week.id }}" value="{{ subfield._value() }}">{{ subfield.label.text }}
+                                        <label class="btn btn-default{% if subfield.checked %} active{% endif %}">
+                                        <input type="checkbox" name="{{ schedule_form.days_of_week.id }}" value="{{ subfield._value() }}"{% if subfield.checked %} checked="checked"{% endif %}>{{ subfield.label.text }}
                                     </label>
                                     {% endfor %}
                                 </div>

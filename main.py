@@ -31,6 +31,8 @@ app.config['SECURITY_REMEMBER_SALT'] = os.getenv('REMEMBER_SALT', store_salt)
 app.config['SECURITY_TRACKABLE'] = True
 app.config['SECURITY_CONFIRMABLE'] = True
 app.config['SECURITY_CONFIRM_URL'] = '/confirm_email'
+app.config['SECURITY_REGISTERABLE'] = True
+app.config['SECURITY_RECOVERABLE'] = True
 app.config['SECURITY_POST_LOGIN_VIEW'] = 'post_login'
 user_datastore = flask.ext.security.SQLAlchemyUserDatastore(db, models.User,
                                                             models.Role)
