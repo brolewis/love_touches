@@ -40,7 +40,6 @@ class Role(db.Model, flask.ext.security.RoleMixin):
 class User(db.Model, flask.ext.security.UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     password = db.Column(db.String, default='')
-    timezone = db.Column(db.String)
     active = db.Column(db.Boolean)
     email = db.Column(db.String, unique=True)
     phone = db.Column(db.String)
@@ -67,8 +66,8 @@ class Crontab(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     day_of_week = db.Column(db.Integer)
-    hour = db.Column(db.Integer)
-    minute = db.Column(db.Integer)
+    time = db.Column(db.Time)
+    timezone = db.Column(db.String)
 
     @sqlalchemy.ext.hybrid.hybrid_property
     def day_label(self):

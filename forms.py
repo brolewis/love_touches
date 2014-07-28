@@ -1,6 +1,6 @@
 # Third Party
 import flask
-import flask.ext.security as security
+import flask.ext.security
 import flask.ext.wtf
 import phonenumbers
 import pytz
@@ -8,6 +8,7 @@ import wtforms
 import wtforms.ext.sqlalchemy.fields
 # Local
 import main
+import models
 import utils
 
 
@@ -74,64 +75,22 @@ class PasswordChangeForm(flask.ext.wtf.Form):
     confirm = wtforms.PasswordField('Repeat Password')
 
 
-class LoginForm(security.forms.Form, security.forms.NextFormMixin):
-    country_code = wtforms.TextField(default='1')
-    phone = wtforms.TextField(label='Mobile Number')
-    email = wtforms.TextField(validators=[wtforms.validators.Email(),
-                                          wtforms.validators.Optional()])
-    password = wtforms.PasswordField('Password')
-    remember = wtforms.BooleanField('Remember Me')
-    submit = wtforms.SubmitField('Login')
+def unique_user_email(form, field):
+    user = models.User.query.filter_by(email=field.data).first()
+    if user is not None and user.confirmed_at is not None:
+        get_message = flask.ext.security.utils.get_message
+        msg = get_message('EMAIL_ALREADY_ASSOCIATED', email=field.data)[0]
+        raise wtforms.ValidationError(msg)
 
-    def __init__(self, *args, **kwargs):
-        super(LoginForm, self).__init__(*args, **kwargs)
 
-    def validate(self):
-        if not super(LoginForm, self).validate():
-            return False
-        try:
-            phone = utils.format_phone(self.data)
-        except phonenumbers.NumberParseException:
-            message = "The phone number doesn't appear to be valid."
-            self.phone.errors.append(message)
-            return False
-        email = self.email.data.strip()
-        password = self.password.data
-        if not (phone or email):
-            message = 'Please enter either an email address or mobile number.'
-            self.phone.errors.append(message)
-            self.email.errors.append(message)
-            return False
-        if password.strip() == '' or password is None:
-            message = security.utils.get_message('PASSWORD_NOT_PROVIDED')[0]
-            self.password.errors.append(message)
-            return False
-        email_filter = main.user_datastore.user_model.email.ilike(email)
-        query = main.user_datastore.user_model.query
-        user = query.filter(email_filter).first()
-        if user is None:
-            user = query.filter_by(phone=phone).first()
-        if user is None:
-            message = "There doesn't seem to be an account associated with "
-            message += 'either the provided email address or mobile number.'
-            self.phone.errors.append(message)
-            self.email.errors.append(message)
-            return False
-        if user.phone_confirmed_at is None:
-            self.phone.errors.append('Phone number requires confirmation.')
-            return False
-        if security.confirmable.requires_confirmation(user):
-            message = security.utils.get_message('CONFIRMATION_REQUIRED')[0]
-            self.email.errors.append(message)
-            return False
-        success = security.utils.verify_and_update_password(password, user)
-        if not success:
-            message = security.utils.get_message('INVALID_PASSWORD')[0]
-            self.password.errors.append(message)
-            return False
-        if not user.is_active():
-            message = security.utils.get_message('DISABLED_ACCOUNT')[0]
-            self.email.errors.append(message)
-            return False
-        self.user = user
-        return True
+class ConfirmRegisterForm(flask.ext.wtf.Form,
+                          flask.ext.security.forms.RegisterFormMixin):
+    email = wtforms.TextField('Email', [wtforms.validators.Required(),
+                                        unique_user_email,
+                                        wtforms.validators.Email()])
+    password = wtforms.PasswordField('Password',
+                                     [wtforms.validators.Required(),
+                                      wtforms.validators.Length(6, 128)])
+    submit = wtforms.SubmitField()
+
+main.app.extensions['security'].confirm_register_form = ConfirmRegisterForm

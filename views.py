@@ -1,9 +1,13 @@
+# Standard Library
+import datetime
 # Third Party
 import flask
 import flask.ext.security
 import flask.ext.security.confirmable
 import flask.ext.security.utils
 import pyotp
+import werkzeug.datastructures
+import werkzeug.local
 # Local
 import forms
 import main
@@ -21,7 +25,14 @@ def index():
 
 @main.app.route('/step_one', methods=['GET', 'POST'])
 def step_one():
+    user = flask.ext.security.current_user
     profile_form = forms.ProfileForm()
+    if not user.is_anonymous():
+        profile_form.email.data = user.email
+        if user.phone:
+            country_code, phone = user.phone[1:].split(' ', 1)
+            profile_form.country_code.data = country_code
+            profile_form.phone.data = phone
     previous = False
     if profile_form.validate_on_submit():
         query = models.User.query
@@ -73,7 +84,9 @@ def _get_actions():
     else:
         actions = models.Action.query.all()
         result = {'All': {x.id: x.label for x in actions}}
-    actions = flask.session.get('actions') or []
+    user = flask.ext.security.current_user
+    action_ids = [x.id for x in getattr(user, 'actions', [])]
+    actions = flask.session.get('actions') or action_ids or []
     template = flask.render_template('snippets/actions.html', result=result,
                                      method_name=method_name, actions=actions)
     return flask.jsonify(template=template)
@@ -86,6 +99,13 @@ def step_three():
     if not flask.session.get('actions'):
         return flask.redirect(flask.url_for('step_two'))
     schedule_form = forms.ScheduleForm()
+    user = flask.ext.security.current_user
+    if getattr(user, 'schedule', None):
+        time = datetime.datetime.strptime(user.schedule[0].time, '%H:%M')
+        time = time.strftime('%I:%M %p').lower()
+        schedule_form.hour.data = int(time[:2])
+        schedule_form.minute.data = int(time[3:5])
+        schedule_form.am_pm.data = time[-2:]
     if schedule_form.validate_on_submit():
         flask.session.update(schedule_form.data)
         return flask.redirect(flask.url_for('confirm'))
@@ -133,7 +153,6 @@ def confirm(action=None):
             user = models.User()
         user.phone = phone
         user.email = email
-        user.timezone = flask.session['timezone']
         for action_id in flask.session['actions']:
             action = models.Action.query.get(action_id)
             user.actions.append(action)
@@ -141,16 +160,18 @@ def confirm(action=None):
         if name:
             method = models.Method.query.filter_by(name=name).first()
             user.method = method
+            time = '{hour}:{minute} {am_pm}'.format(**flask.session)
+            time = datetime.datetime.strptime(time, '%I:%M %p').time()
         for day_of_week in flask.session['days_of_week']:
-            crontab = models.Crontab(day_of_week=day_of_week,
-                                     hour=flask.session['hour'],
-                                     minute=flask.session['minute'])
+            crontab = models.Crontab(day_of_week=day_of_week, time=time,
+                                     timezone=flask.session['timezone'])
             user.schedule.append(crontab)
         user.secret = pyotp.random_base32()
         models.db.session.add(user)
         models.db.session.commit()
         redirect = 'index'
-        if user.email and not flask.session.get('_email_sent'):
+        if user.email and not flask.session.get('_email_sent') \
+                and user.confirmed_at is not None:
             confirmable = flask.ext.security.confirmable
             link = confirmable.generate_confirmation_link(user)[0]
             flask.flash('Email confirmation instructions have been sent.')
@@ -195,31 +216,109 @@ def verify_phone(action=None):
 def cancel():
     for key in (x for x in flask.session.keys() if not x.startswith('_')):
         del flask.session[key]
+    return flask.redirect(flask.url_for('index'))
+
+_security = werkzeug.local.LocalProxy(lambda: main.app.extensions['security'])
+
+_datastore = werkzeug.local.LocalProxy(lambda: _security.datastore)
+
+
+@main.app.route('/register', methods=['GET', 'POST'])
+def register():
+    '''View function which handles a registration request.'''
+    if _security.confirmable or flask.request.json:
+        form_class = _security.confirm_register_form
+    else:
+        form_class = _security.register_form
+    if flask.request.json:
+        form_data = werkzeug.datastructures.MultiDict(flask.request.json)
+    else:
+        form_data = flask.request.form
+    form = form_class(form_data)
+    if form.validate_on_submit():
+        user = register_user(**form.to_dict())
+        form.user = user
+        if not _security.confirmable or _security.login_without_confirmation:
+            flask.after_this_request(flask.ext.security.views._commit)
+            flask.ext.security.utils.login_user(user)
+        if not flask.request.json:
+            url = flask.ext.security.utils.get_post_register_redirect()
+            return flask.redirect(url)
+        return flask.ext.security.views._render_json(form,
+                                                     include_auth_token=True)
+    if flask.request.json:
+        return flask.ext.security.views._render_json(form)
+    template = flask.ext.security.utils.config_value('REGISTER_USER_TEMPLATE')
+    args = flask.ext.security.views._ctx('register')
+    return _security.render_template(template, register_user_form=form, **args)
+
+
+def register_user(**kwargs):
+    '''Handle user registration requests.'''
+    security = flask.ext.security
+    password = security.utils.encrypt_password(kwargs['password'])
+    user = models.User.query.filter_by(email=kwargs['email']).first()
+    if not user:
+        user = models.User(email=kwargs['email'])
+    user.active = True
+    user.password = password
+    models.db.session.commit()
+    link, token = security.confirmable.generate_confirmation_link(user)
+    msg = security.utils.get_message('CONFIRM_REGISTRATION', email=user.email)
+    security.utils.do_flash(*msg)
+    subject = 'Welcome to Love Touches'
+    security.utils.send_mail(subject, user.email, 'welcome', user=user,
+                             confirmation_link=link)
+    return user
 
 
 @main.app.route('/post_login')
 @flask.ext.security.login_required
 def post_login():
     try:
-        return flask.redirect(flask.url_for('admin.index'))
+        return flask.redirect(flask.url_for('profile'))
     except:
         flask.flash('An error occurred logging in', 'error')
         return flask.redirect(flask.url_for('security.logout'))
+
+
+@main.app.route('/post_register')
+def post_register():
+    return flask.redirect(flask.url_for('security.login'))
 
 
 @main.app.route('/profile')
 @main.app.route('/profile/<action>', methods=['GET', 'POST'])
 @flask.ext.security.login_required
 def profile(action=None):
+    print action
     user = flask.ext.security.current_user
-    profile_form = forms.ProfileForm(obj=user)
-    password_form = forms.PasswordChangeForm()
+    profile_form = forms.ProfileForm()
+    password_form = flask.ext.security.forms.ChangePasswordForm()
     if action == 'profile' and profile_form.validate_on_submit():
-        profile_form.populate_obj(user)
+        redirect = 'profile'
+        email = profile_form.data.email
+        if user.email != email:
+            # TODO: This probably should pull a different form
+            user.email = email
+            confirmable = flask.ext.security.confirmable
+            link = confirmable.generate_confirmation_link(user)[0]
+            flask.flash('Email confirmation instructions have been sent.')
+            subject = 'Welcome to Love Touches!'
+            flask.ext.security.utils.send_mail(subject, user.email,
+                                               'welcome', user=user,
+                                               confirmation_link=link)
+            flask.session['_email_sent'] = True
+        phone = utils.format_phone(profile_form.data)
+        if user.phone != phone:
+            user.phone = phone
+            utils.send_code(user)
+            flask.session['_user_id'] = user.id
+            redirect = 'verify_phone'
         models.db.session.add(user)
         models.db.session.commit()
         flask.flash('Profile updated', 'success')
-        return flask.redirect(flask.url_for('profile'))
+        return flask.redirect(flask.url_for(redirect))
     if action == 'password' and password_form.validate_on_submit():
         password = password_form.new_password.data
         user.password = flask.ext.security.utils.encrypt_password(password)
@@ -227,8 +326,10 @@ def profile(action=None):
         models.db.session.commit()
         flask.flash('Password changed successfully', 'success')
         return flask.redirect(flask.url_for('profile'))
+    if user.phone:
+        country_code, phone = user.phone[1:].split(' ', 1)
+        profile_form.country_code.data = country_code
+        profile_form.phone.data = phone
+    profile_form.email.data = user.email
     return flask.render_template('profile.html', profile_form=profile_form,
                                  password_form=password_form)
-
-
-main.app.extensions['security'].login_form = forms.LoginForm

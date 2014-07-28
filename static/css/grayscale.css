@@ -1,7 +1,8 @@
 body {
     width: 100%;
     height: 100%;
-    font-family: Lora,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: 'Yanone Kaffeesatz', sans-serif;
+    font-size: 20px;
     color: #fff;
     background-color: #000;
 }
@@ -19,7 +20,7 @@ h5,
 h6 {
     margin: 0 0 35px;
     text-transform: uppercase;
-    font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 700;
     letter-spacing: 1px;
 }
@@ -115,6 +116,7 @@ a:focus {
     -webkit-transition: background .3s ease-in-out;
     -moz-transition: background .3s ease-in-out;
     transition: background .3s ease-in-out;
+    font-size: 14px;
 }
 
 .navbar-custom .nav li a:hover,
@@ -313,7 +315,7 @@ a:focus {
 }
 
 .footer p {
-    font-size: 14px;
+    font-size: 16px;
     margin: 0px;
 }
 
@@ -453,6 +455,8 @@ body {
 input[type="text"],
 input[type="number"],
 input[type="password"] {
+    font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    /*font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;*/
     border: 1px solid #28c3ab;
     color: #28c3ab;
     background-color: transparent;
@@ -472,6 +476,7 @@ input[type="password"] {
 }
 
 select {
+    font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
     border: 1px solid #28c3ab;
     color: #28c3ab;
     background-color: transparent;
@@ -482,7 +487,7 @@ select {
     height: 34px;
 }
 
-.help-error {
+.help-error, .has-error input {
     color: #B84D45 !important;
 }
 
@@ -490,4 +495,57 @@ select {
     background-color: #7A7A7A;
     border: 1px solid #28c3ab;
     color: #FFFFFF;
+}
+
+.form-horizontal .control-label {
+    padding-top: 3px;
+    letter-spacing: 1px;
+}
+
+.sidebar {
+  display: none;
+}
+@media (min-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 51px;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    display: block;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
+.nav-sidebar {
+  margin-right: -21px; /* 20px padding + 1px border */
+  margin-bottom: 20px;
+  margin-left: -20px;
+}
+
+.nav-sidebar > li > a {
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+.nav-sidebar > .active > a,
+.nav-sidebar > .active > a:hover,
+.nav-sidebar > .active > a:focus {
+  color: #fff;
+  background-color: #428bca;
+}
+
+.main {
+  padding: 20px;
+}
+@media (min-width: 768px) {
+  .main {
+    padding-right: 40px;
+    padding-left: 40px;
+  }
+}
+.main .page-header {
+  margin-top: 0;
 }
