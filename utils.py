@@ -1,6 +1,7 @@
 # Standard Library
 import os
 # Third Party
+import flask
 import phonenumbers
 import pyotp
 import telapi.rest
@@ -31,3 +32,17 @@ def send_code(user):
     from_number = account.incoming_phone_numbers[0].phone_number
     account.sms_messages.create(to_number=user.phone, from_number=from_number,
                                 body=message)
+
+
+def _get_actions_for_method(method_name, actions, link, signup=False):
+    if method_name:
+        result = {}
+        method = models.Method.query.filter_by(name=method_name).first()
+        for group in method.groups:
+            result[group.name] = {x.id: x.label for x in group.actions}
+    else:
+        actions = models.Action.query.all()
+        result = {'All': {x.id: x.label for x in actions}}
+    return flask.render_template('snippets/actions.html', result=result,
+                                 method_name=method_name, actions=actions,
+                                 link=link, signup=signup)
