@@ -1,47 +1,41 @@
-{% extends "base.html" %}
-{% block title %}Love Touches - Confirm{% endblock %}
+{% extends "signup_base.html" %}
+{% block sub_title %}Confirm{% endblock %}
 
-{% block content %}
-    <div class="signup-section">
-        <div class="signup-body" style="padding-top: 100px">
-            <div class="container">
-                <div class="row">
-                    <h1 class="signup-text">Confirm Your Choices</h1>
-                    {% if session.email %}
-                    <p>
-                        <span class="fa fa-envelope-o fa-fw"></span> {{ session.email }}
-                        <a href="{{ url_for('step_one') }}" class="btn btn-lg">Edit</span></a>
-                    </p>
-                    {% endif %}
-                    {% if phone %}
-                    <p>
-                        <span class="fa fa-mobile fa-fw"></span> {{ phone }}
-                        <a href="{{ url_for('step_one') }}" class="btn btn-lg">Edit</span></a>
-                    </p>
-                    {% endif %}
-                    <div class="row">
-                        {% for action in actions %}
-                        <div class="col-sm-4" style="margin-bottom: 1em;">
-                            <span class="fa fa-check fa-fw"></span>{{ action }}
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <p><a href="{{ url_for('step_two') }}" class="btn btn-lg">Edit</span></a></p>
-                    <p>
-                        <span class="fa fa-clock-o fa-fw"></span> {{ days_label }} at {{ session.hour }}:{{ '%02d' % session.minute }} {{ session.am_pm }}
-                        ({{ session.timezone }})
-                        <a href="{{ url_for('step_three') }}" class="btn btn-lg">Edit</span></a>
-                    </p>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12">
-                        <ul class="list-inline banner-social-buttons">
-                            <li><a href="{{ url_for('cancel') }}" class="btn btn-lg">Cancel</a></li>
-                            <li><a href="{{ url_for('confirm', action='submit') }}" class="btn btn-default btn-lg">Confirm</a></li>
-                        </ul>
-                    </div>
-                </div>
+{% block main %}
+    <div class="row">
+        <h1 class="signup-text">Confirm Your Choices</h1>
+        {% if session.email %}
+        <p>
+            <span class="fa fa-envelope-o fa-fw"></span> {{ session.email }}
+            <a href="{{ url_for('step_one') }}" class="btn btn-lg">Edit</span></a>
+        </p>
+        {% endif %}
+        {% if phone %}
+        <p>
+            <span class="fa fa-mobile fa-fw"></span> {{ phone }}
+            <a href="{{ url_for('step_one') }}" class="btn btn-lg">Edit</span></a>
+        </p>
+        {% endif %}
+        <div class="row">
+            {% for action in actions %}
+            <div class="col-sm-{% if actions|length in (2, 4)%}6{% else %}4{% endif %}{% if actions|length == 1 %}col-sm-offset-4{% endif %}" style="margin-bottom: 1em;">
+                <span class="fa fa-check fa-fw"></span>{{ action }}
             </div>
+            {% endfor %}
+        </div>
+        <p><a href="{{ url_for('step_two') }}" class="btn btn-lg">Edit</span></a></p>
+        <p>
+            <span class="fa fa-clock-o fa-fw"></span> {{ days_label }} at {{ session.hour }}:{{ '%02d' % session.minute }} {{ session.am_pm }}
+            ({{ session.timezone }})
+            <a href="{{ url_for('step_three') }}" class="btn btn-lg">Edit</span></a>
+        </p>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <ul class="list-inline banner-social-buttons">
+                <li><a href="{{ url_for('cancel') }}" class="btn btn-lg">Cancel</a></li>
+                <li><a href="{{ url_for('confirm', action='submit') }}" class="btn btn-default btn-lg">Confirm</a></li>
+            </ul>
         </div>
     </div>
 {% endblock %}

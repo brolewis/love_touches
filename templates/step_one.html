@@ -1,72 +1,12 @@
-{% extends "base.html" %}
-{% block title %}Love Touches - Step One{% endblock %}
-
-{% block content %}
-    <div class="signup-section">
-        <div class="signup-body">
-            {% with messages = get_flashed_messages(with_categories=True) %}
-            {% if messages %}
-            {% for category, m in messages %}
-            <div class="container" id="messages">
-                <div class="row">
-                    <div class="col-md-8 col-md-offset-2">
-                        <div class="alert alert-{{ category }}">
-                            {{ m|safe }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-            {% endif %}
-            {% endwith %}
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <h1 class="signup-text">Step One: Contact Info</h1>
-                        <p>How do you want the reminders sent to you?</p>
-                        <form method="post" role="form" class="form-horizontal" action="{{ url_for('step_one') }}">
-                            {{ profile_form.hidden_tag() }}
-                            {% for field in profile_form %}
-                            {% if field|simple_field_filter and field.name != 'country_code' %}
-                            <div class="form-group">
-                                {{ field.label(class='col-sm-4 control-label') }}
-                                <div class="col-sm-6">
-                                    {% if field.name == 'phone' %}
-                                    <div class="row">
-                                        <div class="col-xs-4">
-                                            <div class="input-group">
-                                                <div class="input-group-addon">+</div>
-                                                {{ profile_form.country_code(maxlength='4', class='form-control col-xs-2') }}
-                                            </div>
-                                        </div>
-                                        <div class="col-xs-8">
-                                            {{ field(class='form-control col-xs-9') }}
-                                        </div>
-                                    </div>
-                                    {% else %}
-                                    {{ field(class='form-control') }}
-                                    {% endif %}
-                                    {% if field.description %}
-                                        <span class="help-block">{{ field.description|safe }}</span>
-                                    {% endif %}
-                                    {% if field.errors %}
-                                    <span class="help-block help-error">
-                                        {{ field.errors|join('<br />')|safe }}
-                                    </span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% endif %}
-                            {% endfor %}
-                            <div class="form-group">
-                                <button name="submit" type="submit" class="btn btn-circle btn-circle-right">
-                                    <i class="fa fa-angle-double-right animated"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+{% extends "signup_base.html" %}
+{% block sub_title %}Step One{% endblock %}
+{% block main %}
+    <h1 class="signup-text">Step One: Contact Info</h1>
+    <p>How do you want the reminders sent to you?</p>
+    <form method="post" role="form" class="form-horizontal" action="{{ url_for('step_one') }}">
+        {{ contact_form(form) }}
+    </form>
+    <div class="footer">
+        <p>Note: You will receive updates for <strong>*each*</strong> provided contact type, so if you don't want duplicates, pick only one</p>
     </div>
 {% endblock %}

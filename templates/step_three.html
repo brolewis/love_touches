@@ -1,77 +1,8 @@
-{% extends "base.html" %}
-{% block title %}Love Touches - Step Three{% endblock %}
-
-{% block content %}
-    <div class="signup-section">
-        <div class="signup-body">
-
-            {% if schedule_form.errors %}
-            {% for field_name in schedule_form.errors %}
-            <div class="container" id="messages">
-                <div class="row">
-                    <div class="col-md-8 col-md-offset-2">
-                        <div class="alert alert-error">
-                            {% if field_name == 'days_of_week' %}
-                            Make sure you select at least one day of the week.
-                            {% elif field_name == 'hour' %}
-                            Make sure you enter an hour between '1' and '12'.
-                            {% elif field_name == 'minute' %}
-                            Make sure you enter a minute between '00', and '59'.
-                            {% elif field_name == 'am_pm' %}
-                            Make sure you select either 'AM' or 'PM'.
-                            {% else %}
-                            {{ field_name }} - {{ schedule_form.errors[field_name]|join(', ') }}
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-            {% endif %}
-
-
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-10 col-lg-offset-1">
-                        <h1 class="signup-text">Step Three: Set a Schedule</h1>
-                        <form method="post" role="form" class="form-horizontal" action="{{ url_for('step_three') }}">
-                            {{ schedule_form.hidden_tag() }}
-                            <div class="form-group">
-                                <div class="btn-group" data-toggle="buttons">
-                                    {% for subfield in schedule_form.days_of_week %}
-                                        <label class="btn btn-default{% if subfield.checked %} active{% endif %}">
-                                        <input type="checkbox" name="{{ schedule_form.days_of_week.id }}" value="{{ subfield._value() }}"{% if subfield.checked %} checked="checked"{% endif %}>{{ subfield.label.text }}
-                                    </label>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                {{ schedule_form.hour(maxlength='2', size='2') }}
-                                {{ schedule_form.minute(maxlength='2', size='2') }}
-                                <div class="btn-group" data-toggle="buttons" id="ap_pm">
-                                    {% for subfield in schedule_form.am_pm %}
-                                    <label class="btn btn-default">
-                                        {{ subfield }}{{ subfield.label.text }}
-                                    </label>
-                                    {% endfor %}
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <div class="styled">
-                                    {{ schedule_form.timezone() }}
-                                </div>
-                            </div>
-
-                            <div class="page-scroll">
-                                <button name="submit" type="submit" class="btn btn-circle btn-circle-right">
-                                    <i class="fa fa-angle-double-right animated"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+{% extends "signup_base.html" %}
+{% block sub_title %}Step Three{% endblock %}
+{% block main %}
+    <h1 class="signup-text">Step Three: Set a Schedule</h1>
+    <form method="post" role="form" class="form-horizontal" action="{{ url_for('step_three') }}">
+        {{ schedule_form(form) }}
+    </form>
 {% endblock %}

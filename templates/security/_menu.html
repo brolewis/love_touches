@@ -1,0 +1,19 @@
+{% if security.registerable or security.recoverable or security.confirmabled %}
+    <div class="row">
+        <div class="col-md-12">
+            {% if url_for_security('login') != request.path %}
+                <a href="{{ url_for_security('login') }}">Login</a> |
+            {% endif %}
+            {% if security.registerable and url_for('register') != request.path %}
+                <a href="{{ url_for('register') }}">Register</a> |
+            {% endif %}
+            {% if security.recoverable and url_for_security('forgot_password') != request.path %}
+                <a href="{{ url_for_security('forgot_password') }}">Forgot password</a>
+                {% if security.confirmable and url_for_security('send_confirmation') != request.path %} | {% endif %}
+            {% endif %}
+            {% if security.confirmable and url_for_security('send_confirmation') != request.path %}
+                <a href="{{ url_for_security('send_confirmation') }}">Confirm account</a>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}

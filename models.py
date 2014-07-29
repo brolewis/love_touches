@@ -69,6 +69,9 @@ class Crontab(db.Model):
     time = db.Column(db.Time)
     timezone = db.Column(db.String)
 
+    def __repr__(self):
+        return '{} at {:%I:%M %p} ({})'.format(self.day_label, self.time,
+                                               self.timezone)
     @sqlalchemy.ext.hybrid.hybrid_property
     def day_label(self):
         day_names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
@@ -89,8 +92,14 @@ class Group(db.Model):
     name = db.Column(db.String)
     actions = db.relationship('Action', secondary=groups_actions)
 
+    def __repr__(self):
+        return self.name
+
 
 class Method(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     groups = db.relationship('Group', secondary=methods_groups)
+
+    def __repr__(self):
+        return self.name

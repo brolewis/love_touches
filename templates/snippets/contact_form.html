@@ -1,0 +1,43 @@
+    {{ form.hidden_tag() }}
+    {% for field in form %}
+    {% if field|simple_field_filter and field.name != 'country_code' %}
+    <div class="form-group">
+        {{ field.label(class='col-sm-4 control-label') }}
+        <div class="col-sm-6{% if field.errors %} has-error{% endif %}">
+            {% if field.name == 'phone' %}
+            <div class="row">
+                <div class="col-xs-4">
+                    <div class="input-group">
+                        <div class="input-group-addon">+</div>
+                        {{ form.country_code(maxlength='4', class='form-control col-xs-2') }}
+                    </div>
+                </div>
+                <div class="col-xs-8">
+                    {{ field(class='form-control col-xs-9') }}
+                </div>
+            </div>
+            {% else %}
+                {{ field(class='form-control') }}
+            {% endif %}
+            {% if field.description %}
+                <span class="help-block">{{ field.description|safe }}</span>
+            {% endif %}
+            {% if field.errors %}
+            <span class="help-block help-error">
+                {{ field.errors|join('<br />')|safe }}
+            </span>
+            {% endif %}
+        </div>
+    </div>
+    {% if _or and field.name == 'phone' %}
+    <div class="form-group">
+        <div class="col-sm-12">-&nbsp;OR&nbsp;-</div>
+    </div>
+    {% endif %}
+    {% endif %}
+    {% endfor %}
+    <div class="form-group">
+        <button name="submit" type="submit" class="btn btn-circle btn-circle-right">
+            <i class="fa fa-angle-double-right animated"></i>
+        </button>
+    </div>

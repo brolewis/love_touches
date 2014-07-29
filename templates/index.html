@@ -1,9 +1,7 @@
 {% extends "base.html" %}
-
-{% if request.referrer and 'confirm' in request.referrer %}
+{% if '_flashes' in session %}
     {% block body_attribs %}{{ super() }} onload="$('#messages').modal()"{% endblock %}
 {% endif %}
-
 {% block content %}
     {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -29,7 +27,6 @@
     </div>
     {% endif %}
     {% endwith %}
-
     <section class="intro">
         <div class="intro-body">
             <div class="container">
@@ -47,7 +44,6 @@
             </div>
         </div>
     </section>
-
     <section id="details" class="content-section text-center">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2">
@@ -62,7 +58,6 @@
             </div>
         </div>
     </section>
-
     <section class="content-section text-center">
         <div class="steps-section">
             <div class="container">

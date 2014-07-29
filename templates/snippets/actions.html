@@ -1,6 +1,8 @@
-<h1 class="signup-text">Step Two: Select Your Actions</h1>
-<p>Next, pick some actions</p>
-<form method="post" role="form" class="form-horizontal" action="{{ url_for('step_two') }}">
+{% if signup %}
+    <h1 class="signup-text">Step Two: Select Your Actions</h1>
+    <p>Next, pick some actions</p>
+{% endif %}
+<form method="post" role="form" class="form-horizontal" action="{{ url_for(link) }}">
     <input type="hidden" name="method_name" value="{{ method_name }}" />
     {% for group in result %}
     <div class="row"><h3 class="signup-text">{{ group }}</h3></div>
@@ -23,3 +25,4 @@
             <i class="fa fa-angle-double-right animated"></i>
         </button>
     </div>
+</form>

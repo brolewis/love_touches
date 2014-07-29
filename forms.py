@@ -13,32 +13,30 @@ import utils
 
 
 def simple_field_filter(field):
-    special_fields = (wtforms.HiddenField, wtforms.FileField)
+    special_fields = (wtforms.HiddenField, wtforms.FileField,
+                      wtforms.SubmitField)
     return not isinstance(field, special_fields)
 
 main.app.jinja_env.filters['simple_field_filter'] = simple_field_filter
 
 
-class ProfileForm(flask.ext.wtf.Form):
+def valid_user_email(form, field):
+    try:
+        utils.format_phone(form.data)
+    except phonenumbers.NumberParseException:
+        raise wtforms.ValidationError('Invalid phone number.')
+
+
+class ContactFormMixin(object):
     country_code = wtforms.TextField(default='1')
     phone = wtforms.TextField(label='Mobile Number')
     email = wtforms.TextField(validators=[wtforms.validators.Email(),
-                                          wtforms.validators.Optional()])
+                                          wtforms.validators.Optional(),
+                                          valid_user_email])
 
-    def __init__(self, *args, **kwargs):
-        super(ProfileForm, self).__init__(*args, **kwargs)
 
-    def validate(self):
-        if not super(ProfileForm, self).validate():
-            return False
-        try:
-            utils.format_phone(self.data)
-        except phonenumbers.NumberParseException:
-            message = "The phone number doesn't appear to be valid..."
-            self.phone.errors.append(message)
-            return False
-        else:
-            return True
+class ContactForm(flask.ext.wtf.Form, ContactFormMixin):
+    pass
 
 
 hour_validator = wtforms.validators.NumberRange(min=1, max=12)
@@ -83,14 +81,69 @@ def unique_user_email(form, field):
         raise wtforms.ValidationError(msg)
 
 
-class ConfirmRegisterForm(flask.ext.wtf.Form,
+class LoginForm(flask.ext.wtf.Form, flask.ext.security.forms.NextFormMixin,
+                ContactFormMixin):
+    password = wtforms.PasswordField('Password')
+    remember = wtforms.BooleanField('Remember Me')
+    submit = wtforms.SubmitField('Login')
+
+    def validate(self):
+        if not super(LoginForm, self).validate():
+            return False
+        security = flask.ext.security
+        email = self.email.data
+        phone = utils.format_phone(self.data)
+        password = self.password.data
+        if not (email or phone):
+            message = 'Please enter either an email address or phone number.'
+            self.phone.errors.append(message)
+            self.email.errors.append(message)
+            return False
+        if password.strip() == '' or password is None:
+            message = security.utils.get_message('PASSWORD_NOT_PROVIDED')[0]
+            self.password.errors.append(message)
+            return False
+        self.user = main.user_datastore.get_user(self.email.data)
+        if self.user is None and phone:
+            query = main.user_datastore.user_model.query
+            self.user = query.filter_by(phone=phone).first()
+        if self.user is None:
+            message = security.utils.get_message('USER_DOES_NOT_EXIST')[0]
+            if phone:
+                self.phone.errors.append(message)
+            if email:
+                self.email.errors.append(message)
+            return False
+        if not self.user.password:
+            message = security.utils.get_message('PASSWORD_NOT_SET')[0]
+            self.password.errors.append(message)
+            return False
+        if not security.utils.verify_and_update_password(self.password.data,
+                                                         self.user):
+            message = security.utils.get_message('INVALID_PASSWORD')[0]
+            self.password.errors.append(message)
+            return False
+        if security.confirmable.requires_confirmation(self.user):
+            message = security.utils.get_message('CONFIRMATION_REQUIRED')[0]
+            if phone:
+                self.phone.errors.append(message)
+            if email:
+                self.email.errors.append(message)
+            return False
+        if not self.user.is_active():
+            message = security.utils.get_message('DISABLED_ACCOUNT')[0]
+            if phone:
+                self.phone.errors.append(message)
+            if email:
+                self.email.errors.append(message)
+            return False
+        return True
+
+
+class ConfirmRegisterForm(flask.ext.wtf.Form, ContactFormMixin,
                           flask.ext.security.forms.RegisterFormMixin):
-    email = wtforms.TextField('Email', [wtforms.validators.Required(),
-                                        unique_user_email,
-                                        wtforms.validators.Email()])
     password = wtforms.PasswordField('Password',
                                      [wtforms.validators.Required(),
                                       wtforms.validators.Length(6, 128)])
-    submit = wtforms.SubmitField()
 
-main.app.extensions['security'].confirm_register_form = ConfirmRegisterForm
+main.app.extensions['security'].login_form = LoginForm

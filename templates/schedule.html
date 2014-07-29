@@ -1,0 +1,8 @@
+{% extends "admin_base.html" %}
+{% block sub_title %}Schedule{% endblock %}
+{% block main %}
+    <h1 class="signup-text">Schedule</h1>
+    <form role="form" method="post" class="form-horizontal" action="{{ url_for('schedule') }}">
+        {{ schedule_form(form) }}
+    </form>
+{% endblock %}

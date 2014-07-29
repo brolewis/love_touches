@@ -1,5 +1,5 @@
 {% extends "bootstrap/base.html" %}
-{% block title %}Love Touches{% endblock %}
+{% block title %}Love Touches - {% block sub_title %}{% endblock %}{% endblock %}
 {% block styles %}
     {{ super() }}
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
@@ -9,16 +9,12 @@
     <link href='//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400' rel='stylesheet' type='text/css'>
     <link href="{{ url_for('static', filename='css/grayscale.css') }}" rel="stylesheet">
 {% endblock %}
-
 {% block scripts %}
     {{ super() }}
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
     <script src="{{ url_for('static', filename='js/grayscale.js') }}"></script>
 {% endblock %}
-
-
 {% block body_attribs %} id="page-top" data-spy="scroll" data-target=".navbar-custom"{% endblock %}
-
 {% block navbar %}
     <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
         <div class="container">
@@ -28,10 +24,9 @@
                 </button>
                 <a class="navbar-brand" href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#page-top"><span class="fa fa-heart-o"></span>Love Touches</a>
             </div>
-
             <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
                 <ul class="nav navbar-nav">
-                    {% if 'step' not in request.path %}
+                    {% if group != 'signup' %}
                     <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
                     <li class="hidden">
                         <a href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#page-top"></a>
@@ -43,14 +38,152 @@
                     <li class="page-scroll">
                         <a href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#steps">Steps</a>
                     </li>
-                    <li class="page-scroll{% if 'step' in request.path %} active{% endif %}">
-                        <a href="{{ url_for('step_one') }}">Get Started</a>
+                    {% if current_user.is_authenticated() %}
+                    <li class="page-scroll{% if group == 'admin' or request.path == url_for_security('change_password') %} active{% endif %}">
+                        <a href="{{ url_for('contact') }}">Admin</a>
                     </li>
                     <li class="page-scroll">
-                        <a href="{{ url_for('security.login') }}">Login</a>
+                        <a href="{{ url_for_security('logout') }}">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="page-scroll{% if group == 'signup' %} active{% endif %}">
+                        <a href="{{ url_for('step_one') }}">Get Started</a>
+                    </li>
+                    <li class="page-scroll{% if request.path == url_for_security('login') %} active{% endif %}">
+                        <a href="{{ url_for_security('login') }}">Login</a>
+                    </li>
+                    {% endif %}
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 {% endblock %}
+{% macro contact_form(form, _or=False) %}
+    {{ form.hidden_tag() }}
+    {% for field in form %}
+    {% if field|simple_field_filter and field.name != 'country_code' %}
+    <div class="form-group">
+        {{ field.label(class='col-sm-4 control-label') }}
+        <div class="col-sm-6{% if field.errors %} has-error{% endif %}">
+            {% if field.name == 'phone' %}
+            <div class="row">
+                <div class="col-xs-4">
+                    <div class="input-group">
+                        <div class="input-group-addon">+</div>
+                        {{ form.country_code(maxlength='4', class='form-control col-xs-2') }}
+                    </div>
+                </div>
+                <div class="col-xs-8">
+                    {{ field(class='form-control col-xs-9') }}
+                </div>
+            </div>
+            {% else %}
+                {{ field(class='form-control') }}
+            {% endif %}
+            {% if field.description %}
+                <span class="help-block">{{ field.description|safe }}</span>
+            {% endif %}
+            {% if field.errors %}
+            <span class="help-block help-error">
+                {{ field.errors|join('<br />')|safe }}
+            </span>
+            {% endif %}
+        </div>
+    </div>
+    {% if _or and field.name == 'phone' %}
+    <div class="form-group">
+        <div class="col-sm-12">-&nbsp;OR&nbsp;-</div>
+    </div>
+    {% endif %}
+    {% endif %}
+    {% endfor %}
+    <div class="form-group">
+        <button name="submit" type="submit" class="btn btn-circle btn-circle-right">
+            <i class="fa fa-angle-double-right animated"></i>
+        </button>
+    </div>
+{% endmacro %}
+{% macro schedule_form(form) %}
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        <div class="btn-group" data-toggle="buttons">
+            {% for subfield in form.days_of_week %}
+                <label class="btn btn-default{% if subfield.checked %} active{% endif %}{% if form.days_of_week.errors %} error-border{% endif %}">
+                <input type="checkbox" name="{{ form.days_of_week.id }}" value="{{ subfield._value() }}"{% if subfield.checked %} checked="checked"{% endif %}>{{ subfield.label.text }}
+            </label>
+            {% endfor %}
+        </div>
+        {% if form.days_of_week.errors %}
+        <span class="help-block help-error">
+            Please select at least one day of the week.
+        </span>
+        {% endif %}
+    </div>
+    <div class="form-group">
+        {% if form.hour.errors %}
+        {{ form.hour(maxlength='2', size='2', class='error-border') }}
+        {% else %}
+        {{ form.hour(maxlength='2', size='2') }}
+        {% endif %}
+        {% if form.minute.errors %}
+        {{ form.minute(maxlength='2', size='2', class='error-border') }}
+        {% else %}
+        {{ form.minute(maxlength='2', size='2') }}
+        {% endif %}
+        <div class="btn-group" data-toggle="buttons" id="ap_pm">
+            {% for subfield in form.am_pm %}
+            <label class="btn btn-default{% if subfield.checked %} active{% endif %}{% if form.am_pm.errors %} error-border{% endif %}">
+                {{ subfield }}{{ subfield.label.text }}
+            </label>
+            {% endfor %}
+        </div>
+        {% if form.hour.errors or form.minute.errors or form.am_pm.errors %}
+        <span class="help-block help-error">
+            {% if form.hour.errors %}
+                Please enter an hour between '1' and '12'.
+            {% endif %}
+            {% if form.minute.errors %}
+                {% if form.hour.errors %}<br />{% endif %}
+                Please enter a minute between '00', and '59'.
+            {% endif %}
+            {% if form.am_pm.errors %}
+                {% if form.hour.errors or form.minute.errors %}<br />{% endif %}
+                Please select either 'AM' or 'PM'.
+            {% endif %}
+        </span>
+        {% endif %}
+    </div>
+    <div class="form-group">
+        <div class="styled">
+            {% if form.timezone.errors %}
+                {{ form.timezone(class='error-border') }}
+            {% else %}
+                {{ form.timezone() }}
+            {% endif %}
+        </div>
+        {% if form.timezone.errors %}
+        <span class="help-block help-error">
+            Please select your current timezone.
+        </span>
+        {% endif %}
+    </div>
+    <div class="page-scroll">
+        <button name="submit" type="submit" class="btn btn-circle btn-circle-right">
+            <i class="fa fa-angle-double-right animated"></i>
+        </button>
+    </div>
+{% endmacro %}
+{% macro messages() %}
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+    {% for category, m in messages %}
+    <div class="row" id="messages">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="alert alert-{{ category }}">{{ m }}</div>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+{% endmacro %}

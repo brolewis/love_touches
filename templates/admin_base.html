@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+    <section class="intro">
+        <div class="intro-body">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-3 col-md-2 sidebar">
+                        <ul class="nav nav-sidebar">
+                            <li{% if request.path == url_for('contact') %} class="active"{% endif %}><a href="{{ url_for('contact') }}">Contact</a></li>
+                            <li{% if request.path == url_for('actions') %} class="active"{% endif %}><a href="{{ url_for('actions') }}">Actions</a></li>
+                            <li{% if request.path == url_for('schedule') %} class="active"{% endif %}><a href="{{ url_for('schedule') }}">Schedule</a></li>
+                            <li{% if request.path == url_for_security('change_password') %} class="active"{% endif %}><a href="{{ url_for_security('change_password') }}">Change Password</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+                        {{ messages() }}
+                        {% block main %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
