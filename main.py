@@ -51,5 +51,4 @@ flask_mail.Mail(app)
 
 
 # Local
-# import admin  # flake8: noqa
-import views  # flake8: noqa
+import views  # noqa

@@ -1,19 +1,24 @@
 {% if security.registerable or security.recoverable or security.confirmabled %}
-    <div class="row">
+    <div class="row info-footer">
         <div class="col-md-12">
+            <div class="info-footer-body">
             {% if url_for_security('login') != request.path %}
                 <a href="{{ url_for_security('login') }}">Login</a> |
             {% endif %}
-            {% if security.registerable and url_for('register') != request.path %}
+            {% if security.registerable and request.path not in (url_for('register'), url_for('confirm_mobile'), url_for_security('send_confirmation')) %}
                 <a href="{{ url_for('register') }}">Register</a> |
             {% endif %}
             {% if security.recoverable and url_for_security('forgot_password') != request.path %}
-                <a href="{{ url_for_security('forgot_password') }}">Forgot password</a>
-                {% if security.confirmable and url_for_security('send_confirmation') != request.path %} | {% endif %}
+                <a href="{{ url_for_security('forgot_password') }}">Forgot password</a> |
             {% endif %}
             {% if security.confirmable and url_for_security('send_confirmation') != request.path %}
-                <a href="{{ url_for_security('send_confirmation') }}">Confirm account</a>
+                <a href="{{ url_for_security('send_confirmation') }}">Confirm email</a>
+                {% if security.confirmable and url_for('confirm_mobile') != request.path %} | {% endif %}
             {% endif %}
+            {% if security.confirmable and url_for('confirm_mobile') != request.path %}
+                <a href="{{ url_for('confirm_mobile') }}">Confirm mobile</a>
+            {% endif %}
+            </div>
         </div>
     </div>
 {% endif %}

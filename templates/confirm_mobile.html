@@ -1,0 +1,33 @@
+{% extends "security_base.html" %}
+{% block sub_title %}Confirm Mobile Number{% endblock %}
+{% block main %}
+    <h1 class="signup-text">Confirm Mobile Number</h1>
+    <p>Please enter the verification code sent to your mobile number.</p>
+    <form method="post" role="form" class="form-horizontal" action="{{ url_for('confirm_mobile') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.code.label(class='col-sm-4 control-label') }}
+            <div class="col-sm-6">
+                {{ form.code(class='form-control', autocomplete="off") }}
+                {% if form.code.description %}
+                    <span class="help-block">{{ form.code.description|safe }}</span>
+                {% endif %}
+                {% if form.code.errors %}
+                <span class="help-block help-error">
+                    {{ form.code.errors|join('<br />')|safe }}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="list-inline banner-social-buttons">
+                    <li><a href="{{ url_for('confirm_mobile', action='re-send') }}" class="btn btn-lg">Re-send Code</a></li>
+                    <li>
+                    <button name="submit" type="submit" class="btn btn-default btn-lg">Confirm</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </form>
+{% endblock %}

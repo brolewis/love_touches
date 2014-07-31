@@ -6,7 +6,9 @@
     <form method="post" role="form" class="form-horizontal" action="{{ url_for('step_one') }}">
         {{ contact_form(form) }}
     </form>
-    <div class="footer">
-        <p>Note: You will receive updates for <strong>*each*</strong> provided contact type, so if you don't want duplicates, pick only one</p>
+    <div class="info-footer">
+        <div class="info-footer-body">
+            Note: You will receive updates for <strong>*each*</strong> provided contact type, so if you don't want duplicates, pick only one
+        </div>
     </div>
 {% endblock %}

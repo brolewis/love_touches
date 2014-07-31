@@ -305,6 +305,19 @@ a:focus {
         padding: 100px 0;
     }
 }
+.info-footer {
+    margin-top: 2em;
+}
+
+.info-footer-body {
+    display: inline;
+    padding: 0.15em 0.5em;
+    border: 1px solid white;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background-color: #000000;
+    background-color: rgba(255, 255, 255, 0.25);
+    font-size: 18px;
+}
 
 .footer {
     margin-top: 3em;

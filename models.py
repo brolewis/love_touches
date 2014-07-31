@@ -41,7 +41,7 @@ class User(db.Model, flask.ext.security.UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     password = db.Column(db.String, default='')
     active = db.Column(db.Boolean)
-    email = db.Column(db.String, unique=True)
+    email = db.Column(db.String, unique=True, nullable=True)
     phone = db.Column(db.String)
     secret = db.Column(db.String)
     confirmed_at = db.Column(db.DateTime)
@@ -72,6 +72,7 @@ class Crontab(db.Model):
     def __repr__(self):
         return '{} at {:%I:%M %p} ({})'.format(self.day_label, self.time,
                                                self.timezone)
+
     @sqlalchemy.ext.hybrid.hybrid_property
     def day_label(self):
         day_names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',

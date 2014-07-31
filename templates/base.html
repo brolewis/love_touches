@@ -98,7 +98,7 @@
     {% endif %}
     {% endif %}
     {% endfor %}
-    <div class="form-group">
+    <div>
         <button name="submit" type="submit" class="btn btn-circle btn-circle-right">
             <i class="fa fa-angle-double-right animated"></i>
         </button>
@@ -180,7 +180,7 @@
     {% for category, m in messages %}
     <div class="row" id="messages">
         <div class="col-md-8 col-md-offset-2">
-            <div class="alert alert-{{ category }}">{{ m }}</div>
+            <div class="alert alert-{{ category }}">{{ m|safe }}</div>
         </div>
     </div>
     {% endfor %}

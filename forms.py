@@ -24,7 +24,7 @@ def valid_user_email(form, field):
     try:
         utils.format_phone(form.data)
     except phonenumbers.NumberParseException:
-        raise wtforms.ValidationError('Invalid phone number.')
+        raise wtforms.ValidationError('Invalid mobile number.')
 
 
 class ContactFormMixin(object):
@@ -61,8 +61,14 @@ class ScheduleForm(flask.ext.wtf.Form):
                                    validators=[wtforms.validators.Required()])
 
 
-class PhoneVerifyForm(flask.ext.wtf.Form):
+class MobileVerifyForm(flask.ext.wtf.Form,
+                       flask.ext.security.forms.NextFormMixin):
     code = wtforms.IntegerField()
+
+    def __init__(self, *args, **kwargs):
+        super(MobileVerifyForm, self).__init__(*args, **kwargs)
+        if not self.next.data:
+            self.next.data = flask.request.args.get('next', '')
 
 
 class PasswordChangeForm(flask.ext.wtf.Form):
@@ -145,5 +151,52 @@ class ConfirmRegisterForm(flask.ext.wtf.Form, ContactFormMixin,
     password = wtforms.PasswordField('Password',
                                      [wtforms.validators.Required(),
                                       wtforms.validators.Length(6, 128)])
+
+    def validate(self):
+        url_for_security = flask.ext.security.utils.url_for_security
+        if not super(ConfirmRegisterForm, self).validate():
+            return False
+        email = self.email.data
+        phone = utils.format_phone(self.data)
+        if not (email or phone):
+            message = 'Please enter either an email address or phone number.'
+            self.phone.errors.append(message)
+            self.email.errors.append(message)
+            return False
+        user = main.user_datastore.get_user(self.email.data)
+        if user is None and phone:
+            query = main.user_datastore.user_model.query
+            user = query.filter_by(phone=phone).first()
+        email_confirmed = (email and user.confirmed_at)
+        phone_confirmed = (phone and user.phone_confirmed_at)
+        if user and (email_confirmed or phone_confirmed):
+            login_url = url_for_security('login')
+            forgot_url = url_for_security('forgot_password')
+            message = 'You have already successfully registered. You should be'
+            message += ' able to <a href="{}" class="alert-link">login</a>. If'
+            message += 'you have forgotten your password, please visit the'
+            message += ' <a href="{}" class="alert-link">forgotten'
+            message += ' password</a> page.'
+            flask.flash(message.format(login_url, forgot_url), 'error')
+            errors = self.phone.errors if phone else self.email.errors
+            errors.append('Already registered')
+        if user and email and user.confirmed_at is None:
+            confirm_url = url_for_security('send_confirmation')
+            message = 'You have already registered but need to confirm your'
+            message += ' email address. If you have deleted or did not receive'
+            message += ' your confirmation email, you may <a href="{}"'
+            message += ' class="alert-link">send a new request</a>.'
+            flask.flash(message.format(confirm_url), 'error')
+            self.email.errors.append('Registration pending')
+        if user and phone and user.phone_confirmed_at is None:
+            next_url = flask.ext.security.utils.get_post_register_redirect()
+            confirm_url = flask.url_for('confirm_mobile', action='re-send',
+                                        next=next_url)
+            message = 'You have already registered but need to confirm your'
+            message += ' mobile number. If you have deleted or did not receive'
+            message += ' your confirmation SMS, you may <a href="{}"'
+            message += ' class="alert-link">send a new request</a>.'
+            flask.flash(message.format(confirm_url), 'error')
+            self.phone.errors.append('Registration pending')
 
 main.app.extensions['security'].login_form = LoginForm

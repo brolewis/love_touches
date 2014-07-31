@@ -156,30 +156,10 @@ def confirm(action=None):
         if user.phone and not flask.session.get('_phone_sent'):
             utils.send_code(user)
             flask.session['_user_id'] = user.id
-            redirect = 'verify_phone'
+            redirect = 'confirm_mobile'
             flask.session['_phone_sent'] = True
         for key in (x for x in flask.session.keys() if not x.startswith('_')):
             del flask.session[key]
         return flask.redirect(flask.url_for(redirect))
     return flask.render_template('confirm.html', actions=actions, phone=phone,
                                  days_label=_days_label(), group='signup')
-
-
-@main.app.route('/verify_phone', methods=['GET', 'POST'])
-@main.app.route('/verify_phone/<action>', methods=['GET', 'POST'])
-def verify_phone(action=None):
-    user = models.User.query.get(flask.session['_user_id'])
-    if action == 're-send':
-        utils.send_code(user)
-    verify_form = forms.PhoneVerifyForm()
-    if verify_form.validate_on_submit():
-        if verify_form.data['code'] == pyotp.HOTP(user.secret).at(0):
-            user.phone_confirmed_at = datetime.datetime.now()
-            models.db.session.add(user)
-            models.db.session.commit()
-            flask.flash('Mobile Number confirmed')
-            return flask.redirect(flask.url_for('index'))
-        else:
-            flask.flash('Verification code does not match.', 'error')
-    return flask.render_template('verify_phone.html', verify_form=verify_form,
-                                 group='signup')
