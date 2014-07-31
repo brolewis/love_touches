@@ -38,6 +38,15 @@ class ContactFormMixin(object):
 class ContactForm(flask.ext.wtf.Form, ContactFormMixin):
     pass
 
+    def validate(self):
+        if not super(ContactForm, self).validate():
+            return False
+        if not (self.email.data or utils.format_phone(self.data)):
+            message = 'Please provide either a mobile number or email address.'
+            self.phone.errors.append(message)
+            self.email.errors.append(message)
+        return True
+
 
 hour_validator = wtforms.validators.NumberRange(min=1, max=12)
 minute_validator = wtforms.validators.NumberRange(min=0, max=59)
