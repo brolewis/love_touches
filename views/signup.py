@@ -58,6 +58,7 @@ def step_two():
             flask.flash(message, 'error')
     methods = models.Method.query.all()
     return flask.render_template('step_two.html', methods=methods,
+                                 back=flask.url_for('step_one'),
                                  group='signup')
 
 
@@ -66,7 +67,8 @@ def _get_actions():
     method_name = flask.request.args.get('method_name')
     actions = flask.session.get('actions') or []
     template = utils._get_actions_for_method(method_name, actions, 'step_two',
-                                             signup=True)
+                                             signup=True,
+                                             back=flask.url_for('step_two'))
     return flask.jsonify(template=template)
 
 
@@ -83,7 +85,8 @@ def step_three():
     if form.validate_on_submit():
         flask.session.update(form.data)
         return flask.redirect(flask.url_for('confirm'))
-    return flask.render_template('step_three.html', form=form, group='signup')
+    return flask.render_template('step_three.html', form=form, group='signup',
+                                 back=flask.url_for('step_two'))
 
 
 def _days_label():
@@ -144,7 +147,7 @@ def confirm(action=None):
         models.db.session.commit()
         redirect = 'index'
         if user.email and not flask.session.get('_email_sent') \
-                and user.confirmed_at is not None:
+                and user.confirmed_at is None:
             confirmable = flask.ext.security.confirmable
             link = confirmable.generate_confirmation_link(user)[0]
             flask.flash('Email confirmation instructions have been sent.')
@@ -154,7 +157,8 @@ def confirm(action=None):
                                                confirmation_link=link)
             flask.session['_email_sent'] = True
             redirect = 'index'
-        if user.phone and not flask.session.get('_phone_sent'):
+        if user.phone and not flask.session.get('_phone_sent') \
+                and user.phone_confirmed_at is None:
             utils.send_code(user)
             flask.session['_user_id'] = user.id
             redirect = 'confirm_mobile'

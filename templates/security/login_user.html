@@ -3,6 +3,6 @@
 {% block main %}
     <h1>Login</h1>
     <form role="form" class="form-horizontal" action="{{ url_for_security('login') }}" method="POST">
-        {{ contact_form(login_user_form, _or=True) }}
+        {{ security_form(login_user_form, _or=True) }}
     </form>
 {% endblock %}

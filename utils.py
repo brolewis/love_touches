@@ -34,7 +34,7 @@ def send_code(user):
                                 body=message)
 
 
-def _get_actions_for_method(method_name, actions, link, signup=False):
+def _get_actions_for_method(method_name, actions, link, signup=False, back=''):
     if method_name:
         result = {}
         method = models.Method.query.filter_by(name=method_name).first()
@@ -45,4 +45,4 @@ def _get_actions_for_method(method_name, actions, link, signup=False):
         result = {'All': {x.id: x.label for x in actions}}
     return flask.render_template('snippets/actions.html', result=result,
                                  method_name=method_name, actions=actions,
-                                 link=link, signup=signup)
+                                 link=link, signup=signup, back=back)

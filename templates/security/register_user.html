@@ -3,6 +3,6 @@
 {% block main %}
     <h1>Register</h1>
     <form role="form" class="form-horizontal" action="{{ url_for('register') }}" method="POST">
-        {{ contact_form(register_user_form, _or=True) }}
+        {{ security_form(register_user_form, _or=True) }}
     </form>
 {% endblock %}

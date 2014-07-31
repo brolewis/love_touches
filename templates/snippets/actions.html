@@ -19,10 +19,9 @@
     <div class="row">
     {% endif %}
     </div>
-        {% endfor %}
-    <div class="page-scroll">
-        <button name="submit" type="submit" class="btn btn-circle btn-circle-right">
-            <i class="fa fa-angle-double-right animated"></i>
-        </button>
-    </div>
+    {% endfor %}
+    {% if signup %}
+        {% from "signup_base.html" import signup_navigation with context %}
+        {{ signup_navigation() }}
+    {% endif %}
 </form>

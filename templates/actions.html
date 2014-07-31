@@ -3,4 +3,5 @@
 {% block main %}
     <h1>{{ current_user.method or 'All' }}</h1>
     {{ form|safe }}
+    {{ admin_navigation() }}
 {% endblock %}

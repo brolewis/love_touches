@@ -3,6 +3,6 @@
 {% block main %}
     <h1>Contact Information</h1>
     <form role="form" method="post" class="form-horizontal" action="{{ url_for('contact') }}">
-        {{ contact_form(form) }}
+        {{ admin_form(form) }}
     </form>
 {% endblock %}

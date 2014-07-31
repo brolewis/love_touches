@@ -1,5 +1,5 @@
 {% extends "bootstrap/base.html" %}
-{% block title %}Love Touches - {% block sub_title %}{% endblock %}{% endblock %}
+{% block title %}Love Touches{% if request.path != url_for('index') %} - {% block sub_title %}{% endblock %}{% endif %}{% endblock %}
 {% block styles %}
     {{ super() }}
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
@@ -59,7 +59,7 @@
         </div>
     </nav>
 {% endblock %}
-{% macro contact_form(form, _or=False) %}
+{% macro base_form(form, _or=False) %}
     {{ form.hidden_tag() }}
     {% for field in form %}
     {% if field|simple_field_filter and field.name != 'country_code' %}
@@ -98,13 +98,8 @@
     {% endif %}
     {% endif %}
     {% endfor %}
-    <div>
-        <button name="submit" type="submit" class="btn btn-circle btn-circle-right">
-            <i class="fa fa-angle-double-right animated"></i>
-        </button>
-    </div>
 {% endmacro %}
-{% macro schedule_form(form) %}
+{% macro base_schedule_form(form) %}
     {{ form.hidden_tag() }}
     <div class="form-group">
         <div class="btn-group" data-toggle="buttons">
@@ -167,11 +162,6 @@
             Please select your current timezone.
         </span>
         {% endif %}
-    </div>
-    <div class="page-scroll">
-        <button name="submit" type="submit" class="btn btn-circle btn-circle-right">
-            <i class="fa fa-angle-double-right animated"></i>
-        </button>
     </div>
 {% endmacro %}
 {% macro messages() %}

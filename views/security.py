@@ -60,3 +60,8 @@ def post_login():
 @main.app.route('/post_register')
 def post_register():
     return flask.redirect(flask.ext.security.utils.url_for_security('login'))
+
+
+@main.app.route('/post_confirm')
+def post_confirm():
+    return flask.redirect(flask.url_for('index'))
