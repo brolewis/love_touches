@@ -1,6 +1,6 @@
 {% extends "admin_base.html" %}
 {% block sub_title %}Actions{% endblock %}
 {% block main %}
-    <h1 class="signup-text">{{ current_user.method or 'All' }}</h1>
+    <h1>{{ current_user.method or 'All' }}</h1>
     {{ form|safe }}
 {% endblock %}

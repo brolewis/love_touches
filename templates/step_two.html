@@ -4,7 +4,7 @@
     <div class="flip">
         <div class="card">
             <div class="face front">
-                <h1 class="signup-text">Step Two: Select Your Actions</h1>
+                <h1>Step Two: Select Your Actions</h1>
                 <p>First, pick a method</p>
                 {% for method in methods %}
                 <p><a href="#" id="{{ method.name }}" class="btn btn-default btn-lg toggle">{{ method.name }}</a></p>
@@ -23,6 +23,7 @@
             $(".face.back").html(data.template);
             $(".face.front").hide();
             $("#messages").hide();
+            $(".intro").css({'background-image': 'none', 'margin-top': '100px'});
         }
         $(".toggle").click(function(){
             $.getJSON($SCRIPT_ROOT + '/_get_actions', {method_name: $(this).attr('id')},

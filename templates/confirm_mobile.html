@@ -1,7 +1,7 @@
 {% extends "security_base.html" %}
 {% block sub_title %}Confirm Mobile Number{% endblock %}
 {% block main %}
-    <h1 class="signup-text">Confirm Mobile Number</h1>
+    <h1>Confirm Mobile Number</h1>
     <p>Please enter the verification code sent to your mobile number.</p>
     <form method="post" role="form" class="form-horizontal" action="{{ url_for('confirm_mobile') }}">
         {{ form.hidden_tag() }}
