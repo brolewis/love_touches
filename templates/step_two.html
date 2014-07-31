@@ -23,7 +23,7 @@
             $(".face.back").html(data.template);
             $(".face.front").hide();
             $("#messages").hide();
-            $(".intro").css({'background-image': 'none', 'margin-top': '100px'});
+            $(".intro").css('background-image', 'none');
         }
         $(".toggle").click(function(){
             $.getJSON($SCRIPT_ROOT + '/_get_actions', {method_name: $(this).attr('id')},
