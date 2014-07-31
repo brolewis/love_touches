@@ -53,9 +53,10 @@ def post_login():
         return flask.redirect(flask.url_for('contact'))
     except:
         flask.flash('An error occurred logging in', 'error')
-        return flask.redirect(flask.url_for('security.logout'))
+        logout_url = flask.ext.security.utils.url_for_security('logout')
+        return flask.redirect(logout_url)
 
 
 @main.app.route('/post_register')
 def post_register():
-    return flask.redirect(flask.url_for('security.login'))
+    return flask.redirect(flask.ext.security.utils.url_for_security('login'))

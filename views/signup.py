@@ -27,7 +27,8 @@ def step_one():
         if previous and not main.app.debug:
             message = '''Hrm. Are you sure you haven't been here before?'''
             flask.flash(message, 'error')
-            return flask.redirect(flask.url_for('security.login'))
+            login_url = flask.ext.security.utils.url_for_security('login')
+            return flask.redirect(login_url)
         flask.session.update(form.data)
         endpoint = flask.session.get('action') or 'step_two'
         return flask.redirect(flask.url_for(endpoint))
