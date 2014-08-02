@@ -294,7 +294,7 @@ a:focus {
 }
 
 .info-footer-body {
-    display: inline;
+    display: inline-block;
     padding: 0.15em 0.5em;
     border: 1px solid white;
     border: 1px solid rgba(255, 255, 255, 0.5);
@@ -339,6 +339,8 @@ a:focus {
 }
 
 .btn-clear {
+    color: #28c3ab;
+    background-color: transparent;
     border: none;
 }
 
@@ -359,6 +361,10 @@ a:focus {
 .btn-huge {
     padding: 25px;
     font-size: 26px;
+}
+
+.btn-method {
+    padding: 20px;
 }
 
 ::-moz-selection {
@@ -562,4 +568,9 @@ select {
     margin-top: 2em;
     padding-top: 10px;
     border-top: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.methods-dialog {
+    background-color: #555;
+    border: 1px solid rgba(255, 255, 255, 0.25);
 }

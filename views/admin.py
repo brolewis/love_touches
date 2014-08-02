@@ -53,20 +53,32 @@ def contact():
 def actions():
     user = flask.ext.security.current_user
     if flask.request.method == 'POST':
+        commit = False
+        name = flask.session.get('method_name')
+        method = models.Method.query.filter_by(name=name).first()
+        if user.method != method:
+            user.method = method
+            flask.flash('Method saved.', 'success')
+            commit = True
         if flask.request.form.getlist('action'):
             actions = []
             for action_id in flask.request.form.getlist('action', type=int):
                 actions.append(models.Action.query.get(action_id))
             if {str(x) for x in user.actions} != {str(x) for x in actions}:
-                models.db.session.add(user)
-                models.db.session.commit()
                 flask.flash('Actions saved.', 'success')
-        else:
+                commit = True
+        elif not commit:
             message = 'Uh oh. You need to pick at least one action.'
             flask.flash(message, 'error')
-    actions = [x.id for x in user.actions]
-    form = utils._get_actions_for_method(user.method.name, actions, 'actions')
-    return flask.render_template('actions.html', form=form, group='admin')
+        if commit:
+            models.db.session.add(user)
+            models.db.session.commit()
+    form = utils._get_actions_for_method(user.method, header='admin')
+    methods = models.Method.query.all()
+    modal = flask.render_template('snippets/methods_dialog.html',
+                                  methods=methods, method_name=user.method)
+    return flask.render_template('actions.html', form=form, modal=modal,
+                                 group='admin')
 
 
 @main.app.route('/schedule', methods=['GET', 'POST'])

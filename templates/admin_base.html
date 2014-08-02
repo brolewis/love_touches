@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-    <section class="intro">
+    <div id="admin_modal">
+        {% block modal %}{% endblock %}
+    </div>
+    <section class="intro" id="content-base">
         <div class="intro-body">
             <div class="container-fluid">
                 <div class="row">

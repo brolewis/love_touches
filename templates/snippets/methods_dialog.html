@@ -1,0 +1,18 @@
+<div class="modal fade" id="methods" tabindex="-1" role="dialog" aria-labelledby="methods" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body methods-dialog">
+                <h1 class="text-center">Change Method</h1>
+                {% for method in methods %}
+                <div class="col-lg-6 btn-method">
+                    <a class="btn btn-default btn-block toggle{% if method == method_name %} active{% endif %}" href="#" id="{{ method }}">{{ method }}</a>
+                </div>
+                {% endfor %}
+                <div class="col-lg-6 btn-method">
+                    <a class="btn btn-default btn-block toggle{% if not method_name %} active{% endif %}" href="#" id="">All</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>

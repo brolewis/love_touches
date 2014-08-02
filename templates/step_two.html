@@ -1,6 +1,7 @@
 {% extends "signup_base.html" %}
 {% block sub_title %}Love Touches - Step Two{% endblock %}
 {% block main %}
+<form id="actions-form" method="post" role="form" class="form-horizontal" action="{{ url_for('step_two') }}">
     <div class="flip">
         <div class="card">
             <div class="face front">
@@ -15,19 +16,20 @@
             <div class="face back"></div>
         </div>
     </div>
+</form>
 {% endblock %}
 {% block scripts %}
     {{ super() }}
     <script>
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
         var action_results = function(data) {
-            $(".face.back").html(data.template);
+            $(".face.back").html(data.actions);
             $(".face.front").hide();
             $("#messages").hide();
             $(".intro").css('background-image', 'none');
         }
         $(".toggle").click(function(){
-            $.getJSON($SCRIPT_ROOT + '/_get_actions', {method_name: $(this).attr('id')},
+            $.getJSON($SCRIPT_ROOT + '/_get_actions', {method_name: $(this).attr('id'), 'header': 'signup', 'back': $SCRIPT_ROOT},
                       action_results);
             $(".flip").find(".card").toggleClass("flipped");
             return false;

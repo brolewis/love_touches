@@ -1,27 +1,30 @@
-{% if signup %}
+{% if header == 'signup' %}
     <h1>Step Two: Select Your Actions</h1>
     <p>Next, pick some actions</p>
+{% elif header == 'admin' %}
+    <h1>
+        {{ method_name or 'All' }}
+        <a href="#" id="methods-toggle" class="btn btn-lg btn-clear">Change</a>
+    </h1>
 {% endif %}
-<form method="post" role="form" class="form-horizontal" action="{{ url_for(link) }}">
-    <input type="hidden" name="method_name" value="{{ method_name }}" />
-    {% for group in result %}
-    <div class="row"><h3>{{ group }}</h3></div>
-    <div class="row">
-        {% for key in result[group] %}
-        <div class="col-lg-4" style="margin-bottom: 1em;" data-toggle="buttons">
-            <label class="btn btn-default btn-block{% if key in actions %} active{% endif %}">
-                <input type="checkbox" name="action" value="{{ key }}"{% if key in actions %} checked="checked"{% endif %}>{{ result[group][key] }}
-            </label>
-        </div>
-        {% endfor %}
-    {% if loop.index is divisibleby 3 %}
-    </div>
-    <div class="row">
-    {% endif %}
+<input type="hidden" name="method_name" value="{{ method_name }}" />
+{% for group in result %}
+    {% if group %}<div class="row"><h3>{{ group }}</h3></div>{% endif %}
+<div class="row">
+    {% for key in result[group] %}
+    <div class="col-lg-4" style="margin-bottom: 1em;" data-toggle="buttons">
+        <label class="btn btn-default btn-block{% if key in actions %} active{% endif %}">
+            <input type="checkbox" name="action" value="{{ key }}"{% if key in actions %} checked="checked"{% endif %}>{{ result[group][key] }}
+        </label>
     </div>
     {% endfor %}
-    {% if signup %}
-        {% from "signup_base.html" import signup_navigation with context %}
-        {{ signup_navigation() }}
-    {% endif %}
-</form>
+{% if loop.index is divisibleby 3 %}
+</div>
+<div class="row">
+{% endif %}
+</div>
+{% endfor %}
+{% if header == 'signup' %}
+    {% from "signup_base.html" import signup_navigation with context %}
+    {{ signup_navigation() }}
+{% endif %}

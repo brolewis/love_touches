@@ -34,15 +34,17 @@ def send_code(user):
                                 body=message)
 
 
-def _get_actions_for_method(method_name, actions, link, signup=False, back=''):
+def _get_actions_for_method(method_name, header='', back=''):
+    current_user = flask.ext.security.current_user
+    actions = [x.id for x in getattr(current_user, 'actions', [])]
     if method_name:
         result = {}
-        method = models.Method.query.filter_by(name=method_name).first()
+        method = models.Method.query.filter_by(name=str(method_name)).first()
         for group in method.groups:
             result[group.name] = {x.id: x.label for x in group.actions}
     else:
-        actions = models.Action.query.all()
-        result = {'All': {x.id: x.label for x in actions}}
+        all_actions = models.Action.query.all()
+        result = {'': {x.id: x.label for x in all_actions}}
     return flask.render_template('snippets/actions.html', result=result,
                                  method_name=method_name, actions=actions,
-                                 link=link, signup=signup, back=back)
+                                 header=header, back=back)

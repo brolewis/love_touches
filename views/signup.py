@@ -48,7 +48,6 @@ def step_two():
     if flask.request.method == 'POST':
         if flask.request.form.getlist('action'):
             method_name = flask.request.form.get('method_name', '')
-            flask.session['method_name'] = method_name
             actions = flask.request.form.getlist('action', type=int)
             flask.session['actions'] = actions
             endpoint = flask.session.get('action') or 'step_three'
@@ -60,16 +59,6 @@ def step_two():
     return flask.render_template('step_two.html', methods=methods,
                                  back=flask.url_for('step_one'),
                                  group='signup')
-
-
-@main.app.route('/_get_actions')
-def _get_actions():
-    method_name = flask.request.args.get('method_name')
-    actions = flask.session.get('actions') or []
-    template = utils._get_actions_for_method(method_name, actions, 'step_two',
-                                             signup=True,
-                                             back=flask.url_for('step_two'))
-    return flask.jsonify(template=template)
 
 
 @main.app.route('/step_three', methods=['GET', 'POST'])

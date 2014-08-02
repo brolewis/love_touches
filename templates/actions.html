@@ -1,7 +1,52 @@
 {% extends "admin_base.html" %}
 {% block sub_title %}Actions{% endblock %}
+{% block modal %}
+    {{ modal|safe }}
+{% endblock %}
 {% block main %}
-    <h1>{{ current_user.method or 'All' }}</h1>
-    {{ form|safe }}
-    {{ admin_navigation() }}
+<form id="actions-form" method="post" role="form" class="form-horizontal" action="{{ url_for('actions') }}">
+    <div class="flip">
+        <div class="card">
+            <div class="face front">
+                {{ form|safe }}
+            </div>
+            <div class="face back">
+            </div>
+        </div>
+    </div>
+    <div>
+        {{ admin_navigation() }}
+    </div>
+</form>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        var action_results = function(data) {
+            if ($(".face.front").is(":visible")) {
+                $(".face.back").html(data.actions);
+                $(".face.back").show();
+                $(".face.front").hide();
+            } else {
+                $(".face.front").html(data.actions);
+                $(".face.front").show();
+                $(".face.back").hide();
+            }
+            $("#admin_modal").html(data.modal);
+            $(".modal-backdrop").hide();
+            return false;
+        }
+        $("#actions-form").on('click', '#methods-toggle', function(){
+            $('#methods').modal('show');
+            return false;
+        });
+        $("#admin_modal").on('click', '.toggle', function(){
+            $('#methods').modal('hide');
+            $.getJSON($SCRIPT_ROOT + '/_get_actions', {method_name: $(this).attr('id'), 'header': 'admin'},
+                      action_results);
+            $(".flip").find(".card").toggleClass("flipped");
+            return false;
+        });
+    </script>
 {% endblock %}

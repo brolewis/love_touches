@@ -48,6 +48,20 @@ def cancel():
     return flask.redirect(flask.url_for('index'))
 
 
+@main.app.route('/_get_actions')
+def _get_actions():
+    method_name = flask.request.args.get('method_name')
+    flask.session['method_name'] = method_name
+    header = flask.request.args.get('header')
+    back = flask.request.args.get('back')
+    actions = utils._get_actions_for_method(method_name, header=header,
+                                            back=back)
+    methods = models.Method.query.all()
+    modal = flask.render_template('snippets/methods_dialog.html',
+                                  methods=methods, method_name=method_name)
+    return flask.jsonify(actions=actions, modal=modal)
+
+
 import views.admin
 import views.security
 import views.signup  # noqa
