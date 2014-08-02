@@ -36,8 +36,6 @@ class ContactFormMixin(object):
 
 
 class ContactForm(flask.ext.wtf.Form, ContactFormMixin):
-    pass
-
     def validate(self):
         if not super(ContactForm, self).validate():
             return False
