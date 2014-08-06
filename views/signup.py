@@ -3,11 +3,14 @@ import datetime
 # Third Party
 import flask
 import pyotp
+import werkzeug.local
 # Local
 import forms
 import main
 import models
 import utils
+
+_security = werkzeug.local.LocalProxy(lambda: main.app.extensions['security'])
 
 
 @main.app.route('/step_one', methods=['GET', 'POST'])
@@ -47,7 +50,6 @@ def step_two():
         flask.redirect(flask.url_for('actions'))
     if flask.request.method == 'POST':
         if flask.request.form.getlist('action'):
-            method_name = flask.request.form.get('method_name', '')
             actions = flask.request.form.getlist('action', type=int)
             flask.session['actions'] = actions
             endpoint = flask.session.get('action') or 'step_three'
@@ -125,8 +127,8 @@ def confirm(action=None):
         if name:
             method = models.Method.query.filter_by(name=name).first()
             user.method = method
-            time = '{hour}:{minute} {am_pm}'.format(**flask.session)
-            time = datetime.datetime.strptime(time, '%I:%M %p').time()
+        time = '{hour}:{minute} {am_pm}'.format(**flask.session)
+        time = datetime.datetime.strptime(time, '%I:%M %p').time()
         for day_of_week in flask.session['days_of_week']:
             crontab = models.Crontab(day_of_week=day_of_week, time=time,
                                      timezone=flask.session['timezone'])
@@ -136,13 +138,16 @@ def confirm(action=None):
         models.db.session.commit()
         redirect = 'index'
         if user.email and not flask.session.get('_email_sent') \
-                and user.confirmed_at is None:
+                and user.email_confirmed_at is None:
             confirmable = flask.ext.security.confirmable
-            link = confirmable.generate_confirmation_link(user)[0]
-            flask.flash('Email confirmation instructions have been sent.')
-            subject = 'Welcome to Love Touches!'
+            token = confirmable.generate_confirmation_token(user)
+            link = flask.url_for('confirm_signup', token=token, _external=True)
+            msg = flask.ext.security.utils.get_message('CONFIRM_REGISTRATION',
+                                                       email=user.email)
+            flask.flash(*msg)
+            subject = 'Thank You for Signing Up for Love Touches!'
             flask.ext.security.utils.send_mail(subject, user.email,
-                                               'welcome', user=user,
+                                               'signup', user=user,
                                                confirmation_link=link)
             flask.session['_email_sent'] = True
             redirect = 'index'
@@ -157,3 +162,44 @@ def confirm(action=None):
         return flask.redirect(flask.url_for(redirect))
     return flask.render_template('confirm.html', actions=actions, phone=phone,
                                  days_label=_days_label(), group='signup')
+
+
+@main.app.route('/confirm_signup/<token>')
+def confirm_signup(token):
+    """View function which handles a email confirmation request."""
+    get_url = flask.ext.security.utils.get_url
+    ret = flask.ext.security.confirmable.confirm_email_token_status(token)
+    expired, invalid, user = ret
+    if not user or invalid:
+        invalid = True
+        flask.flash('Invalid confirmation token.', 'error')
+    if expired:
+        flask.ext.security.confirmable.send_confirmation_instructions(user)
+        message = 'You did not confirm your email within {}. New instructions '
+        message += 'to confirm your email have been sent to {}.'
+        message = message.format(_security.confirm_email_within, user.email)
+        flask.flash(message, 'error')
+    if invalid or expired:
+        return flask.redirect(get_url(_security.confirm_error_view) or
+                              flask.url_for('send_confirmation'))
+    if user != flask.ext.security.current_user:
+        flask.ext.security.utils.logout_user()
+        flask.ext.security.utils.login_user(user)
+
+    if user.email_confirmed_at is None:
+        user.email_confirmed_at = datetime.datetime.utcnow()
+        models.db.session.add(user)
+        models.db.session.commit()
+        message = 'Thank you for confirming your email address. You will now'
+        message += ' start receving your scheduled actions.'
+        flask.flash(message)
+    else:
+        flask.flash('Your email address has already been confirmed.')
+    message = 'You may want to take a minute to <a href="{}">register</a> '
+    message += 'so you can change your schedule and actions.'
+    register_url = flask.ext.security.utils.url_for_security('register')
+    flask.flash(message.format(register_url))
+    message = "(Don't worry; if you don't register now, you can register at"
+    message += ' any time from the top menu.)'
+    flask.flash(message)
+    return flask.redirect(flask.url_for('index'))

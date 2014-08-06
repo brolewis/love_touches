@@ -175,9 +175,7 @@ class ConfirmRegisterForm(flask.ext.wtf.Form, ContactFormMixin,
         if user is None and phone:
             query = main.user_datastore.user_model.query
             user = query.filter_by(phone=phone).first()
-        email_confirmed = (email and user.password and user.confirmed_at)
-        phone_confirmed = (phone and user.password and user.phone_confirmed_at)
-        if user and (email_confirmed or phone_confirmed):
+        if user and user.password and user.confirmed_at:
             login_url = url_for_security('login')
             forgot_url = url_for_security('forgot_password')
             message = 'You have already successfully registered. You should be'
@@ -189,7 +187,7 @@ class ConfirmRegisterForm(flask.ext.wtf.Form, ContactFormMixin,
             errors = self.phone.errors if phone else self.email.errors
             errors.append('Already registered')
             return False
-        if user and email and user.confirmed_at is None:
+        if user and email and user.password and user.confirmed_at is None:
             confirm_url = url_for_security('send_confirmation')
             message = 'You have already registered but need to confirm your'
             message += ' email address. If you have deleted or did not receive'
@@ -198,7 +196,7 @@ class ConfirmRegisterForm(flask.ext.wtf.Form, ContactFormMixin,
             flask.flash(message.format(confirm_url), 'error')
             self.email.errors.append('Registration pending')
             return False
-        if user and phone and user.phone_confirmed_at is None:
+        if user and phone and user.password and user.confirmed_at is None:
             next_url = flask.ext.security.utils.get_post_register_redirect()
             confirm_url = flask.url_for('confirm_mobile', action='re-send',
                                         next=next_url)

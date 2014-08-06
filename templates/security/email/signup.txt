@@ -1,0 +1,6 @@
+Welcome {{ user.email }}!
+
+Thank you for signing up for Love Touches. We sincerely hope that these reminders will serve as a gentle reminder. Before we can get started sending emails, we ask that
+you confirm your account with the link below. Once this is done we can start sending reminders.
+
+{{ confirmation_link }}

@@ -30,7 +30,10 @@ def confirm_mobile(action=None):
     form = forms.MobileVerifyForm()
     if form.validate_on_submit():
         if form.data['code'] == pyotp.HOTP(user.secret).at(0):
-            user.phone_confirmed_at = datetime.datetime.now()
+            if action == 'login_confirm':
+                user.confirmed_at = datetime.datetime.utcnow()
+            else:
+                user.phone_confirmed_at = datetime.datetime.utcnow()
             models.db.session.add(user)
             models.db.session.commit()
             flask.flash('Mobile Number confirmed', 'success')

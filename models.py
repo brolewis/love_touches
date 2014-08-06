@@ -45,6 +45,7 @@ class User(db.Model, flask.ext.security.UserMixin):
     phone = db.Column(db.String)
     secret = db.Column(db.String)
     confirmed_at = db.Column(db.DateTime)
+    email_confirmed_at = db.Column(db.DateTime)
     phone_confirmed_at = db.Column(db.DateTime)
     last_login_at = db.Column(db.DateTime)
     current_login_at = db.Column(db.DateTime)
