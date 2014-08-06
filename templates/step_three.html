@@ -1,8 +1,14 @@
 {% extends "signup_base.html" %}
 {% block sub_title %}Step Three{% endblock %}
 {% block main %}
-    <h1>Step Three: Set a Schedule</h1>
+    <h1>Step Three: Contact Info</h1>
+    <p>How do you want the reminders sent to you?</p>
     <form method="post" role="form" class="form-horizontal" action="{{ url_for('step_three') }}">
-        {{ schedule_form(form) }}
+        {{ signup_form(form) }}
     </form>
+    <div class="info-footer">
+        <div class="info-footer-body">
+            Note: You will receive updates for <strong>*each*</strong> provided contact type, so if you don't want duplicates, pick only one
+        </div>
+    </div>
 {% endblock %}

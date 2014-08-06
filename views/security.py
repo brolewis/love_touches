@@ -27,13 +27,13 @@ def register():
         user.password = passwd
         models.db.session.add(user)
         models.db.session.commit()
-        url = flask.ext.security.utils.get_post_register_redirect()
         if user.phone:
             utils.send_code(user)
             flask.session['_user_id'] = user.id
-            return flask.redirect(flask.url_for('confirm_mobile', next=url,
-                                                action='login_confirm'))
+            url = flask.url_for('confirm_mobile', action='login_confirm')
+            return flask.redirect(url)
         elif user.email:
+            url = flask.ext.security.utils.get_post_register_redirect()
             confirmable = flask.ext.security.confirmable
             link, token = confirmable.generate_confirmation_link(user)
             msg = flask.ext.security.utils.get_message('CONFIRM_REGISTRATION',

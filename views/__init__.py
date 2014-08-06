@@ -3,11 +3,14 @@ import datetime
 # Third Party
 import flask
 import pyotp
+import werkzeug.local
 # Local
 import forms
 import main
 import models
 import utils
+
+_security = werkzeug.local.LocalProxy(lambda: main.app.extensions['security'])
 
 
 @main.app.route('/')
@@ -30,14 +33,20 @@ def confirm_mobile(action=None):
     form = forms.MobileVerifyForm()
     if form.validate_on_submit():
         if form.data['code'] == pyotp.HOTP(user.secret).at(0):
+            register_url = flask.url_for('index')
             if action == 'login_confirm':
                 user.confirmed_at = datetime.datetime.utcnow()
+                if user != flask.ext.security.current_user:
+                    flask.ext.security.utils.logout_user()
+                    flask.ext.security.utils.login_user(user)
+                    get_url = flask.ext.security.utils.get_url
+                    register_url = (get_url(_security.post_confirm_view) or
+                                    get_url(_security.post_login_view))
             else:
                 user.phone_confirmed_at = datetime.datetime.utcnow()
             models.db.session.add(user)
             models.db.session.commit()
             flask.flash('Mobile Number confirmed', 'success')
-            register_url = form.data.get('next') or flask.url_for('index')
             return flask.redirect(register_url)
         else:
             flask.flash('Verification code does not match.', 'error')

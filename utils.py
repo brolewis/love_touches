@@ -2,6 +2,7 @@
 import os
 # Third Party
 import flask
+import flask.ext.security
 import phonenumbers
 import pyotp
 import telapi.rest
@@ -37,6 +38,8 @@ def send_code(user):
 def _get_actions_for_method(method_name, header='', back=''):
     current_user = flask.ext.security.current_user
     actions = [x.id for x in getattr(current_user, 'actions', [])]
+    if not actions:
+        actions = flask.session.get('actions')
     if method_name:
         result = {}
         method = models.Method.query.filter_by(name=str(method_name)).first()
@@ -48,3 +51,12 @@ def _get_actions_for_method(method_name, header='', back=''):
     return flask.render_template('snippets/actions.html', result=result,
                                  method_name=method_name, actions=actions,
                                  header=header, back=back)
+
+
+def get_redirect(endpoint):
+    urls = [flask.ext.security.utils.get_url(flask.request.args.get('next')),
+            flask.ext.security.utils.get_url(flask.request.form.get('next')),
+            flask.ext.security.utils.get_url(endpoint)]
+    for url in urls:
+        if flask.ext.security.utils.validate_redirect_url(url):
+            return url

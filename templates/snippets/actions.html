@@ -1,13 +1,15 @@
 {% if header == 'signup' %}
     <h1>Step Two: Select Your Actions</h1>
-    <p>Next, pick some actions</p>
+    <p>Next, pick some actions. These are the actions you would like to have sent to you. We'll send you one randomly based on the schedule you pick at the next step.</p>
 {% elif header == 'admin' %}
     <h1>
         {{ method_name or 'All' }}
         <a href="#" id="methods-toggle" class="btn btn-lg btn-clear">Change</a>
     </h1>
 {% endif %}
-<input type="hidden" name="method_name" value="{{ method_name }}" />
+{% if request.args.get('next') %}
+<input type="hidden" name="next" value="{{ request.args['next'] }}" />
+{% endif %}
 {% for group in result %}
     {% if group %}<div class="row"><h3>{{ group }}</h3></div>{% endif %}
 <div class="row">

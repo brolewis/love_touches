@@ -3,7 +3,7 @@
 {% block main %}
     <h1>Confirm Mobile Number</h1>
     <p>Please enter the verification code sent to your mobile number.</p>
-    <form method="post" role="form" class="form-horizontal" action="{{ url_for('confirm_mobile') }}">
+    <form method="post" role="form" class="form-horizontal" action="{{ request.path }}">
         {{ form.hidden_tag() }}
         <div class="form-group">
             {{ form.code.label(class='col-sm-4 control-label') }}

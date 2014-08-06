@@ -35,7 +35,16 @@ class ContactFormMixin(object):
                                           valid_user_email])
 
 
-class ContactForm(flask.ext.wtf.Form, ContactFormMixin):
+class ContactForm(flask.ext.wtf.Form, ContactFormMixin,
+                  flask.ext.security.forms.NextFormMixin):
+
+    def __init__(self, *args, **kwargs):
+        if 'next' in flask.session:
+            del flask.session['next']
+        super(ContactForm, self).__init__(*args, **kwargs)
+        if not self.next.data:
+            self.next.data = flask.request.args.get('next', '')
+
     def validate(self):
         if not super(ContactForm, self).validate():
             return False
@@ -56,7 +65,7 @@ timezone_choices = zip(pytz.common_timezones, pytz.common_timezones)
 timezone_choices.insert(0, ('', ''))
 
 
-class ScheduleForm(flask.ext.wtf.Form):
+class ScheduleForm(flask.ext.wtf.Form, flask.ext.security.forms.NextFormMixin):
     days_of_week = wtforms.SelectMultipleField('Days of the Week',
                                                [wtforms.validators.Required()],
                                                choices=weekday_choices,
@@ -67,6 +76,13 @@ class ScheduleForm(flask.ext.wtf.Form):
                                choices=[('am', 'am'), ('pm', 'pm')])
     timezone = wtforms.SelectField('Time Zone', choices=timezone_choices,
                                    validators=[wtforms.validators.Required()])
+
+    def __init__(self, *args, **kwargs):
+        if 'next' in flask.session:
+            del flask.session['next']
+        super(ScheduleForm, self).__init__(*args, **kwargs)
+        if not self.next.data:
+            self.next.data = flask.request.args.get('next', '')
 
 
 class MobileVerifyForm(flask.ext.wtf.Form,

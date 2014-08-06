@@ -85,7 +85,6 @@ def actions():
 @flask.ext.security.login_required
 def schedule():
     user = flask.ext.security.current_user
-    time_str = user.schedule[0].time.strftime('%I:%M %p')
     form = forms.ScheduleForm()
     if form.validate_on_submit():
         time = '{hour}:{minute} {am_pm}'.format(**form.data)
@@ -101,9 +100,11 @@ def schedule():
             models.db.session.add(user)
             models.db.session.commit()
             flask.flash('Schedule saved.', 'success')
-    form.days_of_week.data = [x.day_of_week for x in user.schedule]
-    form.hour.data = int(time_str[:2])
-    form.minute.data = time_str[3:5]
-    form.am_pm.data = time_str[-2:].lower()
-    form.timezone.data = user.schedule[0].timezone
+    if user.schedule:
+        form.days_of_week.data = [x.day_of_week for x in user.schedule]
+        time_str = user.schedule[0].time.strftime('%I:%M %p')
+        form.hour.data = int(time_str[:2])
+        form.minute.data = time_str[3:5]
+        form.am_pm.data = time_str[-2:].lower()
+        form.timezone.data = user.schedule[0].timezone
     return flask.render_template('schedule.html', form=form, group='admin')

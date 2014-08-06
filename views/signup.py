@@ -17,7 +17,49 @@ _security = werkzeug.local.LocalProxy(lambda: main.app.extensions['security'])
 def step_one():
     user = flask.ext.security.current_user
     if not user.is_anonymous():
+        flask.redirect(flask.url_for('actions'))
+    if flask.request.method == 'POST':
+        if flask.request.form.getlist('action'):
+            actions = flask.request.form.getlist('action', type=int)
+            flask.session['actions'] = actions
+            return flask.redirect(utils.get_redirect('step_two'))
+        else:
+            message = 'Uh oh. You need to pick at least one action.'
+            flask.flash(message, 'error')
+    methods = models.Method.query.all()
+    return flask.render_template('step_one.html', methods=methods,
+                                 group='signup')
+
+
+@main.app.route('/step_two', methods=['GET', 'POST'])
+def step_two():
+    user = flask.ext.security.current_user
+    if not user.is_anonymous():
+        flask.redirect(flask.url_for('schedule'))
+    if not flask.session.get('actions'):
+        return flask.redirect(flask.url_for('step_one'))
+    form = forms.ScheduleForm()
+    if form.validate_on_submit():
+        flask.session.update(form.data)
+        return flask.redirect(utils.get_redirect('step_three'))
+    for key in (x for x in flask.session if hasattr(form, x)):
+        value = flask.session[key]
+        if key == 'minute':
+            value = '{:02d}'.format(int(value))
+        getattr(form, key).data = value
+    return flask.render_template('step_two.html', form=form, group='signup',
+                                 back=flask.url_for('step_one'))
+
+
+@main.app.route('/step_three', methods=['GET', 'POST'])
+def step_three():
+    user = flask.ext.security.current_user
+    if not user.is_anonymous():
         flask.redirect(flask.url_for('contact'))
+    if not flask.session.get('actions'):
+        return flask.redirect(flask.url_for('step_one'))
+    if not flask.session.get('timezone'):
+        return flask.redirect(flask.url_for('step_two'))
     form = forms.ContactForm()
     previous = False
     if form.validate_on_submit():
@@ -33,49 +75,9 @@ def step_one():
             login_url = flask.ext.security.utils.url_for_security('login')
             return flask.redirect(login_url)
         flask.session.update(form.data)
-        endpoint = flask.session.get('action') or 'step_two'
-        return flask.redirect(flask.url_for(endpoint))
-    keys = ('phone', 'country_code', 'email')
-    for key in (x for x in keys if flask.session.get(x)):
-        getattr(form, key).data = flask.session[key]
-    return flask.render_template('step_one.html', form=form, group='signup')
-
-
-@main.app.route('/step_two', methods=['GET', 'POST'])
-def step_two():
-    if not (flask.session.get('email') or flask.session.get('phone')):
-        return flask.redirect(flask.url_for('step_one'))
-    user = flask.ext.security.current_user
-    if not user.is_anonymous():
-        flask.redirect(flask.url_for('actions'))
-    if flask.request.method == 'POST':
-        if flask.request.form.getlist('action'):
-            actions = flask.request.form.getlist('action', type=int)
-            flask.session['actions'] = actions
-            endpoint = flask.session.get('action') or 'step_three'
-            return flask.redirect(flask.url_for(endpoint))
-        else:
-            message = 'Uh oh. You need to pick at least one action.'
-            flask.flash(message, 'error')
-    methods = models.Method.query.all()
-    return flask.render_template('step_two.html', methods=methods,
-                                 back=flask.url_for('step_one'),
-                                 group='signup')
-
-
-@main.app.route('/step_three', methods=['GET', 'POST'])
-def step_three():
-    if not (flask.session.get('email') or flask.session.get('phone')):
-        return flask.redirect(flask.url_for('step_one'))
-    if not flask.session.get('actions'):
-        return flask.redirect(flask.url_for('step_two'))
-    form = forms.ScheduleForm()
-    user = flask.ext.security.current_user
-    if not user.is_anonymous():
-        flask.redirect(flask.url_for('schedule'))
-    if form.validate_on_submit():
-        flask.session.update(form.data)
         return flask.redirect(flask.url_for('confirm'))
+    for key in (x for x in flask.session if hasattr(form, x)):
+        getattr(form, key).data = flask.session[key]
     return flask.render_template('step_three.html', form=form, group='signup',
                                  back=flask.url_for('step_two'))
 
@@ -105,7 +107,6 @@ def confirm(action=None):
     if not flask.session.get('actions'):
         return flask.redirect(flask.url_for('step_two'))
     phone = utils.format_phone(flask.session)
-    flask.session['action'] = 'confirm'
     actions = [models.Action.query.get(x) for x in flask.session['actions']]
     if action == 'submit':
         user = None

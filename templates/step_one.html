@@ -1,14 +1,38 @@
 {% extends "signup_base.html" %}
-{% block sub_title %}Step One{% endblock %}
+{% block sub_title %}Love Touches - Step One{% endblock %}
 {% block main %}
-    <h1>Step One: Contact Info</h1>
-    <p>How do you want the reminders sent to you?</p>
-    <form method="post" role="form" class="form-horizontal" action="{{ url_for('step_one') }}">
-        {{ signup_form(form) }}
-    </form>
-    <div class="info-footer">
-        <div class="info-footer-body">
-            Note: You will receive updates for <strong>*each*</strong> provided contact type, so if you don't want duplicates, pick only one
+<form id="actions-form" method="post" role="form" class="form-horizontal" action="{{ url_for('step_one') }}">
+    <div class="flip">
+        <div class="card">
+            <div class="face front">
+                <h1>Step One: Select Your Actions</h1>
+                <p>First, pick a method</p>
+                {% for method in methods %}
+                    <p><a href="#" id="{{ method.name }}" class="btn btn-default btn-lg toggle{% if method.name == session['method_name'] %} active{% endif %}">{{ method.name }}</a></p>
+                {% endfor %}
+                <p><a href="#" class="btn btn-default btn-lg toggle">All</a></p>
+                {{ signup_navigation(next=False) }}
+            </div>
+            <div class="face back"></div>
         </div>
     </div>
+</form>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        var action_results = function(data) {
+            $(".face.back").html(data.actions);
+            $(".face.front").hide();
+            $("#messages").hide();
+            $(".intro").css('background-image', 'none');
+        }
+        $(".toggle").click(function(){
+                $.getJSON($SCRIPT_ROOT + '/_get_actions', {method_name: $(this).attr('id'), 'header': 'signup', 'back': $SCRIPT_ROOT, 'next': '{{ request.args.get('next') }}'},
+                      action_results);
+            $(".flip").find(".card").toggleClass("flipped");
+            return false;
+        });
+    </script>
 {% endblock %}

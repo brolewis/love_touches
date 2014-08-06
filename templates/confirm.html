@@ -4,18 +4,6 @@
 {% block main %}
     <div class="row">
         <h1>Confirm Your Choices</h1>
-        {% if session.email %}
-        <p>
-            <span class="fa fa-envelope-o fa-fw"></span> {{ session.email }}
-            <a href="{{ url_for('step_one') }}" class="btn btn-lg btn-clear">Edit</span></a>
-        </p>
-        {% endif %}
-        {% if phone %}
-        <p>
-            <span class="fa fa-mobile fa-fw"></span> {{ phone }}
-            <a href="{{ url_for('step_one') }}" class="btn btn-lg btn-clear">Edit</span></a>
-        </p>
-        {% endif %}
         <div class="row">
             {% for action in actions %}
             <div class="col-sm-{% if actions|length in (2, 4)%}6{% else %}4{% endif %}{% if actions|length == 1 %}col-sm-offset-4{% endif %}" style="margin-bottom: 1em;">
@@ -23,12 +11,24 @@
             </div>
             {% endfor %}
         </div>
-        <p><a href="{{ url_for('step_two') }}" class="btn btn-lg btn-clear">Edit</span></a></p>
+        <p class="last"><a href="{{ url_for('step_one', next=url_for('confirm')) }}" class="btn btn-lg btn-clear">Edit</span></a></p>
         <p class="last">
             <span class="fa fa-clock-o fa-fw"></span> {{ days_label }} at {{ session.hour }}:{{ '%02d' % session.minute }} {{ session.am_pm }}
             ({{ session.timezone }})
-            <a href="{{ url_for('step_three') }}" class="btn btn-lg btn-clear">Edit</span></a>
+            <a href="{{ url_for('step_two', next=url_for('confirm')) }}" class="btn btn-lg btn-clear">Edit</span></a>
         </p>
+        {% if session.email %}
+        <p class="last">
+            <span class="fa fa-envelope-o fa-fw"></span> {{ session.email }}
+            <a href="{{ url_for('step_three', next=url_for('confirm')) }}" class="btn btn-lg btn-clear">Edit</span></a>
+        </p>
+        {% endif %}
+        {% if phone %}
+        <p>
+            <span class="fa fa-mobile fa-fw"></span> {{ phone }}
+            <a href="{{ url_for('step_three', next=url_for('confirm')) }}" class="btn btn-lg btn-clear">Edit</span></a>
+        </p>
+        {% endif %}
     </div>
     <div class="row navigation">
         <div class="col-lg-12">
