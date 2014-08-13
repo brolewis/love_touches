@@ -173,7 +173,6 @@ a:focus {
 @media(min-width:767px) {
     .intro {
         height: 100%;
-        padding: 0;
     }
 
     .brand-heading {
@@ -573,4 +572,19 @@ select {
 .methods-dialog {
     background-color: #555;
     border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.or-circle {
+    width: 80px;
+    height: 80px;
+    margin-top: 35px;
+    padding: 15px 15px;
+    border: 2px solid #fff;
+    border-radius: 45px;
+    font-size: 40px;
+    color: #fff;
+    background: 0 0;
+    -webkit-transition: background .3s ease-in-out;
+    -moz-transition: background .3s ease-in-out;
+    transition: background .3s ease-in-out;
 }

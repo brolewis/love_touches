@@ -19,6 +19,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///love_touches.sqlite'
 db = flask_sqlalchemy.SQLAlchemy(app)
 migrate = flask.ext.migrate.Migrate(app, db)
 # Bootstrap
+serve_local = str(os.getenv('BOOTSTRAP_SERVE_LOCAL', False)).lower() == 'true'
+app.config['BOOTSTRAP_SERVE_LOCAL'] = serve_local
 flask_bootstrap.Bootstrap(app)
 # Flask-Security
 import models
