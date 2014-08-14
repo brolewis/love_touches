@@ -28,7 +28,6 @@ def contact():
                 flask.ext.security.utils.send_mail(subject, user.email,
                                                    'welcome', user=user,
                                                    confirmation_link=link)
-                flask.session['_email_sent'] = True
         phone = utils.format_phone(form.data)
         if user.phone != phone:
             user.phone = phone

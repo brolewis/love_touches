@@ -15,9 +15,6 @@ _security = werkzeug.local.LocalProxy(lambda: main.app.extensions['security'])
 
 @main.app.route('/')
 def index():
-    for key in ('_email_sent', '_phone_sent'):
-        if key in flask.session:
-            del flask.session[key]
     return flask.render_template('index.html')
 
 

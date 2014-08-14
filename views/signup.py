@@ -138,8 +138,7 @@ def confirm(action=None):
         models.db.session.add(user)
         models.db.session.commit()
         redirect = 'index'
-        if user.email and not flask.session.get('_email_sent') \
-                and user.email_confirmed_at is None:
+        if user.email and user.email_confirmed_at is None:
             confirmable = flask.ext.security.confirmable
             token = confirmable.generate_confirmation_token(user)
             link = flask.url_for('confirm_signup', token=token, _external=True)
@@ -150,14 +149,11 @@ def confirm(action=None):
             flask.ext.security.utils.send_mail(subject, user.email,
                                                'signup', user=user,
                                                confirmation_link=link)
-            flask.session['_email_sent'] = True
             redirect = 'index'
-        if user.phone and not flask.session.get('_phone_sent') \
-                and user.phone_confirmed_at is None:
+        if user.phone and user.phone_confirmed_at is None:
             utils.send_code(user)
             flask.session['_user_id'] = user.id
             redirect = 'confirm_mobile'
-            flask.session['_phone_sent'] = True
         for key in (x for x in flask.session.keys() if not x.startswith('_')):
             del flask.session[key]
         return flask.redirect(flask.url_for(redirect))
