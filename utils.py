@@ -39,7 +39,7 @@ def _get_actions_for_method(method_name, header='', back=''):
     current_user = flask.ext.security.current_user
     actions = [x.id for x in getattr(current_user, 'actions', [])]
     if not actions:
-        actions = flask.session.get('actions')
+        actions = flask.session.get('actions', [])
     if method_name:
         result = {}
         method = models.Method.query.filter_by(name=str(method_name)).first()
