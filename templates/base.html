@@ -49,7 +49,7 @@
                     </li>
                     {% if current_user.is_authenticated() %}
                     <li class="page-scroll{% if group == 'admin' or request.path == url_for_security('change_password') %} active{% endif %}">
-                        <a href="{{ url_for('contact') }}">Admin</a>
+                        <a href="{{ url_for('admin.actions') }}">Admin</a>
                     </li>
                     <li class="page-scroll">
                         <a href="{{ url_for_security('logout') }}">Logout</a>

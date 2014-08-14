@@ -1,10 +1,10 @@
-{% extends "admin_base.html" %}
+{% extends "admin/base.html" %}
 {% block sub_title %}Actions{% endblock %}
 {% block modal %}
     {{ modal|safe }}
 {% endblock %}
 {% block main %}
-<form id="actions-form" method="post" role="form" class="form-horizontal" action="{{ url_for('actions') }}">
+<form id="actions-form" method="post" role="form" class="form-horizontal" action="{{ request.path }}">
     <div class="flip">
         <div class="card">
             <div class="face front">

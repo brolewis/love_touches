@@ -2,14 +2,20 @@
 import datetime
 # Third Party
 import flask
+import werkzeug.datastructures
+import werkzeug.local
 # Local
 import forms
 import main
 import models
 import utils
 
+admin = flask.Blueprint('admin', __name__, url_prefix='/admin',
+                        template_folder='../templates/admin')
+_security = werkzeug.local.LocalProxy(lambda: main.app.extensions['security'])
 
-@main.app.route('/contact', methods=['GET', 'POST'])
+
+@admin.route('/contact', methods=['GET', 'POST'])
 @flask.ext.security.login_required
 def contact():
     user = flask.ext.security.current_user
@@ -47,7 +53,7 @@ def contact():
     return flask.render_template('contact.html', form=form, group='admin')
 
 
-@main.app.route('/actions', methods=['GET', 'POST'])
+@admin.route('/actions', methods=['GET', 'POST'])
 @flask.ext.security.login_required
 def actions():
     user = flask.ext.security.current_user
@@ -80,7 +86,7 @@ def actions():
                                  group='admin')
 
 
-@main.app.route('/schedule', methods=['GET', 'POST'])
+@admin.route('/schedule', methods=['GET', 'POST'])
 @flask.ext.security.login_required
 def schedule():
     user = flask.ext.security.current_user
@@ -107,3 +113,28 @@ def schedule():
         form.am_pm.data = time_str[-2:].lower()
         form.timezone.data = user.schedule[0].timezone
     return flask.render_template('schedule.html', form=form, group='admin')
+
+
+@admin.route('/change_password', methods=['GET', 'POST'])
+@flask.ext.security.login_required
+def change_password():
+    """View function which handles a change password request."""
+    user = flask.ext.security.current_user
+    form = _security.change_password_form()
+    if form.validate_on_submit():
+        password = form.new_password.data
+        password = flask.ext.security.utils.encrypt_password(password)
+        user.password = password
+        models.db.session.add(user)
+        models.db.session.commit()
+        if user.email:
+            flask.ext.security.changeable.send_password_changed_notice(user)
+        message = flask.ext.security.utils.get_message('PASSWORD_CHANGE')
+        flask.flash(*message)
+    return flask.render_template('change_password.html', form=form)
+
+
+@admin.route('/suggest_method', methods=['GET', 'POST'])
+@flask.ext.security.login_required
+def suggest_method():
+    pass
