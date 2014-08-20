@@ -8,4 +8,5 @@ bcrypt==1.0.2
 phonenumbers==6.2.0
 pyotp==1.4.1
 pytz==2014.4
+raven==5.0.0
 telapi==0.2.5.2

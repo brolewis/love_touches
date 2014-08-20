@@ -8,12 +8,16 @@ import flask_debugtoolbar
 import flask_mail
 import flask_sqlalchemy
 import flask.ext.migrate
+import raven.contrib.flask
 
 # General Setup
 app = flask.Flask(__name__)
 app.config['DEBUG'] = str(os.getenv('DEBUG', False)).lower() == 'true'
 DEV_SECRET_KEY = 'v=&3w2fsnn+all#(av21nbj9w&w5+$yd71tg*(zng_qwrw=)k*'
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', DEV_SECRET_KEY)
+# Raven
+if not app.debug:
+    raven.contrib.flask.Sentry(app)
 # SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///love_touches.sqlite'
 db = flask_sqlalchemy.SQLAlchemy(app)
