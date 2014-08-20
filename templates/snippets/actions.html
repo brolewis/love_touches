@@ -8,7 +8,7 @@
     </h1>
 {% endif %}
 {% if request.args.get('next') %}
-<input type="hidden" name="next" value="{{ request.args['next'] }}" />
+<input type="hidden" name="next" value="{{ request.args.get('next', '') }}" />
 {% endif %}
 {% for group in result %}
     {% if group %}<div class="row"><h3>{{ group }}</h3></div>{% endif %}

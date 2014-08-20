@@ -29,7 +29,7 @@
             $(".intro").css('background-image', 'none');
         }
         $(".toggle").click(function(){
-                $.getJSON($SCRIPT_ROOT + '/_get_actions', {method_name: $(this).attr('id'), 'header': 'signup', 'back': $SCRIPT_ROOT, 'next': '{{ request.args.get('next') }}'},
+                $.getJSON($SCRIPT_ROOT + '/_get_actions', {method_name: $(this).attr('id'), 'header': 'signup', 'back': $SCRIPT_ROOT, 'next': '{{ request.args.get('next', '') }}'},
                       action_results);
             $(".flip").find(".card").toggleClass("flipped");
             return false;
