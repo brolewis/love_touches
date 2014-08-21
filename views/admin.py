@@ -50,7 +50,7 @@ def contact():
         form.country_code.data = country_code
         form.phone.data = phone
     form.email.data = user.email
-    return flask.render_template('contact.html', form=form, group='admin')
+    return flask.render_template('contact.html', form=form)
 
 
 @admin.route('/actions', methods=['GET', 'POST'])
@@ -82,8 +82,7 @@ def actions():
     methods = models.Method.query.all()
     modal = flask.render_template('snippets/methods_dialog.html',
                                   methods=methods, method_name=user.method)
-    return flask.render_template('actions.html', form=form, modal=modal,
-                                 group='admin')
+    return flask.render_template('actions.html', form=form, modal=modal)
 
 
 @admin.route('/schedule', methods=['GET', 'POST'])
@@ -112,7 +111,7 @@ def schedule():
         form.minute.data = time_str[3:5]
         form.am_pm.data = time_str[-2:].lower()
         form.timezone.data = user.schedule[0].timezone
-    return flask.render_template('schedule.html', form=form, group='admin')
+    return flask.render_template('schedule.html', form=form)
 
 
 @admin.route('/change_password', methods=['GET', 'POST'])

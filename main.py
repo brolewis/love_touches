@@ -58,3 +58,4 @@ flask_mail.Mail(app)
 # Local
 import views
 app.register_blueprint(views.admin.admin)
+app.register_blueprint(views.signup.signup)

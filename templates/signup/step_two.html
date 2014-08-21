@@ -2,7 +2,7 @@
 {% block sub_title %}Step Two{% endblock %}
 {% block main %}
     <h1>Step Two: Set a Schedule</h1>
-    <form method="post" role="form" class="form-horizontal" action="{{ url_for('step_two') }}">
+    <form method="post" role="form" class="form-horizontal" action="{{ request.path }}">
         {{ schedule_form(form) }}
     </form>
 {% endblock %}

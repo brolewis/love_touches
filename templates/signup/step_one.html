@@ -1,7 +1,7 @@
 {% extends "signup_base.html" %}
 {% block sub_title %}Love Touches - Step One{% endblock %}
 {% block main %}
-<form id="actions-form" method="post" role="form" class="form-horizontal" action="{{ url_for('step_one') }}">
+<form id="actions-form" method="post" role="form" class="form-horizontal" action="{{ request.path }}">
     <div class="flip">
         <div class="card">
             <div class="face front">
