@@ -41,12 +41,6 @@
                         <a href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#page-top"></a>
                     </li>
                     {% endif %}
-                    <li class="page-scroll">
-                    <a href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#details">About</a>
-                    </li>
-                    <li class="page-scroll">
-                        <a href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#steps">Steps</a>
-                    </li>
                     {% if current_user.is_authenticated() %}
                     <li class="page-scroll{% if group == 'admin' or request.path == url_for_security('change_password') %} active{% endif %}">
                         <a href="{{ url_for('admin.actions') }}">Admin</a>
@@ -55,6 +49,12 @@
                         <a href="{{ url_for_security('logout') }}">Logout</a>
                     </li>
                     {% else %}
+                    <li class="page-scroll">
+                    <a href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#details">About</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#steps">Steps</a>
+                    </li>
                     <li class="page-scroll{% if group == 'signup' %} active{% endif %}">
                         <a href="{{ url_for('step_one') }}">Get Started</a>
                     </li>
