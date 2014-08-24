@@ -137,6 +137,7 @@ def change_password():
 @flask.ext.security.login_required
 def suggest_method(method_id=None):
     if method_id and flask.request.method == 'GET':
+        disabled = ['name']
         method = models.Method.query.get(method_id)
         data = {'name': method.name}
         for cnt, group in enumerate(method.groups):
@@ -144,6 +145,7 @@ def suggest_method(method_id=None):
         formdata = werkzeug.datastructures.MultiDict(data)
         form = forms.SuggestMethodForm(formdata=formdata)
     else:
+        disabled = []
         form = forms.SuggestMethodForm()
     if form.validate_on_submit():
         method = models.Method.query.filter_by(name=form.name.data).first()
@@ -153,10 +155,12 @@ def suggest_method(method_id=None):
             models.db.session.add(method)
         groups = []
         for group_name in form.group.data:
-            group = models.Group.query.filter_by(name=group_name).first()
+            query = models.Group.query
+            group = query.filter_by(name=group_name, method=method).first()
             if not group:
                 group = models.Group(name=group_name)
             groups.append(group)
         method.groups = groups
         models.db.session.commit()
-    return flask.render_template('suggest_method.html', form=form)
+    return flask.render_template('suggest_method.html', form=form,
+                                 disabled=disabled)

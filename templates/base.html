@@ -131,7 +131,11 @@
                 </div>
             </div>
             {% else %}
+                {% if field.name in disabled %}
+                {{ field(class='form-control', disabled=True) }}
+                {% else %}
                 {{ field(class='form-control') }}
+                {% endif %}
             {% endif %}
             {% if field.description %}
                 <span class="help-block">{{ field.description|safe }}</span>
