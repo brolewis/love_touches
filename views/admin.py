@@ -148,8 +148,9 @@ def suggest_method(method_id=None):
         disabled = []
         form = forms.SuggestMethodForm()
     if form.validate_on_submit():
-        method = models.Method.query.filter_by(name=form.name.data).first()
-        if not method:
+        if method_id:
+            method = models.Method.query.get(method_id)
+        else:
             method = models.Method(name=form.name.data,
                                    author=flask.ext.security.current_user)
             models.db.session.add(method)
