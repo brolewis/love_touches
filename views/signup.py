@@ -28,8 +28,8 @@ def step_one():
         else:
             message = 'Uh oh. You need to pick at least one action.'
             flask.flash(message, 'error')
-    methods = models.Method.query.all()
-    return flask.render_template('step_one.html', methods=methods)
+    return flask.render_template('step_one.html',
+                                 methods=models.approved_methods)
 
 
 @signup.route('/step_two', methods=['GET', 'POST'])
@@ -186,7 +186,6 @@ def confirm_signup(token):
     if user != flask.ext.security.current_user:
         flask.ext.security.utils.logout_user()
         flask.ext.security.utils.login_user(user)
-
     if user.email_confirmed_at is None:
         user.email_confirmed_at = datetime.datetime.utcnow()
         models.db.session.add(user)
@@ -196,11 +195,11 @@ def confirm_signup(token):
         flask.flash(message)
     else:
         flask.flash('Your email address has already been confirmed.')
-    message = 'You may want to take a minute to <a href="{}">register</a> '
-    message += 'so you can change your schedule and actions.'
-    register_url = flask.ext.security.utils.url_for_security('register')
+    message = 'You may want to <a href="{}">register</a> so you can change '
+    message += 'your schedule and actions.'
+    register_url = flask.url_for('register', email=user.email)
     flask.flash(message.format(register_url))
-    message = "(Don't worry; if you don't register now, you can register at"
+    message = "(If you don't register now, you can register at"
     message += ' any time from the top menu.)'
     flask.flash(message)
     return flask.redirect(flask.url_for('index'))

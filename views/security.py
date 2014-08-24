@@ -44,5 +44,7 @@ def register():
                                                user=user,
                                                confirmation_link=link)
             return flask.redirect(url)
+    if flask.request.args.get('email'):
+        form.email.data = flask.request.args.get('email')
     template = flask.ext.security.utils.config_value('REGISTER_USER_TEMPLATE')
     return flask.render_template(template, register_user_form=form)

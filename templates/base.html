@@ -72,6 +72,49 @@
     {{ form.hidden_tag() }}
     {% for field in form %}
     {% if field|simple_field_filter and field.name != 'country_code' %}
+    {% if field.type == 'FieldList' %}
+        {% for entry in field.entries %}
+        <div class="form-group">
+            {% if loop.first %}
+            {{ field.label(class='col-sm-3 control-label') }}
+            {% endif %}
+            <div class="{% if not loop.first %}col-sm-offset-3 {% endif %}col-sm-8{% if field.errors %} has-error{% endif %}">
+                {{ entry(class='form-control {}'.format(field.name)) }}
+            </div>
+            {% if loop.first %}
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-default add-btn">
+                    <i class="fa fa-plus"></i>
+                </button>
+            </div>
+            {% else %}
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-default remove-btn">
+                    <i class="fa fa-minus"></i>
+                </button>
+            </div>
+            {% endif %}
+            {% if entry.description %}
+                <span class="help-block">{{ field.description|safe }}</span>
+            {% endif %}
+            {% if entry.errors and loop.last %}
+            <span class="help-block help-error">
+                {{ entry.errors|join('<br />')|safe }}
+            </span>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <div class="form-group hide" id="group_template">
+            <div class="col-sm-offset-3 col-sm-8">
+                <input type="text" class="form-control" />
+            </div>
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-default remove-btn">
+                    <i class="fa fa-minus"></i>
+                </button>
+            </div>
+        </div>
+    {% else %}
     <div class="form-group">
         {{ field.label(class='col-sm-3 control-label') }}
         <div class="col-sm-9{% if field.errors %} has-error{% endif %}">
@@ -100,6 +143,7 @@
             {% endif %}
         </div>
     </div>
+    {% endif %}
     {% if _or and field.name == 'phone' %}
     <div class="form-group">
         <div class="col-sm-12">-&nbsp;OR&nbsp;-</div>

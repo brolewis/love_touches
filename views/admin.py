@@ -24,7 +24,6 @@ def contact():
         redirect = 'contact'
         email = form.email.data
         if user.email != email:
-            # TODO: This probably should pull a different form
             user.email = email
             if user.email:
                 confirmable = flask.ext.security.confirmable
@@ -79,9 +78,9 @@ def actions():
             models.db.session.add(user)
             models.db.session.commit()
     form = utils._get_actions_for_method(user.method, header='admin')
-    methods = models.Method.query.all()
     modal = flask.render_template('snippets/methods_dialog.html',
-                                  methods=methods, method_name=user.method)
+                                  methods=models.approved_methods,
+                                  method_name=user.method)
     return flask.render_template('actions.html', form=form, modal=modal)
 
 
@@ -133,7 +132,31 @@ def change_password():
     return flask.render_template('change_password.html', form=form)
 
 
+@admin.route('/suggest_method/<method_id>', methods=['GET', 'POST'])
 @admin.route('/suggest_method', methods=['GET', 'POST'])
 @flask.ext.security.login_required
-def suggest_method():
-    pass
+def suggest_method(method_id=None):
+    if method_id and flask.request.method == 'GET':
+        method = models.Method.query.get(method_id)
+        data = {'name': method.name}
+        for cnt, group in enumerate(method.groups):
+            data['group-{}'.format(cnt)] = group.name
+        formdata = werkzeug.datastructures.MultiDict(data)
+        form = forms.SuggestMethodForm(formdata=formdata)
+    else:
+        form = forms.SuggestMethodForm()
+    if form.validate_on_submit():
+        method = models.Method.query.filter_by(name=form.name.data).first()
+        if not method:
+            method = models.Method(name=form.name.data,
+                                   author=flask.ext.security.current_user)
+            models.db.session.add(method)
+        groups = []
+        for group_name in form.group.data:
+            group = models.Group.query.filter_by(name=group_name).first()
+            if not group:
+                group = models.Group(name=group_name)
+            groups.append(group)
+        method.groups = groups
+        models.db.session.commit()
+    return flask.render_template('suggest_method.html', form=form)

@@ -19,6 +19,8 @@ def simple_field_filter(field):
 
 main.app.jinja_env.filters['simple_field_filter'] = simple_field_filter
 
+REQUIRED = wtforms.validators.Required()
+
 
 def valid_user_email(form, field):
     try:
@@ -67,7 +69,7 @@ timezone_choices.insert(0, ('', ''))
 
 class ScheduleForm(flask.ext.wtf.Form, flask.ext.security.forms.NextFormMixin):
     days_of_week = wtforms.SelectMultipleField('Days of the Week',
-                                               [wtforms.validators.Required()],
+                                               [REQUIRED],
                                                choices=weekday_choices,
                                                coerce=int)
     hour = wtforms.IntegerField(validators=[hour_validator])
@@ -75,7 +77,7 @@ class ScheduleForm(flask.ext.wtf.Form, flask.ext.security.forms.NextFormMixin):
     am_pm = wtforms.RadioField('Time of Day',
                                choices=[('am', 'am'), ('pm', 'pm')])
     timezone = wtforms.SelectField('Time Zone', choices=timezone_choices,
-                                   validators=[wtforms.validators.Required()])
+                                   validators=[REQUIRED])
 
     def __init__(self, *args, **kwargs):
         if 'next' in flask.session:
@@ -95,12 +97,12 @@ class MobileVerifyForm(flask.ext.wtf.Form,
             self.next.data = flask.request.args.get('next', '')
 
 
-class PasswordChangeForm(flask.ext.wtf.Form):
-    new_password = wtforms.PasswordField('New Password',
-                                         [wtforms.validators.Required(),
-                                          wtforms.validators.EqualTo('confirm',
-                                          message='Passwords must match')])
-    confirm = wtforms.PasswordField('Repeat Password')
+class SuggestMethodForm(flask.ext.wtf.Form):
+    name = wtforms.TextField(label='Method Name',
+                             validators=[REQUIRED])
+    group = wtforms.FieldList(wtforms.TextField(validators=[REQUIRED]),
+                              label='Group Labels',
+                              min_entries=2)
 
 
 def unique_user_email(form, field):
@@ -173,7 +175,7 @@ class LoginForm(flask.ext.wtf.Form, flask.ext.security.forms.NextFormMixin,
 class ConfirmRegisterForm(flask.ext.wtf.Form, ContactFormMixin,
                           flask.ext.security.forms.RegisterFormMixin):
     password = wtforms.PasswordField('Password',
-                                     [wtforms.validators.Required(),
+                                     [REQUIRED,
                                       wtforms.validators.Length(6, 128)])
 
     def validate(self):

@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+{% block sub_title %}Suggested Methods{% endblock %}
+{% block modal %}
+    {{ modal|safe }}
+{% endblock %}
+{% block main %}
+    {% if current_user.suggested_methods %}
+    <h1>Previously Suggested Methods</h1>
+    <div class="row">
+        {% for method in current_user.suggested_methods %}
+        <div class="col-sm-{% if current_user.suggested_methods|length in (2, 4)%}6{% else %}4{% endif %}{% if current_user.suggested_methods|length == 1 %}col-sm-offset-4{% endif %}" style="margin-bottom: 1em;">
+            {{ method }}<a href="{{ url_for('admin.suggest_method', method_id=method.id) }}" class="btn btn-lg btn-clear">Edit</span></a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <h1>Suggest a Method</h1>
+    <form id="suggest_form" role="form" method="post" class="form-horizontal" action="{{ request.path }}">
+        <p>Provide a method name and grouping labels. You need to provide at least two, but you may add as many as you need.</p>
+        {{ admin_form(form) }}
+    </form>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script>
+        $(document).ready(function() {
+            $('#suggest_form')
+                .on('click', '.add-btn', function() {
+                    var $template = $('#group_template');
+                    $clone = $template.clone().removeClass('hide').removeAttr('id').insertBefore($template);
+                    $clone.find('div :input').addClass('group');
+                })
+                .on('click', '.remove-btn', function() {
+                    $(this).parents('.form-group').remove();
+                })
+        });
+        $("#suggest_form").submit(function(event) {
+            $count = 0;
+            $(':input.group').each(function() {
+                $(this).prop('id', 'group-' + $count).prop('name', 'group-' + $count);
+                $count++;
+            });
+        });
+    </script>
+{% endblock %}

@@ -43,8 +43,9 @@ def _get_actions_for_method(method_name, header='', back=''):
     if method_name:
         result = {}
         method = models.Method.query.filter_by(name=str(method_name)).first()
-        for group in method.groups:
-            result[group.name] = {x.id: x.label for x in group.actions}
+        for group in method.approved_groups:
+            action_dict = {x.id: x.label for x in group.approved_actions}
+            result[group.name] = action_dict
     else:
         all_actions = models.Action.query.all()
         result = {'': {x.id: x.label for x in all_actions}}

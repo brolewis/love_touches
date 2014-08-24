@@ -65,9 +65,9 @@ def _get_actions():
     back = flask.request.args.get('back')
     actions = utils._get_actions_for_method(method_name, header=header,
                                             back=back)
-    methods = models.Method.query.all()
     modal = flask.render_template('snippets/methods_dialog.html',
-                                  methods=methods, method_name=method_name)
+                                  methods=models.approved_methods,
+                                  method_name=method_name)
     return flask.jsonify(actions=actions, modal=modal)
 
 

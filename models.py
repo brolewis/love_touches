@@ -5,6 +5,11 @@ import sqlalchemy.ext.hybrid
 # Local
 from main import db
 
+APPROVED = 1
+REJECTED = -1
+PROPOSED = 0
+
+
 # Users and Roles
 roles_users = db.Table('roles_users',
                        db.Column('user_id', db.Integer,
@@ -21,11 +26,6 @@ groups_actions = db.Table('groups_actions',
                                     db.ForeignKey('group.id')),
                           db.Column('action_id', db.Integer,
                                     db.ForeignKey('action.id')))
-methods_groups = db.Table('methods_groups',
-                          db.Column('method_id', db.Integer,
-                                    db.ForeignKey('method.id')),
-                          db.Column('group_id', db.Integer,
-                                    db.ForeignKey('group.id')))
 
 
 class Role(db.Model, flask.ext.security.RoleMixin):
@@ -55,12 +55,16 @@ class User(db.Model, flask.ext.security.UserMixin):
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users', lazy='dynamic'))
     method_id = db.Column(db.Integer, db.ForeignKey('method.id'))
-    method = db.relationship('Method')
+    method = db.relationship('Method', foreign_keys=[method_id])
     actions = db.relationship('Action', secondary=users_actions)
     schedule = db.relationship('Crontab', backref='user')
 
     def __repr__(self):
         return self.email or self.phone
+
+    @sqlalchemy.ext.hybrid.hybrid_property
+    def suggested_methods(self):
+        return [x for x in self.authored_methods if x.status == PROPOSED]
 
 
 class Crontab(db.Model):
@@ -81,27 +85,45 @@ class Crontab(db.Model):
         return day_names[self.day_of_week]
 
 
-class Action(db.Model):
+class Method(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    label = db.Column(db.String)
+    name = db.Column(db.String)
+    status = db.Column(db.Integer, default=PROPOSED)
+    groups = db.relationship('Group', backref='method',
+                             cascade='all, delete-orphan')
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id', use_alter=True,
+                                                    name='fk_author_id'))
+    author = db.relationship('User', foreign_keys=[author_id],
+                             backref='authored_methods')
 
     def __repr__(self):
-        return self.label
+        return self.name
+
+    @sqlalchemy.ext.hybrid.hybrid_property
+    def approved_groups(self):
+        return [x for x in self.groups if x.status == APPROVED]
 
 
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    method_id = db.Column(db.Integer, db.ForeignKey('method.id'))
     name = db.Column(db.String)
     actions = db.relationship('Action', secondary=groups_actions)
 
     def __repr__(self):
         return self.name
 
+    @sqlalchemy.ext.hybrid.hybrid_property
+    def approved_actions(self):
+        return [x for x in self.actions if x.status == APPROVED]
 
-class Method(db.Model):
+
+class Action(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    groups = db.relationship('Group', secondary=methods_groups)
+    label = db.Column(db.String)
+    status = db.Column(db.Integer, default=PROPOSED)
 
     def __repr__(self):
-        return self.name
+        return self.label
+
+approved_methods = Method.query.filter_by(status=APPROVED)
