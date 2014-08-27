@@ -63,8 +63,8 @@ def _get_actions():
     flask.session['method_name'] = method_name
     header = flask.request.args.get('header')
     back = flask.request.args.get('back')
-    actions = utils._get_actions_for_method(method_name, header=header,
-                                            back=back)
+    actions = utils.get_actions_for_method(method_name, header=header,
+                                           back=back)
     modal = flask.render_template('snippets/methods_dialog.html',
                                   methods=models.approved_methods,
                                   method_name=method_name)

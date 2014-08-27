@@ -34,7 +34,7 @@
                     $(this).parents('.form-group').remove();
                 })
         });
-        $("#suggest_form").submit(function(event) {
+        $('#suggest_form').submit(function(event) {
             $count = 0;
             $(':input.group').each(function() {
                 $(this).prop('id', 'group-' + $count).prop('name', 'group-' + $count);

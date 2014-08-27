@@ -1,5 +1,6 @@
 # Third Party
 import flask
+import flask_admin.form
 import flask.ext.security
 import flask.ext.wtf
 import phonenumbers
@@ -103,6 +104,11 @@ class SuggestMethodForm(flask.ext.wtf.Form):
     group = wtforms.FieldList(wtforms.TextField(validators=[REQUIRED]),
                               label='Group Labels',
                               min_entries=2)
+
+
+class SuggestActionForm(flask.ext.wtf.Form):
+    action_name = flask_admin.form.Select2TagsField(label='Action(s)',
+                                                    save_as_list=True)
 
 
 def unique_user_email(form, field):

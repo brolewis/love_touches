@@ -25,6 +25,7 @@ migrate = flask.ext.migrate.Migrate(app, db)
 # Bootstrap
 serve_local = str(os.getenv('BOOTSTRAP_SERVE_LOCAL', False)).lower() == 'true'
 app.config['BOOTSTRAP_SERVE_LOCAL'] = serve_local
+app.config['BOOTSTRAP_USE_MINIFIED'] = not app.debug
 flask_bootstrap.Bootstrap(app)
 # Flask-Security
 import models

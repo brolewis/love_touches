@@ -99,16 +99,13 @@ class Method(db.Model):
     def __repr__(self):
         return self.name
 
-    @sqlalchemy.ext.hybrid.hybrid_property
-    def approved_groups(self):
-        return [x for x in self.groups if x.status == APPROVED]
-
 
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     method_id = db.Column(db.Integer, db.ForeignKey('method.id'))
     name = db.Column(db.String)
-    actions = db.relationship('Action', secondary=groups_actions)
+    actions = db.relationship('Action', secondary=groups_actions,
+                              backref='groups')
 
     def __repr__(self):
         return self.name

@@ -1,0 +1,41 @@
+{% extends "admin/base.html" %}
+{% block sub_title %}Suggested Actions{% endblock %}
+{% block styles %}
+    {{ super() }}
+    <link href="{{ url_for('static', filename='select2/select2.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ url_for('static', filename='select2/select2-bootstrap.css') }}" rel="stylesheet" type="text/css">
+{% endblock %}
+{% block modal %}
+    {{ modal|safe }}
+{% endblock %}
+{% block main %}
+    <h1>{{ method or 'All'}}</h1>
+    <form id="suggest_form" role="form" method="post" class="form-horizontal" action="{{ request.path }}">
+        {% for group in actions %}
+        {% if group %}<h3>{{ group }}</h3>{% endif %}
+        {{ base_form(form_dict[group]) }}
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse-{{ loop.index }}">Current Actions{% if group %} for {{ group }}{% endif %}</a>
+                    </h4>
+                </div>
+                <div id="collapse-{{ loop.index }}" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        {% for key in actions[group] %}
+                        <div class="col-lg-4">{{ actions[group][key] }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {{ admin_navigation() }}
+    </form>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='select2/select2.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='select2/select2-form.js') }}"></script>
+{% endblock %}

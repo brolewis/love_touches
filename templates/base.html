@@ -133,6 +133,8 @@
             {% else %}
                 {% if field.name in disabled %}
                 {{ field(class='form-control', disabled=True) }}
+                {% elif field.select2_choices %}
+                {{ field(class='form-control', select2_choices=field.select2_choices) }}
                 {% else %}
                 {{ field(class='form-control') }}
                 {% endif %}

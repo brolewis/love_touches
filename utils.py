@@ -35,7 +35,7 @@ def send_code(user):
                                 body=message)
 
 
-def _get_actions_for_method(method_name, header='', back=''):
+def get_actions_for_method(method_name, header='', back=''):
     current_user = flask.ext.security.current_user
     actions = [x.id for x in getattr(current_user, 'actions', [])]
     if not actions:
@@ -43,7 +43,7 @@ def _get_actions_for_method(method_name, header='', back=''):
     if method_name:
         result = {}
         method = models.Method.query.filter_by(name=str(method_name)).first()
-        for group in method.approved_groups:
+        for group in method.groups:
             action_dict = {x.id: x.label for x in group.approved_actions}
             result[group.name] = action_dict
     else:

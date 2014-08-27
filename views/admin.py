@@ -77,7 +77,7 @@ def actions():
         if commit:
             models.db.session.add(user)
             models.db.session.commit()
-    form = utils._get_actions_for_method(user.method, header='admin')
+    form = utils.get_actions_for_method(user.method, header='admin')
     modal = flask.render_template('snippets/methods_dialog.html',
                                   methods=models.approved_methods,
                                   method_name=user.method)
@@ -163,5 +163,47 @@ def suggest_method(method_id=None):
             groups.append(group)
         method.groups = groups
         models.db.session.commit()
+        flask.flash('Method suggestion saved', 'success')
+        return flask.redirect(flask.url_for('admin.suggest_method'))
     return flask.render_template('suggest_method.html', form=form,
                                  disabled=disabled)
+
+
+@admin.route('/suggest_action/<method_id>', methods=['GET', 'POST'])
+@admin.route('/suggest_action', methods=['GET', 'POST'])
+@flask.ext.security.login_required
+def suggest_action(method_id=None):
+    all_actions = models.Action.query.all()
+    if method_id:
+        method = models.Method.query.get(method_id)
+    else:
+        method = flask.ext.security.current_user.method
+    if method:
+        actions = {}
+        for group in method.groups:
+            action_dict = {x.id: x.label for x in group.actions}
+            actions[group.name] = action_dict
+    else:
+        actions = {'': {x.id: x.label for x in all_actions}}
+    form_dict = {}
+    for group in actions:
+        form_dict[group] = forms.SuggestActionForm(prefix=group)
+    if all(x.validate_on_submit() for x in form_dict.itervalues()):
+        for group_name in form_dict:
+            group = models.Group.query.filter_by(name=group_name,
+                                                 method=method).first()
+            for label in form_dict[group_name].action_name.data:
+                action = models.Action.query.filter_by(label=label).first()
+                if not action:
+                    action = models.Action(label=label)
+                if group not in action.groups:
+                    action.groups.append(group)
+        flask.flash('Action suggestions saved', 'success')
+        return flask.redirect(flask.url_for('admin.suggest_action'))
+    for group in actions:
+        choices = []
+        for action in (x for x in all_actions if x.id not in actions[group]):
+            choices.append(action.label)
+        form_dict[group].action_name.select2_choices = ','.join(choices)
+    return flask.render_template('suggest_action.html', form_dict=form_dict,
+                                 method=method, actions=actions)
