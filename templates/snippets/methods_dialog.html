@@ -5,11 +5,11 @@
                 <h1 class="text-center">Change Method</h1>
                 {% for method in methods %}
                 <div class="col-lg-6 btn-method">
-                    <a class="btn btn-default btn-block toggle{% if method == method_name %} active{% endif %}" href="#" id="{{ method }}">{{ method }}</a>
+                    <a class="btn btn-default btn-block toggle{% if method.name == method_name %} active{% endif %}" href="{% if base %}{{ url_for(base, method_id=method.id) }}{% else %}#{% endif %}" id="{{ method }}">{{ method }}</a>
                 </div>
                 {% endfor %}
                 <div class="col-lg-6 btn-method">
-                    <a class="btn btn-default btn-block toggle{% if not method_name %} active{% endif %}" href="#" id="">All</a>
+                    <a class="btn btn-default btn-block toggle{% if not method_name %} active{% endif %}" href="{% if base %}{{ url_for(base, method_id=-1) }}{% else %}#{% endif %}" id="">All</a>
                 </div>
                 <div class="clearfix"></div>
             </div>

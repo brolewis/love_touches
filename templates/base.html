@@ -104,7 +104,7 @@
             {% endif %}
         </div>
         {% endfor %}
-        <div class="form-group hide" id="group_template">
+        <div class="form-group hide" id="section_template">
             <div class="col-sm-offset-3 col-sm-8">
                 <input type="text" class="form-control" />
             </div>
@@ -229,7 +229,12 @@
     {% for category, m in messages %}
     <div class="row" id="messages">
         <div class="col-md-8 col-md-offset-2">
-            <div class="alert alert-{{ category }}">{{ m|safe }}</div>
+            <div class="alert alert-{{ category }}" role="alert">
+                <button type="button" class="close" data-dismiss="alert">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                {{ m|safe }}
+            </div>
         </div>
     </div>
     {% endfor %}

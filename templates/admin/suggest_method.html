@@ -16,7 +16,7 @@
     {% endif %}
     <h1>Suggest a Method</h1>
     <form id="suggest_form" role="form" method="post" class="form-horizontal" action="{{ request.path }}">
-        <p>Provide a method name and grouping labels. You need to provide at least two, but you may add as many as you need.</p>
+        <p>Provide a method name and sections. You need to provide at least two sections, but you may add as many as you need.</p>
         {{ admin_form(form) }}
     </form>
 {% endblock %}
@@ -26,9 +26,9 @@
         $(document).ready(function() {
             $('#suggest_form')
                 .on('click', '.add-btn', function() {
-                    var $template = $('#group_template');
+                    var $template = $('#section_template');
                     $clone = $template.clone().removeClass('hide').removeAttr('id').insertBefore($template);
-                    $clone.find('div :input').addClass('group');
+                    $clone.find('div :input').addClass('section');
                 })
                 .on('click', '.remove-btn', function() {
                     $(this).parents('.form-group').remove();
@@ -36,8 +36,8 @@
         });
         $('#suggest_form').submit(function(event) {
             $count = 0;
-            $(':input.group').each(function() {
-                $(this).prop('id', 'group-' + $count).prop('name', 'group-' + $count);
+            $(':input.section').each(function() {
+                $(this).prop('id', 'section-' + $count).prop('name', 'section-' + $count);
                 $count++;
             });
         });

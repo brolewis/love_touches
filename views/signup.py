@@ -110,7 +110,6 @@ def confirm(action=None):
     if not flask.session.get('actions'):
         return flask.redirect(flask.url_for('signup.step_two'))
     phone = utils.format_phone(flask.session)
-    actions = [models.Action.query.get(x) for x in flask.session['actions']]
     if action == 'submit':
         user = None
         query = models.User.query
@@ -161,6 +160,7 @@ def confirm(action=None):
         for key in (x for x in flask.session.keys() if not x.startswith('_')):
             del flask.session[key]
         return flask.redirect(flask.url_for(redirect))
+    actions = [models.Action.query.get(x) for x in flask.session['actions']]
     return flask.render_template('confirm.html', actions=actions, phone=phone,
                                  days_label=_days_label())
 

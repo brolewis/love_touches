@@ -10,13 +10,13 @@
 {% if request.args.get('next') %}
 <input type="hidden" name="next" value="{{ request.args.get('next', '') }}" />
 {% endif %}
-{% for group in result %}
-    {% if group %}<div class="row"><h3>{{ group }}</h3></div>{% endif %}
+{% for section in result %}
+    {% if section %}<div class="row"><h3>{{ section }}</h3></div>{% endif %}
 <div class="row">
-    {% for key in result[group] %}
+    {% for key in result[section] %}
     <div class="col-lg-4" style="margin-bottom: 1em;" data-toggle="buttons">
         <label class="btn btn-default btn-block{% if key in actions %} active{% endif %}">
-            <input type="checkbox" name="action" value="{{ key }}"{% if key in actions %} checked="checked"{% endif %}>{{ result[group][key] }}
+            <input type="checkbox" name="action" value="{{ key }}"{% if key in actions %} checked="checked"{% endif %}>{{ result[section][key] }}
         </label>
     </div>
     {% endfor %}

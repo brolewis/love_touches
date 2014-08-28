@@ -101,9 +101,8 @@ class MobileVerifyForm(flask.ext.wtf.Form,
 class SuggestMethodForm(flask.ext.wtf.Form):
     name = wtforms.TextField(label='Method Name',
                              validators=[REQUIRED])
-    group = wtforms.FieldList(wtforms.TextField(validators=[REQUIRED]),
-                              label='Group Labels',
-                              min_entries=2)
+    section = wtforms.FieldList(wtforms.TextField(validators=[REQUIRED]),
+                                label='Sections', min_entries=2)
 
 
 class SuggestActionForm(flask.ext.wtf.Form):

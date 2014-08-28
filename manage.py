@@ -40,7 +40,8 @@ def create_confirmed_user():
     password = flask.ext.security.utils.encrypt_password(getpass.getpass())
     main.user_datastore.create_user(email='lewis@love-touches.org',
                                     password=password, active=True,
-                                    confirmed_at=datetime.datetime.now())
+                                    confirmed_at=datetime.datetime.now(),
+                                    method_id=1)
     main.models.db.session.commit()
 
 
@@ -48,7 +49,7 @@ def create_confirmed_user():
 def create_defaults():
     '''Create default data.'''
     main.models.db.create_all()
-    groups = {
+    sections = {
         'Words of Affirmation': ['Compliment looks', 'Leave a love note',
                                  'Be encouraging about a project',
                                  'Compliment something they say'],
@@ -70,21 +71,18 @@ def create_defaults():
         if not method:
             method = main.models.Method(name=name, status=approved)
             main.models.db.session.add(method)
-    print 'Creating groups'
-    for group_name in groups:
-        group = main.models.Group.query.filter_by(name=group_name).first()
-        if not group:
-            group = main.models.Group(name=group_name, status=approved)
-            main.models.db.session.add(group)
-        if group not in method.groups:
-            method.groups.append(group)
-        for label in groups[group_name]:
-            action = main.models.Action.query.filter_by(label=label).first()
-            if not action:
-                action = main.models.Action(label=label, status=approved)
-                main.models.db.session.add(action)
-            if action not in group.actions:
-                group.actions.append(action)
+    print 'Creating sections'
+    for name in sections:
+        section = main.models.Section.query.filter_by(name=name).first()
+        if not section:
+            section = main.models.Section(name=name)
+            main.models.db.session.add(section)
+        if section not in method.sections:
+            method.sections.append(section)
+        for label in sections[name]:
+            assoc = main.models.SectionActions(status=approved)
+            assoc.action = main.models.Action(label=label, status=approved)
+            section.actions.append(assoc)
     main.models.db.session.commit()
 
 

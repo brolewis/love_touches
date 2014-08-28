@@ -2,6 +2,7 @@
 import datetime
 # Third Party
 import flask
+import sqlalchemy
 import werkzeug.datastructures
 import werkzeug.local
 # Local
@@ -140,8 +141,8 @@ def suggest_method(method_id=None):
         disabled = ['name']
         method = models.Method.query.get(method_id)
         data = {'name': method.name}
-        for cnt, group in enumerate(method.groups):
-            data['group-{}'.format(cnt)] = group.name
+        for cnt, section in enumerate(method.sections):
+            data['section-{}'.format(cnt)] = section.name
         formdata = werkzeug.datastructures.MultiDict(data)
         form = forms.SuggestMethodForm(formdata=formdata)
     else:
@@ -154,14 +155,14 @@ def suggest_method(method_id=None):
             method = models.Method(name=form.name.data,
                                    author=flask.ext.security.current_user)
             models.db.session.add(method)
-        groups = []
-        for group_name in form.group.data:
-            query = models.Group.query
-            group = query.filter_by(name=group_name, method=method).first()
-            if not group:
-                group = models.Group(name=group_name)
-            groups.append(group)
-        method.groups = groups
+        sections = []
+        for section_name in form.section.data:
+            query = models.Section.query
+            section = query.filter_by(name=section_name, method=method).first()
+            if not section:
+                section = models.Section(name=section_name)
+            sections.append(section)
+        method.sections = sections
         models.db.session.commit()
         flask.flash('Method suggestion saved', 'success')
         return flask.redirect(flask.url_for('admin.suggest_method'))
@@ -173,37 +174,52 @@ def suggest_method(method_id=None):
 @admin.route('/suggest_action', methods=['GET', 'POST'])
 @flask.ext.security.login_required
 def suggest_action(method_id=None):
-    all_actions = models.Action.query.all()
-    if method_id:
+    user = flask.ext.security.current_user
+    all_actions = models.Action.query.filter_by(status=models.APPROVED)
+    if method_id == -1:
+        method = None
+    elif method_id:
         method = models.Method.query.get(method_id)
     else:
         method = flask.ext.security.current_user.method
     if method:
         actions = {}
-        for group in method.groups:
-            action_dict = {x.id: x.label for x in group.actions}
-            actions[group.name] = action_dict
+        for section in method.sections:
+            action_dict = {x.id: x.label for x in section.approved_actions}
+            actions[section.name] = action_dict
     else:
         actions = {'': {x.id: x.label for x in all_actions}}
     form_dict = {}
-    for group in actions:
-        form_dict[group] = forms.SuggestActionForm(prefix=group)
+    for section in actions:
+        form_dict[section] = forms.SuggestActionForm(prefix=section)
     if all(x.validate_on_submit() for x in form_dict.itervalues()):
-        for group_name in form_dict:
-            group = models.Group.query.filter_by(name=group_name,
-                                                 method=method).first()
-            for label in form_dict[group_name].action_name.data:
+        for section_name in form_dict:
+            section = models.Section.query.filter_by(name=section_name,
+                                                     method=method).first()
+            for label in form_dict[section_name].action_name.data:
                 action = models.Action.query.filter_by(label=label).first()
                 if not action:
-                    action = models.Action(label=label)
-                if group not in action.groups:
-                    action.groups.append(group)
+                    action = models.Action(label=label, author=user)
+                if section not in action.sections:
+                    assoc = main.models.SectionActions()
+                    assoc.action = action
+                    section.actions.append(assoc)
+        main.models.db.session.commit()
         flask.flash('Action suggestions saved', 'success')
         return flask.redirect(flask.url_for('admin.suggest_action'))
-    for group in actions:
+    for section in actions:
         choices = []
-        for action in (x for x in all_actions if x.id not in actions[group]):
+        for action in (x for x in all_actions if x.id not in actions[section]):
             choices.append(action.label)
-        form_dict[group].action_name.select2_choices = ','.join(choices)
+        form_dict[section].action_name.select2_choices = ','.join(choices)
+    and_filter = sqlalchemy.and_(models.Method.status == models.PROPOSED,
+                                 models.Method.author == user)
+    status_filter = sqlalchemy.or_(models.Method.status == models.APPROVED,
+                                   and_filter)
+    methods = models.Method.query.filter(status_filter)
+    method_name = getattr(method, 'name', '')
+    modal = flask.render_template('snippets/methods_dialog.html',
+                                  methods=methods, method_name=method_name,
+                                  base='admin.suggest_action')
     return flask.render_template('suggest_action.html', form_dict=form_dict,
-                                 method=method, actions=actions)
+                                 method=method, actions=actions, modal=modal)

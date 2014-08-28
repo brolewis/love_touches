@@ -43,11 +43,11 @@ def get_actions_for_method(method_name, header='', back=''):
     if method_name:
         result = {}
         method = models.Method.query.filter_by(name=str(method_name)).first()
-        for group in method.groups:
-            action_dict = {x.id: x.label for x in group.approved_actions}
-            result[group.name] = action_dict
+        for section in method.sections:
+            action_dict = {x.id: x.label for x in section.approved_actions}
+            result[section.name] = action_dict
     else:
-        all_actions = models.Action.query.all()
+        all_actions = models.Action.query.filter_by(status=models.APPROVED)
         result = {'': {x.id: x.label for x in all_actions}}
     return flask.render_template('snippets/actions.html', result=result,
                                  method_name=method_name, actions=actions,
