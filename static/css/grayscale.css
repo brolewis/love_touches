@@ -588,3 +588,7 @@ select {
     -moz-transition: background .3s ease-in-out;
     transition: background .3s ease-in-out;
 }
+
+.popover-content {
+    background-color: #7A7A7A;
+}

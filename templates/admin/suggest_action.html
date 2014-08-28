@@ -9,27 +9,33 @@
     {{ modal|safe }}
 {% endblock %}
 {% block main %}
-    <h1>{{ method or 'All'}}</h1>
+    <h1>Suggest Actions</h1>
+    <h2>{{ method or 'All'}}</h2>
+    <p>The success of Love Touches comes from the depth of choices available. You can help improve the site by suggesting new actions for each grouping. If you
+    start typing in the box, the form will suggest any action that isn't associated with that group. You can also enter your own. Make as many suggestions
+    as you would like. To see the actions currently associated with a group, click "Current".</p>
     <form id="suggest_form" role="form" method="post" class="form-horizontal" action="{{ request.path }}">
         {% for group in actions %}
-        {% if group %}<h3>{{ group }}</h3>{% endif %}
-        {{ base_form(form_dict[group]) }}
-        <div class="panel-group" id="accordion">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse-{{ loop.index }}">Current Actions{% if group %} for {{ group }}{% endif %}</a>
-                    </h4>
-                </div>
-                <div id="collapse-{{ loop.index }}" class="panel-collapse collapse">
-                    <div class="panel-body">
-                        {% for key in actions[group] %}
-                        <div class="col-lg-4">{{ actions[group][key] }}</div>
-                        {% endfor %}
-                    </div>
-                </div>
+        {{ form_dict[group].hidden_tag() }}
+        {% for field in form_dict[group] %}
+        {% if field|simple_field_filter %}
+        <div class="form-group">
+            <label class="col-sm-3 control-label" for="{{ field.label.field_id }}">{{ group }}</label>
+            <div class="col-sm-7{% if field.errors %} has-error{% endif %}">
+                {{ field(class='form-control', select2_choices=field.select2_choices) }}
+                {% if field.description %}
+                    <span class="help-block">{{ field.description|safe }}</span>
+                {% endif %}
+                {% if field.errors %}
+                <span class="help-block help-error">
+                    {{ field.errors|join('<br />')|safe }}
+                </span>
+                {% endif %}
             </div>
+            <button type="button" class="btn btn-default col-sm-2" data-toggle="popover" data-content="{{ actions[group].values()|join(', ') }}">Current</button>
         </div>
+        {% endif %}
+        {% endfor %}
         {% endfor %}
         {{ admin_navigation() }}
     </form>
@@ -38,4 +44,11 @@
     {{ super() }}
     <script src="{{ url_for('static', filename='select2/select2.min.js') }}"></script>
     <script src="{{ url_for('static', filename='select2/select2-form.js') }}"></script>
+    <script>
+        $(function () {
+            $('[data-toggle="popover"]').each(function() {
+                $(this).popover({placement: 'left', trigger: 'focus'});
+            })
+        });
+    </script>
 {% endblock %}

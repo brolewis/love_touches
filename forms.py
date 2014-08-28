@@ -107,8 +107,7 @@ class SuggestMethodForm(flask.ext.wtf.Form):
 
 
 class SuggestActionForm(flask.ext.wtf.Form):
-    action_name = flask_admin.form.Select2TagsField(label='Action(s)',
-                                                    save_as_list=True)
+    action_name = flask_admin.form.Select2TagsField(save_as_list=True)
 
 
 def unique_user_email(form, field):
