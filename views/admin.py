@@ -165,7 +165,7 @@ def suggest_method(method_id=None):
         method.sections = sections
         models.db.session.commit()
         flask.flash('Method suggestion saved', 'success')
-        return flask.redirect(flask.url_for('admin.suggest_method'))
+        return flask.redirect(flask.url_for('.suggest_method'))
     return flask.render_template('suggest_method.html', form=form,
                                  disabled=disabled)
 
@@ -206,7 +206,7 @@ def suggest_action(method_id=None):
                     section.actions.append(assoc)
         main.models.db.session.commit()
         flask.flash('Action suggestions saved', 'success')
-        return flask.redirect(flask.url_for('admin.suggest_action'))
+        return flask.redirect(flask.url_for('.suggest_action'))
     for section in actions:
         choices = []
         for action in (x for x in all_actions if x.id not in actions[section]):
@@ -220,6 +220,6 @@ def suggest_action(method_id=None):
     method_name = getattr(method, 'name', '')
     modal = flask.render_template('snippets/methods_dialog.html',
                                   methods=methods, method_name=method_name,
-                                  base='admin.suggest_action')
+                                  base='.suggest_action')
     return flask.render_template('suggest_action.html', form_dict=form_dict,
                                  method=method, actions=actions, modal=modal)

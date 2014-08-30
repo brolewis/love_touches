@@ -24,7 +24,7 @@ def step_one():
         if flask.request.form.getlist('action'):
             actions = flask.request.form.getlist('action', type=int)
             flask.session['actions'] = actions
-            return flask.redirect(utils.get_redirect('signup.step_two'))
+            return flask.redirect(utils.get_redirect('.step_two'))
         else:
             message = 'Uh oh. You need to pick at least one action.'
             flask.flash(message, 'error')
@@ -38,18 +38,18 @@ def step_two():
     if not user.is_anonymous():
         return flask.redirect(flask.url_for('admin.schedule'))
     if not flask.session.get('actions'):
-        return flask.redirect(flask.url_for('signup.step_one'))
+        return flask.redirect(flask.url_for('.step_one'))
     form = forms.ScheduleForm()
     if form.validate_on_submit():
         flask.session.update(form.data)
-        return flask.redirect(utils.get_redirect('signup.step_three'))
+        return flask.redirect(utils.get_redirect('.step_three'))
     for key in (x for x in flask.session if hasattr(form, x)):
         value = flask.session[key]
         if key == 'minute':
             value = '{:02d}'.format(int(value))
         getattr(form, key).data = value
     return flask.render_template('step_two.html', form=form,
-                                 back=flask.url_for('signup.step_one'))
+                                 back=flask.url_for('.step_one'))
 
 
 @signup.route('/step_three', methods=['GET', 'POST'])
@@ -58,9 +58,9 @@ def step_three():
     if not user.is_anonymous():
         return flask.redirect(flask.url_for('admin.contact'))
     if not flask.session.get('actions'):
-        return flask.redirect(flask.url_for('signup.step_one'))
+        return flask.redirect(flask.url_for('.step_one'))
     if not flask.session.get('timezone'):
-        return flask.redirect(flask.url_for('signup.step_two'))
+        return flask.redirect(flask.url_for('.step_two'))
     form = forms.ContactForm()
     previous = False
     if form.validate_on_submit():
@@ -76,11 +76,11 @@ def step_three():
             login_url = flask.ext.security.utils.url_for_security('login')
             return flask.redirect(login_url)
         flask.session.update(form.data)
-        return flask.redirect(flask.url_for('signup.confirm'))
+        return flask.redirect(flask.url_for('.confirm'))
     for key in (x for x in flask.session if hasattr(form, x)):
         getattr(form, key).data = flask.session[key]
     return flask.render_template('step_three.html', form=form,
-                                 back=flask.url_for('signup.step_two'))
+                                 back=flask.url_for('.step_two'))
 
 
 def _days_label():
@@ -106,9 +106,9 @@ def confirm(action=None):
     if not flask.ext.security.current_user.is_anonymous():
         return flask.redirect(flask.url_for('admin.actions'))
     if not (flask.session.get('email') or flask.session.get('phone')):
-        return flask.redirect(flask.url_for('signup.step_one'))
+        return flask.redirect(flask.url_for('.step_one'))
     if not flask.session.get('actions'):
-        return flask.redirect(flask.url_for('signup.step_two'))
+        return flask.redirect(flask.url_for('.step_two'))
     phone = utils.format_phone(flask.session)
     if action == 'submit':
         user = None
@@ -143,7 +143,7 @@ def confirm(action=None):
         if user.email and user.email_confirmed_at is None:
             confirmable = flask.ext.security.confirmable
             token = confirmable.generate_confirmation_token(user)
-            link = flask.url_for('signup.confirm_signup', token=token,
+            link = flask.url_for('.confirm_signup', token=token,
                                  _external=True)
             msg = flask.ext.security.utils.get_message('CONFIRM_REGISTRATION',
                                                        email=user.email)

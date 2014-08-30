@@ -9,7 +9,7 @@
     <div class="row">
         {% for method in current_user.suggested_methods %}
         <div class="col-sm-{% if current_user.suggested_methods|length in (2, 4)%}6{% else %}4{% endif %}{% if current_user.suggested_methods|length == 1 %}col-sm-offset-4{% endif %}" style="margin-bottom: 1em;">
-            {{ method }}<a href="{{ url_for('admin.suggest_method', method_id=method.id) }}" class="btn btn-lg btn-clear">Edit</span></a>
+            {{ method }}<a href="{{ url_for('.suggest_method', method_id=method.id) }}" class="btn btn-lg btn-clear">Edit</span></a>
         </div>
         {% endfor %}
     </div>

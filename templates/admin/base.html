@@ -10,7 +10,7 @@
                     <div class="col-sm-3 col-md-2 sidebar">
                         <ul class="nav nav-sidebar">
                             {% for item in ('actions', 'schedule', 'contact', 'change_password', 'suggest_method', 'suggest_action') %}
-                            <li{% if request.path == url_for('admin.%s' % item) %} class="active"{% endif %}><a href="{{ url_for('admin.%s' % item) }}">{{ item|replace('_', ' ')|title }}</a></li>
+                            <li{% if request.path == url_for('.%s' % item) %} class="active"{% endif %}><a href="{{ url_for('.%s' % item) }}">{{ item|replace('_', ' ')|title }}</a></li>
                             {% endfor %}
                         </ul>
                     </div>
