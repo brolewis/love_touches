@@ -1,6 +1,6 @@
 # Third Party
 import flask
-import flask_admin.form
+import flask.ext.admin.form
 import flask.ext.security
 import flask.ext.wtf
 import phonenumbers
@@ -106,7 +106,7 @@ class SuggestMethodForm(flask.ext.wtf.Form):
 
 
 class SuggestActionForm(flask.ext.wtf.Form):
-    action_name = flask_admin.form.Select2TagsField(save_as_list=True)
+    action_name = flask.ext.admin.form.Select2TagsField(save_as_list=True)
 
 
 def unique_user_email(form, field):

@@ -3,10 +3,15 @@
 import os
 # Third Party
 import flask
-import flask_bootstrap
-import flask_debugtoolbar
-import flask_mail
-import flask_sqlalchemy
+import flask.ext.bootstrap
+try:
+    import flask.ext.debugtoolbar
+except ImportError:
+    debugtoolbar = False
+else:
+    debugtoolbar = True
+import flask.ext.mail
+import flask.ext.sqlalchemy
 import flask.ext.migrate
 import raven.contrib.flask
 
@@ -20,13 +25,13 @@ if not app.debug:
     raven.contrib.flask.Sentry(app)
 # SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///love_touches.sqlite'
-db = flask_sqlalchemy.SQLAlchemy(app)
+db = flask.ext.sqlalchemy.SQLAlchemy(app)
 migrate = flask.ext.migrate.Migrate(app, db)
 # Bootstrap
 serve_local = str(os.getenv('BOOTSTRAP_SERVE_LOCAL', False)).lower() == 'true'
 app.config['BOOTSTRAP_SERVE_LOCAL'] = serve_local
 app.config['BOOTSTRAP_USE_MINIFIED'] = not app.debug
-flask_bootstrap.Bootstrap(app)
+flask.ext.bootstrap.Bootstrap(app)
 # Flask-Security
 import models
 app.config['SECURITY_EMAIL_SENDER'] = 'info@love-touches.org'
@@ -47,13 +52,14 @@ user_datastore = flask.ext.security.SQLAlchemyUserDatastore(db, models.User,
                                                             models.Role)
 app.security = flask.ext.security.Security(app, user_datastore)
 # Debug Toolbar
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-flask_debugtoolbar.DebugToolbarExtension(app)
+if debugtoolbar:
+    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+    flask.ext.debugtoolbar.DebugToolbarExtension(app)
 # Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.postmarkapp.com'
 app.config['MAIL_USERNAME'] = 'a032c02e-a437-472f-b666-6a1dd8db40fe'
 app.config['MAIL_PASSWORD'] = 'a032c02e-a437-472f-b666-6a1dd8db40fe'
-flask_mail.Mail(app)
+flask.ext.mail.Mail(app)
 
 
 # Local
