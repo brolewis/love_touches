@@ -20,7 +20,7 @@ def simple_field_filter(field):
 
 main.app.jinja_env.filters['simple_field_filter'] = simple_field_filter
 
-REQUIRED = wtforms.validators.Required()
+REQUIRED = wtforms.validators.DataRequired()
 
 
 def valid_user_email(form, field):
@@ -31,9 +31,9 @@ def valid_user_email(form, field):
 
 
 class ContactFormMixin(object):
-    country_code = wtforms.TextField(default='1')
-    phone = wtforms.TextField(label='Mobile Number')
-    email = wtforms.TextField(validators=[wtforms.validators.Email(),
+    country_code = wtforms.StringField(default='1')
+    phone = wtforms.StringField(label='Mobile Number')
+    email = wtforms.StringField(validators=[wtforms.validators.Email(),
                                           wtforms.validators.Optional(),
                                           valid_user_email])
 
@@ -99,9 +99,9 @@ class MobileVerifyForm(flask.ext.wtf.Form,
 
 
 class SuggestMethodForm(flask.ext.wtf.Form):
-    name = wtforms.TextField(label='Method Name',
+    name = wtforms.StringField(label='Method Name',
                              validators=[REQUIRED])
-    section = wtforms.FieldList(wtforms.TextField(validators=[REQUIRED]),
+    section = wtforms.FieldList(wtforms.StringField(validators=[REQUIRED]),
                                 label='Sections', min_entries=2)
 
 

@@ -73,4 +73,5 @@ def _get_actions():
 
 import views.admin
 import views.security
-import views.signup  # noqa
+import views.signup
+import views.uber  # noqa
