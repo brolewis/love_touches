@@ -1,4 +1,4 @@
-{% extends "admin/base.html" %}
+{% extends "manage/base.html" %}
 {% block sub_title %}Actions{% endblock %}
 {% block modal %}
     {{ modal|safe }}
@@ -15,7 +15,7 @@
         </div>
     </div>
     <div>
-        {{ admin_navigation() }}
+        {{ manage_navigation() }}
     </div>
 </form>
 {% endblock %}
@@ -33,7 +33,7 @@
                 $(".face.front").show();
                 $(".face.back").hide();
             }
-            $("#admin_modal").html(data.modal);
+            $("#manage_modal").html(data.modal);
             $(".modal-backdrop").hide();
             return false;
         }
@@ -41,9 +41,9 @@
             $('#methods').modal('show');
             return false;
         });
-        $("#admin_modal").on('click', '.toggle', function(){
+        $("#manage_modal").on('click', '.toggle', function(){
             $('#methods').modal('hide');
-            $.getJSON($SCRIPT_ROOT + '/_get_actions', {method_name: $(this).attr('id'), 'header': 'admin'},
+            $.getJSON($SCRIPT_ROOT + '/_get_actions', {method_name: $(this).attr('id'), 'header': 'manage'},
                       action_results);
             $(".flip").find(".card").toggleClass("flipped");
             return false;

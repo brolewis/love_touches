@@ -19,7 +19,7 @@ _security = werkzeug.local.LocalProxy(lambda: main.app.extensions['security'])
 def step_one():
     user = flask.ext.security.current_user
     if not user.is_anonymous():
-        return flask.redirect(flask.url_for('admin.actions'))
+        return flask.redirect(flask.url_for('manage.actions'))
     if flask.request.method == 'POST':
         if flask.request.form.getlist('action'):
             actions = flask.request.form.getlist('action', type=int)
@@ -36,7 +36,7 @@ def step_one():
 def step_two():
     user = flask.ext.security.current_user
     if not user.is_anonymous():
-        return flask.redirect(flask.url_for('admin.schedule'))
+        return flask.redirect(flask.url_for('manage.schedule'))
     if not flask.session.get('actions'):
         return flask.redirect(flask.url_for('.step_one'))
     form = forms.ScheduleForm()
@@ -56,7 +56,7 @@ def step_two():
 def step_three():
     user = flask.ext.security.current_user
     if not user.is_anonymous():
-        return flask.redirect(flask.url_for('admin.contact'))
+        return flask.redirect(flask.url_for('manage.contact'))
     if not flask.session.get('actions'):
         return flask.redirect(flask.url_for('.step_one'))
     if not flask.session.get('timezone'):
@@ -104,7 +104,7 @@ def _days_label():
 @signup.route('/confirm/<action>')
 def confirm(action=None):
     if not flask.ext.security.current_user.is_anonymous():
-        return flask.redirect(flask.url_for('admin.actions'))
+        return flask.redirect(flask.url_for('manage.actions'))
     if not (flask.session.get('email') or flask.session.get('phone')):
         return flask.redirect(flask.url_for('.step_one'))
     if not flask.session.get('actions'):

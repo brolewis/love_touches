@@ -42,8 +42,8 @@
                     </li>
                     {% endif %}
                     {% if current_user.is_authenticated() %}
-                    <li class="page-scroll{% if 'admin' in request.path or request.path == url_for_security('change_password') %} active{% endif %}">
-                        <a href="{{ url_for('admin.actions') }}">Admin</a>
+                    <li class="page-scroll{% if 'manage' in request.path or request.path == url_for_security('change_password') %} active{% endif %}">
+                        <a href="{{ url_for('manage.actions') }}">Manage</a>
                     </li>
                     <li class="page-scroll">
                         <a href="{{ url_for_security('logout') }}">Logout</a>

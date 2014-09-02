@@ -1,8 +1,8 @@
-{% extends "admin/base.html" %}
+{% extends "manage/base.html" %}
 {% block sub_title %}Contact Information{% endblock %}
 {% block main %}
     <h1>Contact Information</h1>
     <form role="form" method="post" class="form-horizontal" action="{{ request.path }}">
-        {{ admin_form(form) }}
+        {{ manage_form(form) }}
     </form>
 {% endblock %}

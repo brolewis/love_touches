@@ -46,7 +46,7 @@ app.config['SECURITY_CONFIRM_URL'] = '/confirm_email'
 app.config['SECURITY_REGISTERABLE'] = True
 app.config['SECURITY_REGISTER_URL'] = '/register_user'
 app.config['SECURITY_RECOVERABLE'] = True
-app.config['SECURITY_POST_LOGIN_VIEW'] = 'admin.actions'
+app.config['SECURITY_POST_LOGIN_VIEW'] = 'manage.actions'
 app.config['SECURITY_CHANGEABLE'] = True
 user_datastore = flask.ext.security.SQLAlchemyUserDatastore(db, models.User,
                                                             models.Role)
@@ -64,5 +64,5 @@ flask.ext.mail.Mail(app)
 
 # Local
 import views
-app.register_blueprint(views.admin.admin)
+app.register_blueprint(views.manage.manage)
 app.register_blueprint(views.signup.signup)

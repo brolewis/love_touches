@@ -71,7 +71,7 @@ def _get_actions():
     return flask.jsonify(actions=actions, modal=modal)
 
 
-import views.admin
+import views.manage
 import views.security
 import views.signup
-import views.uber  # noqa
+import views.admin  # noqa

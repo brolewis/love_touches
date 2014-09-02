@@ -1,4 +1,4 @@
-{% extends "admin/base.html" %}
+{% extends "manage/base.html" %}
 {% block sub_title %}Suggested Actions{% endblock %}
 {% block styles %}
     {{ super() }}
@@ -62,7 +62,7 @@
                 $(this).popover({placement: 'left', trigger: 'focus'});
             })
         });
-        $('#admin_main').on('click', '#methods-toggle', function(){
+        $('#manage_main').on('click', '#methods-toggle', function(){
             $('#methods').modal('show');
             return false;
         });

@@ -11,12 +11,12 @@ import main
 import models
 import utils
 
-admin = flask.Blueprint('admin', __name__, url_prefix='/admin',
-                        template_folder='../templates/admin')
+manage = flask.Blueprint('manage', __name__, url_prefix='/manage',
+                        template_folder='../templates/manage')
 _security = werkzeug.local.LocalProxy(lambda: main.app.extensions['security'])
 
 
-@admin.route('/contact', methods=['GET', 'POST'])
+@manage.route('/contact', methods=['GET', 'POST'])
 @flask.ext.security.login_required
 def contact():
     user = flask.ext.security.current_user
@@ -53,7 +53,7 @@ def contact():
     return flask.render_template('contact.html', form=form)
 
 
-@admin.route('/actions', methods=['GET', 'POST'])
+@manage.route('/actions', methods=['GET', 'POST'])
 @flask.ext.security.login_required
 def actions():
     print main.app.url_map
@@ -79,14 +79,14 @@ def actions():
         if commit:
             models.db.session.add(user)
             models.db.session.commit()
-    form = utils.get_actions_for_method(user.method, header='admin')
+    form = utils.get_actions_for_method(user.method, header='manage')
     modal = flask.render_template('snippets/methods_dialog.html',
                                   methods=models.approved_methods,
                                   method_name=user.method)
     return flask.render_template('actions.html', form=form, modal=modal)
 
 
-@admin.route('/schedule', methods=['GET', 'POST'])
+@manage.route('/schedule', methods=['GET', 'POST'])
 @flask.ext.security.login_required
 def schedule():
     user = flask.ext.security.current_user
@@ -115,7 +115,7 @@ def schedule():
     return flask.render_template('schedule.html', form=form)
 
 
-@admin.route('/change_password', methods=['GET', 'POST'])
+@manage.route('/change_password', methods=['GET', 'POST'])
 @flask.ext.security.login_required
 def change_password():
     """View function which handles a change password request."""
@@ -134,8 +134,8 @@ def change_password():
     return flask.render_template('change_password.html', form=form)
 
 
-@admin.route('/suggest_method/<method_id>', methods=['GET', 'POST'])
-@admin.route('/suggest_method', methods=['GET', 'POST'])
+@manage.route('/suggest_method/<method_id>', methods=['GET', 'POST'])
+@manage.route('/suggest_method', methods=['GET', 'POST'])
 @flask.ext.security.login_required
 def suggest_method(method_id=None):
     if method_id and flask.request.method == 'GET':
@@ -171,8 +171,8 @@ def suggest_method(method_id=None):
                                  disabled=disabled)
 
 
-@admin.route('/suggest_action/<method_id>', methods=['GET', 'POST'])
-@admin.route('/suggest_action', methods=['GET', 'POST'])
+@manage.route('/suggest_action/<method_id>', methods=['GET', 'POST'])
+@manage.route('/suggest_action', methods=['GET', 'POST'])
 @flask.ext.security.login_required
 def suggest_action(method_id=None):
     user = flask.ext.security.current_user

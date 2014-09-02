@@ -1,4 +1,4 @@
-{% extends "admin/base.html" %}
+{% extends "manage/base.html" %}
 {% block sub_title %}Suggested Methods{% endblock %}
 {% block modal %}
     {{ modal|safe }}
@@ -17,7 +17,7 @@
     <h1>Suggest a Method</h1>
     <form id="suggest_form" role="form" method="post" class="form-horizontal" action="{{ request.path }}">
         <p>Provide a method name and sections. You need to provide at least two sections, but you may add as many as you need.</p>
-        {{ admin_form(form) }}
+        {{ manage_form(form) }}
     </form>
 {% endblock %}
 {% block scripts %}
