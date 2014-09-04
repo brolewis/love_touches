@@ -56,7 +56,6 @@ def contact():
 @manage.route('/actions', methods=['GET', 'POST'])
 @flask.ext.security.login_required
 def actions():
-    print main.app.url_map
     user = flask.ext.security.current_user
     if flask.request.method == 'POST':
         commit = False
