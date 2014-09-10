@@ -18,6 +18,20 @@ def index():
     return flask.render_template('index.html')
 
 
+@main.app.route('/post_login')
+@flask.ext.security.login_required
+def post_login():
+    user = flask.ext.security.current_user
+    try:
+        if user.has_role('admin'):
+            return flask.redirect(flask.url_for('admin.index'))
+        else:
+            return flask.redirect(flask.url_for('manage.actions'))
+    except:
+        flask.flash('An error occurred logging in', 'error')
+        return flask.redirect(flask.url_for('security.logout'))
+
+
 @main.app.route('/confirm_mobile', methods=['GET', 'POST'])
 @main.app.route('/confirm_mobile/<action>', methods=['GET', 'POST'])
 def confirm_mobile(action=None):

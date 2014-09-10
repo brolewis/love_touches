@@ -26,10 +26,15 @@ def dropdb():
 def create_admin():
     '''Create new admin user.'''
     main.models.db.create_all()
+    print 'creating "admin" role'
+    admin_role = main.user_datastore.find_or_create_role('admin')
     print 'creating admin@love-touches.org'
+    now = datetime.datetime.now()
     password = flask.ext.security.utils.encrypt_password(getpass.getpass())
-    main.user_datastore.create_user(email='admin@love-touches.org',
-                                    password=password)
+    admin = main.user_datastore.create_user(email='admin@love-touches.org',
+                                            password=password, active=True,
+                                            confirmed_at=now)
+    main.user_datastore.add_role_to_user(admin, admin_role)
     main.models.db.session.commit()
 
 
