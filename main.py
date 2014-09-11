@@ -34,6 +34,8 @@ app.config['BOOTSTRAP_USE_MINIFIED'] = not app.debug
 flask.ext.bootstrap.Bootstrap(app)
 # Flask-Security
 import models
+app.config['SECURITY_MSG_LOGIN'] = ('Please log in to access this page.',
+                                    'error')
 app.config['SECURITY_EMAIL_SENDER'] = 'info@love-touches.org'
 app.config['SECURITY_PASSWORD_HASH'] = 'bcrypt'
 pw_salt = 'Fa_vX`u`>W52|:+6NFCV_-f+sU#BdUGC:s+!*n'

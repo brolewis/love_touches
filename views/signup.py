@@ -29,7 +29,7 @@ def step_one():
             message = 'Uh oh. You need to pick at least one action.'
             flask.flash(message, 'error')
     return flask.render_template('step_one.html',
-                                 methods=models.approved_methods)
+                                 methods=models.approved_methods())
 
 
 @signup.route('/step_two', methods=['GET', 'POST'])

@@ -80,9 +80,24 @@ def _get_actions():
     actions = utils.get_actions_for_method(method_name, header=header,
                                            back=back)
     modal = flask.render_template('snippets/methods_dialog.html',
-                                  methods=models.approved_methods,
+                                  methods=models.approved_methods(),
                                   method_name=method_name)
     return flask.jsonify(actions=actions, modal=modal)
+
+
+@main.app.errorhandler(404)
+def not_found(e):
+    return flask.render_template('errors/404.html'), 404
+
+
+@main.app.errorhandler(405)
+def not_allowed(e):
+    return flask.render_template('errors/405.html'), 405
+
+
+@main.app.errorhandler(500)
+def server_error(e):
+    return flask.render_template('errors/500.html'), 500
 
 
 import views.manage

@@ -80,7 +80,7 @@ def actions():
             models.db.session.commit()
     form = utils.get_actions_for_method(user.method, header='manage')
     modal = flask.render_template('snippets/methods_dialog.html',
-                                  methods=models.approved_methods,
+                                  methods=models.approved_methods(),
                                   method_name=user.method)
     return flask.render_template('actions.html', form=form, modal=modal)
 
@@ -152,7 +152,8 @@ def suggest_method(method_id=None):
         if method_id:
             method = models.Method.query.get(method_id)
         else:
-            method = models.Method(name=form.name.data,
+            status = models.Status.query.filter_by(name='Proposed').first()
+            method = models.Method(name=form.name.data, status=status,
                                    author=flask.ext.security.current_user)
             models.db.session.add(method)
         sections = []
@@ -175,7 +176,7 @@ def suggest_method(method_id=None):
 @flask.ext.security.login_required
 def suggest_action(method_id=None):
     user = flask.ext.security.current_user
-    all_actions = models.Action.query.filter_by(status=models.APPROVED)
+    all_actions = models.Action.query.filter(models.Status.name == 'Approved')
     if method_id == -1:
         method = None
     elif method_id:
@@ -193,18 +194,20 @@ def suggest_action(method_id=None):
     for section in actions:
         form_dict[section] = forms.SuggestActionForm(prefix=section)
     if all(x.validate_on_submit() for x in form_dict.itervalues()):
+        status = models.Status.query.filter_by(name='Proposed').first()
         for section_name in form_dict:
             section = models.Section.query.filter_by(name=section_name,
                                                      method=method).first()
             for label in form_dict[section_name].action_name.data:
                 action = models.Action.query.filter_by(label=label).first()
                 if not action:
-                    action = models.Action(label=label, author=user)
+                    action = models.Action(label=label, author=user,
+                                           status=status)
                 if section not in action.sections:
-                    assoc = main.models.SectionActions()
+                    assoc = models.SectionActions(status=status)
                     assoc.action = action
                     section.actions.append(assoc)
-        main.models.db.session.commit()
+        models.db.session.commit()
         flask.flash('Action suggestions saved', 'success')
         return flask.redirect(flask.url_for('.suggest_action'))
     for section in actions:
@@ -212,9 +215,9 @@ def suggest_action(method_id=None):
         for action in (x for x in all_actions if x.id not in actions[section]):
             choices.append(action.label)
         form_dict[section].action_name.select2_choices = ','.join(choices)
-    and_filter = sqlalchemy.and_(models.Method.status == models.PROPOSED,
+    and_filter = sqlalchemy.and_(models.Status.name == 'Proposed',
                                  models.Method.author == user)
-    status_filter = sqlalchemy.or_(models.Method.status == models.APPROVED,
+    status_filter = sqlalchemy.or_(models.Status.name == 'Approved',
                                    and_filter)
     methods = models.Method.query.filter(status_filter)
     method_name = getattr(method, 'name', '')

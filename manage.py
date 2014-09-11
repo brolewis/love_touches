@@ -69,12 +69,17 @@ def create_defaults():
                            'Multiple kisses on body', 'Kiss on the neck',
                            'Multiple kisses on face,'],
     }
+    print 'Creating statuses'
+    for name in ('Proposed', 'Rejected', 'Approved'):
+        status = main.models.Status.query.filter_by(name=name).first()
+        if not status:
+            status = main.models.Status(name=name)
+            main.models.db.session.add(status)
     print 'Creating method'
-    approved = main.models.APPROVED
     for name in ('Five Love Languages',):
         method = main.models.Method.query.filter_by(name=name).first()
         if not method:
-            method = main.models.Method(name=name, status=approved)
+            method = main.models.Method(name=name, status=status)
             main.models.db.session.add(method)
     print 'Creating sections'
     for name in sections:
@@ -85,8 +90,8 @@ def create_defaults():
         if section not in method.sections:
             method.sections.append(section)
         for label in sections[name]:
-            assoc = main.models.SectionActions(status=approved)
-            assoc.action = main.models.Action(label=label, status=approved)
+            assoc = main.models.SectionActions(status=status)
+            assoc.action = main.models.Action(label=label, status=status)
             section.actions.append(assoc)
     main.models.db.session.commit()
 

@@ -6,10 +6,6 @@ from sqlalchemy.ext.associationproxy import association_proxy
 # Local
 from main import db
 
-APPROVED = 1
-REJECTED = -1
-PROPOSED = 0
-
 
 # Users and Roles
 roles_users = db.Table('roles_users',
@@ -60,7 +56,11 @@ class User(db.Model, flask.ext.security.UserMixin):
 
     @sqlalchemy.ext.hybrid.hybrid_property
     def suggested_methods(self):
-        return [x for x in self.authored_methods if x.status == PROPOSED]
+        methods = []
+        for method in self.authored_methods:
+            if method.status.name == 'Proposed':
+                methods.append(method)
+        return methods
 
 
 class Crontab(db.Model):
@@ -81,10 +81,20 @@ class Crontab(db.Model):
         return day_names[self.day_of_week]
 
 
+class Status(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+
+    def __repr__(self):
+        return self.name
+
+
+
 class Method(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    status = db.Column(db.Integer, default=PROPOSED)
+    status_id = db.Column(db.Integer, db.ForeignKey('status.id'))
+    status = db.relationship('Status', backref='methods')
     sections = db.relationship('Section', backref='method',
                                cascade='all, delete-orphan')
     author_id = db.Column(db.Integer, db.ForeignKey('user.id', use_alter=True,
@@ -108,8 +118,9 @@ class Section(db.Model):
     @sqlalchemy.ext.hybrid.hybrid_property
     def approved_actions(self):
         actions = []
+        approved = Status.query.filter_by(name='Approved').first()
         for assoc in self.actions:
-            if assoc.status == APPROVED and assoc.action.status == APPROVED:
+            if assoc.status == approved and assoc.action.status == approved:
                 actions.append(assoc.action)
         return actions
 
@@ -122,7 +133,8 @@ class SectionActions(db.Model):
     action_id = db.Column(db.Integer, db.ForeignKey('action.id'),
                           primary_key=True)
     action = db.relationship('Action', backref=db.backref('section_actions'))
-    status = db.Column(db.Integer, default=PROPOSED)
+    status_id = db.Column(db.Integer, db.ForeignKey('status.id'))
+    status = db.relationship('Status', backref='section_actions')
     author_id = db.Column(db.Integer, db.ForeignKey('user.id', use_alter=True,
                                                     name='fk_author_id'))
     author = db.relationship('User', foreign_keys=[author_id],
@@ -132,7 +144,8 @@ class SectionActions(db.Model):
 class Action(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     label = db.Column(db.String)
-    status = db.Column(db.Integer, default=PROPOSED)
+    status_id = db.Column(db.Integer, db.ForeignKey('status.id'))
+    status = db.relationship('Status', backref='actions')
     author_id = db.Column(db.Integer, db.ForeignKey('user.id', use_alter=True,
                                                     name='fk_author_id'))
     author = db.relationship('User', foreign_keys=[author_id],
@@ -142,4 +155,6 @@ class Action(db.Model):
     def __repr__(self):
         return self.label
 
-approved_methods = Method.query.filter_by(status=APPROVED)
+
+def approved_methods():
+    return Method.query.filter(Status.name == 'Approved')
