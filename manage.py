@@ -86,13 +86,13 @@ def create_defaults():
         section = main.models.Section.query.filter_by(name=name).first()
         if not section:
             section = main.models.Section(name=name)
-            main.models.db.session.add(section)
         if section not in method.sections:
             method.sections.append(section)
         for label in sections[name]:
             assoc = main.models.SectionActions(status=status)
             assoc.action = main.models.Action(label=label, status=status)
             section.actions.append(assoc)
+        main.models.db.session.add(section)
     main.models.db.session.commit()
 
 
