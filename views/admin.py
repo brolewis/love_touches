@@ -3,6 +3,7 @@ import flask.ext.admin
 import flask.ext.admin.contrib.sqla
 import flask.ext.admin.model
 import flask.ext.principal
+import sqlalchemy
 import wtforms
 # Local
 import main
@@ -39,6 +40,7 @@ class UserModelView(AuthModelView):
     column_list = ('active', 'email', 'phone', 'method', 'confirmed_at',
                    'email_confirmed_at', 'phone_confirmed_at')
     column_searchable_list = ('email', 'phone')
+    column_filters = ('active', 'email', 'phone')
 
     def scaffold_form(self):
         form_class = super(UserModelView, self).scaffold_form()
@@ -51,20 +53,25 @@ class UserModelView(AuthModelView):
             model.password = flask.ext.security.utils.encrypt_password(passwd)
 
 
-class StatusFilter(flask.ext.admin.contrib.sqla.filters.FilterEqual):
-    def __init__(self):
-        column = models.Action.status_id
-        options = [(x.id, x.name) for x in models.Status.query.all()]
-        super(StatusFilter, self).__init__(column, 'Status', options=options)
+class ProposedModelView(AuthModelView):
+    proposed = models.Status.query.filter_by(name='Proposed')
+
+    def get_query(self):
+        status = self.model.status == self.proposed.first()
+        return self.session.query(self.model).filter(status)
+
+    def get_count_query(self):
+        count = sqlalchemy.func.count('*')
+        status = models.Method.status == self.proposed.first()
+        return self.session.query(count).select_from(self.model).filter(status)
 
 
-class MethodModelView(AuthModelView):
+class MethodModelView(ProposedModelView):
     column_list = ('name', 'status', 'sections', 'author')
-    column_filters = (StatusFilter(),)
 
 
-class ActionModelView(AuthModelView):
-    column_filters = (StatusFilter(),)
+class ActionModelView(ProposedModelView):
+    column_list = ('label', 'status', 'author')
 
 
 class ApproveMethod(AuthBaseView):
@@ -75,8 +82,10 @@ class ApproveMethod(AuthBaseView):
 
 admin = flask.ext.admin.Admin(main.app, 'Love Touches',
                               index_view=AuthIndexView())
-admin.add_view(UserModelView(models.User, models.db.session))
-admin.add_view(MethodModelView(models.Method, models.db.session))
-admin.add_view(ActionModelView(models.Action, models.db.session))
+admin.add_view(UserModelView(models.User, models.db.session, 'Users'))
+admin.add_view(MethodModelView(models.Method, models.db.session,
+                               'Proposed Methods'))
+admin.add_view(ActionModelView(models.Action, models.db.session,
+                               'Proposed Actions'))
 # Logout
 admin.add_view(LogoutView(name='Logout'))
