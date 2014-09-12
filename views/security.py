@@ -1,6 +1,7 @@
 # Third Party
 import flask
 import flask.ext.security
+import pyotp
 import werkzeug.local
 # Local
 import forms
@@ -12,7 +13,8 @@ _security = werkzeug.local.LocalProxy(lambda: main.app.extensions['security'])
 
 
 @main.app.route('/register', methods=['GET', 'POST'])
-def register():
+@main.app.route('/register/<code>', methods=['GET', 'POST'])
+def register(code=None):
     '''View function which handles a registration request.'''
     form = forms.ConfirmRegisterForm()
     if form.validate_on_submit():
@@ -33,6 +35,13 @@ def register():
             url = flask.url_for('confirm_mobile', action='login_confirm')
             return flask.redirect(url)
         elif user.email:
+            if code == pyotp.HOTP(user.secret).at(user.email_hotp):
+                flask.ext.security.utils.login_user(user)
+                flask.ext.security.confirmable.confirm_user(user)
+                get_url = flask.ext.security.utils.get_url
+                url = (get_url(_security.post_confirm_view) or
+                       get_url(_security.post_login_view))
+                return flask.redirect(url)
             url = flask.ext.security.utils.get_post_register_redirect()
             confirmable = flask.ext.security.confirmable
             link, token = confirmable.generate_confirmation_link(user)

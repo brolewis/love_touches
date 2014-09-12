@@ -43,22 +43,22 @@ def confirm_mobile(action=None):
         utils.send_code(user)
     form = forms.MobileVerifyForm()
     if form.validate_on_submit():
-        if form.data['code'] == pyotp.HOTP(user.secret).at(0):
-            register_url = flask.url_for('index')
+        if form.data['code'] == pyotp.HOTP(user.secret).at(user.phone_hotp):
+            url = flask.url_for('index')
             if action == 'login_confirm':
                 user.confirmed_at = datetime.datetime.utcnow()
                 if user != flask.ext.security.current_user:
                     flask.ext.security.utils.logout_user()
                     flask.ext.security.utils.login_user(user)
                     get_url = flask.ext.security.utils.get_url
-                    register_url = (get_url(_security.post_confirm_view) or
-                                    get_url(_security.post_login_view))
+                    url = (get_url(_security.post_confirm_view) or
+                           get_url(_security.post_login_view))
             else:
                 user.phone_confirmed_at = datetime.datetime.utcnow()
             models.db.session.add(user)
             models.db.session.commit()
             flask.flash('Mobile Number confirmed', 'success')
-            return flask.redirect(register_url)
+            return flask.redirect(url)
         else:
             flask.flash('Verification code does not match.', 'error')
     return flask.render_template('confirm_mobile.html', form=form)

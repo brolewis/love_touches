@@ -197,7 +197,11 @@ def confirm_signup(token):
         flask.flash('Your email address has already been confirmed.')
     message = 'You may want to <a href="{}">register</a> so you can change '
     message += 'your schedule and actions.'
-    register_url = flask.url_for('register', email=user.email)
+    user.secret = pyotp.random_base32()
+    models.db.session.add(user)
+    models.db.session.commit()
+    code = pyotp.HOTP(user.secret).at(user.email_hotp)
+    register_url = flask.url_for('register', email=user.email, code=code)
     flask.flash(message.format(register_url))
     message = "(If you don't register now, you can register at"
     message += ' any time from the top menu.)'

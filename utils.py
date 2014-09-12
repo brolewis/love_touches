@@ -21,12 +21,11 @@ def format_phone(dct):
 
 
 def send_code(user):
-    user.secret = pyotp.random_base32()
+    user.phone_hotp = max(user.email_htop, user.phone_htop) + 1
     models.db.session.add(user)
     models.db.session.commit()
-    hotp = pyotp.HOTP(user.secret)
     message = 'Your Love Touches verification code is: {}'
-    message = message.format(hotp.at(0))
+    message = message.format(pyotp.HOTP(user.secret).at(user.phone_hotp))
     client = telapi.rest.Client(os.getenv('ACCOUNT_SID'),
                                 os.getenv('AUTH_TOKEN'))
     account = client.accounts[client.account_sid]
