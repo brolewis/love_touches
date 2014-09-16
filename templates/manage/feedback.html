@@ -1,0 +1,38 @@
+{% extends "manage/base.html" %}
+{% block sub_title %}Feedback{% endblock %}
+{% block main %}
+    <h1>Feedback</h1>
+    <ul class="chat">
+    {% for message in current_user.messages recursive %}
+        {{ display_message(message) }}
+        {% if message.children %}
+            {{ loop(message.children) }}
+        {% endif %}
+        {% if not message.parent %}
+        <div>&nbsp;</div>
+        {% endif %}
+    {% endfor %}
+    </ul>
+    <form id="feedback-form" method="post" role="form" class="form-horizontal" action="{{ request.path }}">
+        {{ manage_form(form) }}
+    </form>
+{% endblock %}
+{% macro display_message(message) %}
+    {% set self = message.sender.id == current_user.id %}
+    <li class="{% if self %}left{% else %}right{% endif %} clearfix{% if message.parent %} reply{% endif %}">
+        <span class="chat-img pull-{% if self %}left{% else %}right{% endif %}">
+            <span class="{% if self %}user{% else %}heart{% endif %}-circle">
+                <i class="fa fa-{% if self %}user{% else %}heart-o{% endif %}"></i>
+            </span>
+        </span>
+        <div class="chat-body clearfix">
+            <div class="header">
+                <strong class="{% if not self %}pull-right {% endif %}primary-font">{% if self %}Me{% else %}Love Touches{% endif %}</strong>
+                <small class="{% if self %}pull-right {% endif %}text-muted">
+                    <i class="fa fa-clock-o fa-fw"></i> {{ message.created_at|time_since }} ago
+                </small>
+            </div>
+            <p class="clearfix">{{ message.message }}</p>
+        </div>
+    </li>
+{% endmacro %}

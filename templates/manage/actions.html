@@ -4,20 +4,20 @@
     {{ modal|safe }}
 {% endblock %}
 {% block main %}
-<form id="actions-form" method="post" role="form" class="form-horizontal" action="{{ request.path }}">
-    <div class="flip">
-        <div class="card">
-            <div class="face front">
-                {{ form|safe }}
-            </div>
-            <div class="face back">
+    <form id="actions-form" method="post" role="form" class="form-horizontal" action="{{ request.path }}">
+        <div class="flip">
+            <div class="card">
+                <div class="face front">
+                    {{ form|safe }}
+                </div>
+                <div class="face back">
+                </div>
             </div>
         </div>
-    </div>
-    <div>
-        {{ manage_navigation() }}
-    </div>
-</form>
+        <div>
+            {{ manage_navigation() }}
+        </div>
+    </form>
 {% endblock %}
 {% block scripts %}
     {{ super() }}

@@ -1,6 +1,9 @@
 '''Database model object'''
+# Standard Library
+import datetime
 # Third Party
 import flask.ext.security
+import sqlalchemy
 import sqlalchemy.ext.hybrid
 from sqlalchemy.ext.associationproxy import association_proxy
 # Local
@@ -52,6 +55,7 @@ class User(db.Model, flask.ext.security.UserMixin):
     method = db.relationship('Method', foreign_keys=[method_id])
     actions = db.relationship('Action', secondary=users_actions)
     schedule = db.relationship('Crontab', backref='user')
+    messages = db.relationship('Message')
 
     def __repr__(self):
         return self.email or self.phone
@@ -89,7 +93,6 @@ class Status(db.Model):
 
     def __repr__(self):
         return self.name
-
 
 
 class Method(db.Model):
@@ -160,3 +163,15 @@ class Action(db.Model):
 
 def approved_methods():
     return Method.query.filter(Status.name == 'Approved')
+
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    sender = db.relationship('User', foreign_keys=[sender_id])
+    message = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    parent_id = db.Column(db.Integer, db.ForeignKey('message.id'))
+    children = db.relationship('Message',
+                               cascade='all, delete-orphan',
+                               backref=db.backref('parent', remote_side=id))

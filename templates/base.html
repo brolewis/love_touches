@@ -114,6 +114,20 @@
                 </button>
             </div>
         </div>
+    {% elif field.type == 'TextAreaField' %}
+    <div class="form-group">
+        <div class="col-sm-12{% if field.errors %} has-error{% endif %}">
+            {{ field(class='form-control form-textarea') }}
+            {% if field.description %}
+                <span class="help-block">{{ field.description|safe }}</span>
+            {% endif %}
+            {% if field.errors %}
+            <span class="help-block help-error">
+                {{ field.errors|join('<br />')|safe }}
+            </span>
+            {% endif %}
+        </div>
+    </div>
     {% else %}
     <div class="form-group">
         {{ field.label(class='col-sm-3 control-label') }}

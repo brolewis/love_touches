@@ -12,7 +12,7 @@ import models
 import utils
 
 manage = flask.Blueprint('manage', __name__, url_prefix='/manage',
-                        template_folder='../templates/manage')
+                         template_folder='../templates/manage')
 _security = werkzeug.local.LocalProxy(lambda: main.app.extensions['security'])
 
 
@@ -226,3 +226,16 @@ def suggest_action(method_id=None):
                                   base='.suggest_action')
     return flask.render_template('suggest_action.html', form_dict=form_dict,
                                  method=method, actions=actions, modal=modal)
+
+
+@manage.route('/feedback', methods=['GET', 'POST'])
+def feedback():
+    user = flask.ext.security.current_user
+    form = forms.FeedbackForm()
+    if form.validate_on_submit():
+        message = models.Message(message=form.message.data)#, sender=user)
+        user.messages.append(message)
+        models.db.session.add(user)
+        models.db.session.commit()
+        return flask.redirect(flask.url_for('.feedback'))
+    return flask.render_template('feedback.html', form=form)

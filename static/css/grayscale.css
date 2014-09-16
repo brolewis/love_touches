@@ -462,6 +462,7 @@ body {
 }
 
 input[type="text"],
+textarea.form-textarea,
 input[type="number"],
 input[type="password"] {
     font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -597,4 +598,65 @@ select {
     font-size: 42px;
     font-weight: normal;
     line-height: .55;
+}
+
+.chat {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: left;
+}
+
+.chat li {
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px dotted #999;
+    border-left: 1px dotted #999;
+    padding-left: 13px;
+}
+
+.chat li.left .chat-body {
+    margin-left: 60px;
+}
+
+.chat li.right .chat-body {
+    margin-right: 60px;
+}
+
+.chat li .chat-body p {
+    margin: 0;
+}
+
+.heart-circle {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    margin-top: 4px;
+    padding: 10px 13px;
+    border: 2px solid #fff;
+    border-radius: 45px;
+    color: #fff;
+    background: 0 0;
+    -webkit-transition: background .3s ease-in-out;
+    -moz-transition: background .3s ease-in-out;
+    transition: background .3s ease-in-out;
+}
+
+.user-circle {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    margin-top: 4px;
+    padding: 9px 15px;
+    border: 2px solid #fff;
+    border-radius: 45px;
+    color: #fff;
+    background: 0 0;
+    -webkit-transition: background .3s ease-in-out;
+    -moz-transition: background .3s ease-in-out;
+    transition: background .3s ease-in-out;
+}
+
+.reply {
+    margin-left: 2em;
 }

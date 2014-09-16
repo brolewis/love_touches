@@ -1,3 +1,5 @@
+# Standard Library
+import datetime
 # Third Party
 import flask
 import flask.ext.admin.form
@@ -18,7 +20,51 @@ def simple_field_filter(field):
                       wtforms.SubmitField)
     return not isinstance(field, special_fields)
 
+
+def time_since(in_dt):
+    '''
+    Takes two datetime objects and returns the time between d and now
+    as a nicely formatted string, e.g. "10 minutes".  If d occurs after now,
+    then "0 minutes" is returned.
+    '''
+    chunks = (
+        (60 * 60 * 24 * 365, '{} year'),
+        (60 * 60 * 24 * 30, '{} month'),
+        (60 * 60 * 24 * 7, '{} week'),
+        (60 * 60 * 24, '{} day'),
+        (60 * 60, '{} hour'),
+        (60, '{} minute')
+    )
+    # Convert datetime.date to datetime.datetime for comparison.
+    if not isinstance(in_dt, datetime.datetime):
+        in_dt = datetime.datetime(in_dt.year, in_dt.month, in_dt.day)
+    now = datetime.datetime.utcnow()
+
+    delta = now - in_dt
+    # ignore microseconds
+    since = delta.days * 24 * 60 * 60 + delta.seconds
+    if since <= 0:
+        # in_dt is in the future compared to now, stop processing.
+        return '0 minutes'
+    for i, (seconds, name) in enumerate(chunks):
+        count = since // seconds
+        if count != 0:
+            break
+    result = name.format(count)
+    if count > 1:
+        result += 's'
+    if i + 1 < len(chunks):
+        # Now get the second item
+        seconds2, name2 = chunks[i + 1]
+        count2 = (since - (seconds * count)) // seconds2
+        if count2 != 0:
+            result += ', {}'.format(name2.format(count2))
+            if count2 > 1:
+                result += 's'
+    return result
+
 main.app.jinja_env.filters['simple_field_filter'] = simple_field_filter
+main.app.jinja_env.filters['time_since'] = time_since
 
 REQUIRED = wtforms.validators.DataRequired()
 
@@ -34,8 +80,8 @@ class ContactFormMixin(object):
     country_code = wtforms.StringField(default='1')
     phone = wtforms.StringField(label='Mobile Number')
     email = wtforms.StringField(validators=[wtforms.validators.Email(),
-                                          wtforms.validators.Optional(),
-                                          valid_user_email])
+                                            wtforms.validators.Optional(),
+                                            valid_user_email])
 
 
 class ContactForm(flask.ext.wtf.Form, ContactFormMixin,
@@ -99,14 +145,17 @@ class MobileVerifyForm(flask.ext.wtf.Form,
 
 
 class SuggestMethodForm(flask.ext.wtf.Form):
-    name = wtforms.StringField(label='Method Name',
-                             validators=[REQUIRED])
+    name = wtforms.StringField(label='Method Name', validators=[REQUIRED])
     section = wtforms.FieldList(wtforms.StringField(validators=[REQUIRED]),
                                 label='Sections', min_entries=2)
 
 
 class SuggestActionForm(flask.ext.wtf.Form):
     action_name = flask.ext.admin.form.Select2TagsField(save_as_list=True)
+
+
+class FeedbackForm(flask.ext.wtf.Form):
+    message = wtforms.TextAreaField(validators=[REQUIRED])
 
 
 def unique_user_email(form, field):
