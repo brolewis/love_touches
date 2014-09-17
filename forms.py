@@ -6,6 +6,7 @@ import flask.ext.admin.form
 import flask.ext.security
 import flask.ext.wtf
 import phonenumbers
+import pyotp
 import pytz
 import wtforms
 import wtforms.ext.sqlalchemy.fields
@@ -156,6 +157,17 @@ class SuggestActionForm(flask.ext.wtf.Form):
 
 class FeedbackForm(flask.ext.wtf.Form):
     message = wtforms.TextAreaField(validators=[REQUIRED])
+
+
+class TwoFactorConfirmationForm(flask.ext.wtf.Form):
+    token = wtforms.StringField(validators=[REQUIRED])
+
+    def validate_token(form, field):
+        if field.data:
+            totp = pyotp.TOTP(flask.ext.security.current_user.secret)
+            if not totp.verify(field.data):
+                raise wtforms.ValidationError('Invalid token')
+
 
 
 def unique_user_email(form, field):

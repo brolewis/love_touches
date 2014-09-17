@@ -3,6 +3,14 @@
 {% block main %}
     <h1>Contact Information</h1>
     <form role="form" method="post" class="form-horizontal" action="{{ request.path }}">
-        {{ manage_form(form) }}
+        {{ base_form(form) }}
+        <div>
+            {% if current_user.totp_enabled %}
+            <a href="{{ url_for('.disable_tfa') }}" class="btn btn-danger"><i class="fa fa-qrcode"></i> Disable Two-Factor Authentication</a>
+            {% else %}
+            <a href="{{ url_for('.two_factor') }}" class="btn btn-success"><i class="fa fa-qrcode"></i> Enable Two-Factor Authentication</a>
+            {% endif %}
+        </div>
+        {{ manage_navigation() }}
     </form>
 {% endblock %}

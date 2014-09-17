@@ -7,6 +7,7 @@ import os
 import flask.ext.migrate
 import flask.ext.script
 import flask.ext.security
+import pyotp
 # Local
 import main
 
@@ -46,6 +47,7 @@ def create_confirmed_user():
     main.user_datastore.create_user(email='lewis@love-touches.org',
                                     password=password, active=True,
                                     confirmed_at=datetime.datetime.now(),
+                                    secret=pyotp.random_base32(),
                                     method_id=1)
     main.models.db.session.commit()
 

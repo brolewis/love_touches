@@ -660,3 +660,7 @@ select {
 .reply {
     margin-left: 2em;
 }
+
+.img-responsive {
+    margin: 0 auto;
+}

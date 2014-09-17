@@ -1,0 +1,30 @@
+{% extends "manage/base.html" %}
+{% block sub_title %}Contact Information{% endblock %}
+{% block main %}
+    <h1>Two-Factor Authentication</h1>
+    <div class="row">
+        <h2>Scan The QR Code</h2>
+        <div class="col-sm-3">
+            <div id="qrcode"></div>
+        </div>
+        <div class="col-sm-9">
+            <p>You’ll need to install a two-factor authentication application on your smartphone or tablet.</p>
+            <p>Open your two-factor authentication app and add your Love Touches account by scanning the QR code to the right.</p>
+        </div>
+    </div>
+    <div class="row">
+        <h2>Enter the Token</h2>
+        <form role="form" method="post" class="form-horizontal" action="{{ request.path }}">
+            {{ manage_form(form) }}
+        </form>
+    </div>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/qrcode.min.js') }}"></script>
+    <script>
+//        new QRCode(document.getElementById("qrcode"), {text: "{{ uri }}", width: 128, height: 128});
+        new QRCode(document.getElementById("qrcode"), "{{ uri }}");
+        $('#qrcode img').addClass('img-thumbnail').addClass('img-responsive');
+    </script>
+{% endblock %}

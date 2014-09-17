@@ -2,6 +2,7 @@
 import datetime
 # Third Party
 import flask
+import pyotp
 import sqlalchemy
 import werkzeug.datastructures
 import werkzeug.local
@@ -24,7 +25,7 @@ def contact():
         return flask.redirect(flask.url_for('admin.index'))
     form = forms.ContactForm()
     if form.validate_on_submit():
-        redirect = 'contact'
+        redirect = '.contact'
         email = form.email.data
         if user.email != email:
             user.email = email
@@ -53,6 +54,34 @@ def contact():
         form.phone.data = phone
     form.email.data = user.email
     return flask.render_template('contact.html', form=form)
+
+
+@manage.route('/two-factor', methods=['GET', 'POST'])
+@flask.ext.security.login_required
+def two_factor():
+    user = flask.ext.security.current_user
+    form = forms.TwoFactorConfirmationForm()
+    if form.validate_on_submit():
+        user.totp_enabled = True
+        models.db.session.add(user)
+        models.db.session.commit()
+        flask.flash('Two-Factor Authentication enabled.', 'success')
+        return flask.redirect(flask.url_for('.contact'))
+    totp = pyotp.TOTP(user.secret)
+    uri = totp.provisioning_uri('', issuer_name='Love Touches')
+    return flask.render_template('two_factor.html', form=form, uri=uri)
+
+
+@manage.route('/disable-tfa')
+@flask.ext.security.login_required
+def disable_tfa():
+    user = flask.ext.security.current_user
+    user.totp_enabled = False
+    models.db.session.add(user)
+    models.db.session.commit()
+    flask.flash('Two-Factor Authentication disabled.', 'success')
+    return flask.redirect(flask.url_for('.contact'))
+
 
 
 @manage.route('/actions', methods=['GET', 'POST'])
@@ -235,7 +264,7 @@ def feedback():
     user = flask.ext.security.current_user
     form = forms.FeedbackForm()
     if form.validate_on_submit():
-        message = models.Message(message=form.message.data)#, sender=user)
+        message = models.Message(message=form.message.data)
         user.messages.append(message)
         models.db.session.add(user)
         models.db.session.commit()
