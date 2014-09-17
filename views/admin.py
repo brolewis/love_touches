@@ -1,11 +1,13 @@
 # Third Party
 import flask.ext.admin
 import flask.ext.admin.contrib.sqla
+import flask.ext.admin.helpers
 import flask.ext.admin.model
 import flask.ext.principal
 import sqlalchemy
 import wtforms
 # Local
+import forms
 import main
 import models
 
@@ -80,6 +82,45 @@ class ApproveMethod(AuthBaseView):
         pass
 
 
+class UnansweredFeedbackView(AuthModelView):
+    column_list = ('sender', 'message', 'created_at')
+    list_template = 'admin/feedback_list.html'
+
+    @flask.ext.admin.expose('/reply/', methods=['GET', 'POST'])
+    def reply_view(self):
+        return_url = flask.ext.admin.helpers.get_redirect_target()
+        if not return_url:
+            return_url = flask.url_for('.index_view')
+        id = flask.request.args.get('id')
+        if id is None:
+            return flask.redirect(return_url)
+        parent = self.get_one(id)
+        if parent is None:
+            return flask.redirect(return_url)
+        form = forms.FeedbackForm()
+        if form.validate_on_submit():
+            message = models.Message(sender=flask.ext.security.current_user,
+                                     message=form.message.data, parent=parent)
+            models.db.session.add(message)
+            models.db.session.commit()
+            return flask.redirect(return_url)
+        return self.render('admin/feedback_reply.html', form=form,
+                           parent=parent, return_url=return_url)
+
+    def get_query(self):
+        user = flask.ext.security.current_user
+        query = self.session.query(self.model)
+        query = query.filter(self.model.sender != user)
+        return query.filter(~self.model.children.any())
+
+    def get_count_query(self):
+        user = flask.ext.security.current_user
+        count = sqlalchemy.func.count('*')
+        query = self.session.query(count).select_from(self.model)
+        query = query.filter(self.model.sender != user)
+        return query.filter(~self.model.children.any())
+
+
 admin = flask.ext.admin.Admin(main.app, 'Love Touches',
                               index_view=AuthIndexView())
 admin.add_view(UserModelView(models.User, models.db.session, 'Users'))
@@ -87,5 +128,7 @@ admin.add_view(MethodModelView(models.Method, models.db.session,
                                'Proposed Methods'))
 admin.add_view(ActionModelView(models.Action, models.db.session,
                                'Proposed Actions'))
+admin.add_view(UnansweredFeedbackView(models.Message, models.db.session,
+                                      'Unanswered Feedback'))
 # Logout
 admin.add_view(LogoutView(name='Logout'))

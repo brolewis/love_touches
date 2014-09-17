@@ -1,0 +1,17 @@
+{% extends 'admin/master.html' %}
+{% import 'admin/lib.html' as lib with context %}
+{% block body %}
+    {% call lib.form_tag(form) %}
+        <div class="control-group">
+            <div class="control-label">Sender</div>
+            <div class="controls"><div>{{ parent.sender }}</div></div>
+        </div>
+        <div class="control-group">
+            <div class="control-label">Sender Message</div>
+            <div class="controls"><p>{{ parent.message }}</p></div>
+        </div>
+        <hr />
+        {{ lib.render_form_fields(form) }}
+        {{ lib.render_form_buttons(return_url) }}
+    {% endcall %}
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "admin/model/list.html" %}
+{% block list_row_actions_column %}
+    <td style="white-space: nowrap">
+    {% block list_row_actions %}
+    {{ super() }}
+        <a class="icon" href="{{ url_for('.reply_view', id=get_pk_value(row), url=return_url) }}" title="Reply">
+            <i class="icon-envelope"></i>
+        </a>
+    {% endblock %}
+    </td>
+{% endblock %}
