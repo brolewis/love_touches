@@ -20,6 +20,8 @@ _security = werkzeug.local.LocalProxy(lambda: main.app.extensions['security'])
 @flask.ext.security.login_required
 def contact():
     user = flask.ext.security.current_user
+    if user.has_role('admin'):
+        return flask.redirect(flask.url_for('admin.index'))
     form = forms.ContactForm()
     if form.validate_on_submit():
         redirect = 'contact'

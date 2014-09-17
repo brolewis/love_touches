@@ -15,7 +15,11 @@ _security = werkzeug.local.LocalProxy(lambda: main.app.extensions['security'])
 
 @main.app.route('/')
 def index():
-    return flask.render_template('index.html')
+    user = flask.ext.security.current_user
+    if user.has_role('admin'):
+        return flask.redirect(flask.url_for('admin.index'))
+    else:
+        return flask.render_template('index.html')
 
 
 @main.app.route('/post_login')
