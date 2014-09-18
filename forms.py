@@ -254,11 +254,6 @@ class ConfirmRegisterForm(flask.ext.wtf.Form, ContactFormMixin,
                                      [REQUIRED,
                                       wtforms.validators.Length(6, 128)])
 
-    def __init__(self, *args, **kwargs):
-        super(TwoFactorConfirmationForm, self).__init__(*args, **kwargs)
-        if not self.next.data:
-            self.next.data = flask.request.args.get('next', '')
-
     def validate(self):
         url_for_security = flask.ext.security.utils.url_for_security
         if not super(ConfirmRegisterForm, self).validate():

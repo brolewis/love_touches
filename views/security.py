@@ -38,9 +38,7 @@ def register(code=None):
             if code == pyotp.HOTP(user.secret).at(user.email_hotp):
                 flask.ext.security.utils.login_user(user)
                 flask.ext.security.confirmable.confirm_user(user)
-                utils = flask.ext.security.utils
-                url = utils.get_post_login_redirect(form.next.data)
-                return flask.redirect(url)
+                return flask.redirect(flask.url_for('post_login'))
             url = flask.ext.security.utils.get_post_register_redirect()
             confirmable = flask.ext.security.confirmable
             link, token = confirmable.generate_confirmation_link(user)
