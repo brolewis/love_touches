@@ -58,7 +58,8 @@ app.security = flask.ext.security.Security(app, user_datastore,
 state = app.security._state
 state.login_manager.login_view = 'login'
 app.context_processor(flask.ext.security.core._context_processor)
-security_blueprint = flask.ext.security.views.create_blueprint(state, __name__)
+name = 'flask_security.core'
+security_blueprint = flask.ext.security.views.create_blueprint(state, name)
 app.register_blueprint(security_blueprint)
 # Debug Toolbar
 if debugtoolbar:
