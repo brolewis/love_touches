@@ -176,7 +176,6 @@ class TwoFactorConfirmationForm(flask.ext.wtf.Form,
                 raise wtforms.ValidationError('Invalid token')
 
 
-
 def unique_user_email(form, field):
     user = models.User.query.filter_by(email=field.data).first()
     if user is not None and user.confirmed_at is not None:
@@ -254,6 +253,11 @@ class ConfirmRegisterForm(flask.ext.wtf.Form, ContactFormMixin,
     password = wtforms.PasswordField('Password',
                                      [REQUIRED,
                                       wtforms.validators.Length(6, 128)])
+
+    def __init__(self, *args, **kwargs):
+        super(TwoFactorConfirmationForm, self).__init__(*args, **kwargs)
+        if not self.next.data:
+            self.next.data = flask.request.args.get('next', '')
 
     def validate(self):
         url_for_security = flask.ext.security.utils.url_for_security
