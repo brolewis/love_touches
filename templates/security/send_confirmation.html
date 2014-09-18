@@ -2,7 +2,7 @@
 {% block sub_title %}Confirmation{% endblock %}
 {% block main %}
     <h1>Resend Confirmation Instructions</h1>
-    <form role="form" class="form-horizontal" action="{{ url_for_security('send_confirmation') }}" method="POST">
+    <form role="form" class="form-horizontal" action="{{ request.path }}" method="POST">
         {{ security_form(send_confirmation_form) }}
     </form>
 {% endblock %}

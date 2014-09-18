@@ -11,6 +11,7 @@ except ImportError:
 else:
     debugtoolbar = True
 import flask.ext.mail
+import flask.ext.security
 import flask.ext.sqlalchemy
 import flask.ext.migrate
 import raven.contrib.flask
@@ -48,11 +49,17 @@ app.config['SECURITY_CONFIRM_URL'] = '/confirm_email'
 app.config['SECURITY_REGISTERABLE'] = True
 app.config['SECURITY_REGISTER_URL'] = '/register_user'
 app.config['SECURITY_RECOVERABLE'] = True
-app.config['SECURITY_POST_LOGIN_VIEW'] = 'post_login'
+app.config['SECURITY_LOGIN_URL'] = '/login-user'
 app.config['SECURITY_CHANGEABLE'] = True
 user_datastore = flask.ext.security.SQLAlchemyUserDatastore(db, models.User,
                                                             models.Role)
-app.security = flask.ext.security.Security(app, user_datastore)
+app.security = flask.ext.security.Security(app, user_datastore,
+                                           register_blueprint=False)
+state = app.security._state
+state.login_manager.login_view = 'login'
+app.context_processor(flask.ext.security.core._context_processor)
+security_blueprint = flask.ext.security.views.create_blueprint(state, __name__)
+app.register_blueprint(security_blueprint)
 # Debug Toolbar
 if debugtoolbar:
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False

@@ -79,8 +79,7 @@ def step_three():
         if previous and not main.app.debug:
             message = '''Hrm. Are you sure you haven't been here before?'''
             flask.flash(message, 'error')
-            login_url = flask.ext.security.utils.url_for_security('login')
-            return flask.redirect(login_url)
+            return flask.redirect(flask.url_for('login'))
         flask.session.update(form.data)
         return flask.redirect(flask.url_for('.confirm'))
     for key in (x for x in flask.session if hasattr(form, x)):

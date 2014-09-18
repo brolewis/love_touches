@@ -260,6 +260,7 @@ def suggest_action(method_id=None):
 
 
 @manage.route('/feedback', methods=['GET', 'POST'])
+@flask.ext.security.login_required
 def feedback():
     user = flask.ext.security.current_user
     form = forms.FeedbackForm()

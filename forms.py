@@ -159,12 +159,19 @@ class FeedbackForm(flask.ext.wtf.Form):
     message = wtforms.TextAreaField(validators=[REQUIRED])
 
 
-class TwoFactorConfirmationForm(flask.ext.wtf.Form):
+class TwoFactorConfirmationForm(flask.ext.wtf.Form,
+                                flask.ext.security.forms.NextFormMixin):
     token = wtforms.StringField(validators=[REQUIRED])
+
+    def __init__(self, *args, **kwargs):
+        super(TwoFactorConfirmationForm, self).__init__(*args, **kwargs)
+        if not self.next.data:
+            self.next.data = flask.request.args.get('next', '')
 
     def validate_token(form, field):
         if field.data:
-            totp = pyotp.TOTP(flask.ext.security.current_user.secret)
+            user = getattr(form, 'user', flask.ext.security.current_user)
+            totp = pyotp.TOTP(user.secret)
             if not totp.verify(field.data):
                 raise wtforms.ValidationError('Invalid token')
 
@@ -183,6 +190,11 @@ class LoginForm(flask.ext.wtf.Form, flask.ext.security.forms.NextFormMixin,
     password = wtforms.PasswordField('Password')
     remember = wtforms.BooleanField('Remember Me')
     submit = wtforms.SubmitField('Login')
+
+    def __init__(self, *args, **kwargs):
+        super(LoginForm, self).__init__(*args, **kwargs)
+        if not self.next.data:
+            self.next.data = flask.request.args.get('next', '')
 
     def validate(self):
         if not super(LoginForm, self).validate():
@@ -259,7 +271,7 @@ class ConfirmRegisterForm(flask.ext.wtf.Form, ContactFormMixin,
             query = main.user_datastore.user_model.query
             user = query.filter_by(phone=phone).first()
         if user and user.password and user.confirmed_at:
-            login_url = url_for_security('login')
+            login_url = flask.url_for('login')
             forgot_url = url_for_security('forgot_password')
             message = 'You have already successfully registered. You should be'
             message += ' able to <a href="{}" class="alert-link">login</a>. If'
@@ -291,5 +303,3 @@ class ConfirmRegisterForm(flask.ext.wtf.Form, ContactFormMixin,
             self.phone.errors.append('Registration pending')
             return False
         return True
-
-main.app.extensions['security'].login_form = LoginForm

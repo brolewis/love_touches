@@ -2,8 +2,8 @@
     <div class="row info-footer">
         <div class="col-md-12">
             <div class="info-footer-body">
-            {% if url_for_security('login') != request.path %}
-                <a href="{{ url_for_security('login') }}">Login</a> |
+            {% if url_for('login') != request.path %}
+                <a href="{{ url_for('login') }}">Login</a> |
             {% endif %}
             {% if security.registerable and request.path not in (url_for('register'), url_for('confirm_mobile'), url_for_security('send_confirmation')) %}
                 <a href="{{ url_for('register') }}">Register</a> |

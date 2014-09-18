@@ -22,6 +22,42 @@ def index():
         return flask.render_template('index.html')
 
 
+@main.app.route('/login', methods=['GET', 'POST'])
+@flask.ext.security.decorators.anonymous_user_required
+def login():
+    form = forms.LoginForm()
+    if form.validate_on_submit():
+        next = form.next.data
+        remember = form.remember.data
+        if form.user.totp_enabled:
+            flask.session['tfa_id'] = form.user.id
+            if remember:
+                flask.session['remember'] = 'set'
+            return flask.redirect(flask.url_for('two_factor', next=next))
+        else:
+            flask.ext.security.utils.login_user(form.user, remember=remember)
+            models.db.session.commit()
+            url = flask.ext.security.utils.get_post_login_redirect(next)
+            return flask.redirect(url)
+    return flask.render_template('security/login_user.html', form=form)
+
+
+@main.app.route('/login/tfa', methods=['GET', 'POST'])
+def two_factor():
+    if 'tfa_id' not in flask.session:
+        return flask.redirect(flask.url_for('login'))
+    user = models.User.query.get(flask.session['tfa_id'])
+    form = forms.TwoFactorConfirmationForm()
+    form.user = user
+    if form.validate_on_submit():
+        del flask.session['tfa_id']
+        flask.ext.security.utils.login_user(user)
+        models.db.session.commit()
+        url = flask.ext.security.utils.get_post_login_redirect(form.next.data)
+        return flask.redirect(url)
+    return flask.render_template('security/two_factor.html', form=form)
+
+
 @main.app.route('/post_login')
 @flask.ext.security.login_required
 def post_login():
