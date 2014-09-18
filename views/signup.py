@@ -108,7 +108,7 @@ def _days_label():
 @signup.route('/confirm')
 @signup.route('/confirm/<action>')
 def confirm(action=None):
-    if flask.ext.securitycurrent_user.has_role('admin'):
+    if flask.ext.security.current_user.has_role('admin'):
         return flask.redirect(flask.url_for('admin.index'))
     if not flask.ext.security.current_user.is_anonymous():
         return flask.redirect(flask.url_for('manage.actions'))
