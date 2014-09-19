@@ -21,7 +21,7 @@ def format_phone(dct):
 
 
 def send_code(user):
-    user.phone_hotp = max(user.email_htop, user.phone_htop) + 1
+    user.phone_hotp = max(user.email_hotp, user.phone_hotp) + 1
     models.db.session.add(user)
     models.db.session.commit()
     message = 'Your Love Touches verification code is: {}'
