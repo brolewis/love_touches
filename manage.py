@@ -30,7 +30,7 @@ def create_admin():
     print 'creating "admin" role'
     admin_role = main.user_datastore.find_or_create_role('admin')
     print 'creating admin@love-touches.org'
-    now = datetime.datetime.now()
+    now = datetime.datetime.utcnow()
     password = flask.ext.security.utils.encrypt_password(getpass.getpass())
     admin = main.user_datastore.create_user(email='admin@love-touches.org',
                                             password=password, active=True,
@@ -46,7 +46,7 @@ def create_confirmed_user():
     password = flask.ext.security.utils.encrypt_password(getpass.getpass())
     main.user_datastore.create_user(email='lewis@love-touches.org',
                                     password=password, active=True,
-                                    confirmed_at=datetime.datetime.now(),
+                                    confirmed_at=datetime.datetime.utcnow(),
                                     secret=pyotp.random_base32(),
                                     method_id=1)
     main.models.db.session.commit()
