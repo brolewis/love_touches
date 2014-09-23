@@ -3,11 +3,13 @@
 import datetime
 import getpass
 import os
+import random
 # Third Party
 import flask.ext.migrate
 import flask.ext.script
 import flask.ext.security
 import pyotp
+import pytz
 # Local
 import main
 
@@ -96,6 +98,30 @@ def create_defaults():
             section.actions.append(assoc)
         main.models.db.session.add(section)
     main.models.db.session.commit()
+
+
+def create_crontabs():
+    engine = main.db.engine
+    names = set(open('/usr/share/dict/words').read().lower().splitlines())
+    names = list(names)
+    utc_now = datetime.datetime.utcnow()
+    users = []
+    for user_id in xrange(1, 100001):
+        name = random.choice(names)
+        names.remove(name)
+        email = '{}@love-touches.org'.format(name)
+        users.append({'email': email, 'active': True, 'method_id': 1,
+                      'email_confirmed_at': utc_now, 'id': user_id})
+    engine.execute(main.models.User.__table__.insert(), users)
+    for user_id in xrange(1, 100001):
+        crontabs = []
+        for _ in xrange(10):
+            time = datetime.time(random.randint(0, 23), random.randint(0, 59))
+            weekday = random.randint(0, 6)
+            timezone = random.choice(pytz.common_timezones)
+            crontabs.append({'time': time, 'weekday': weekday,
+                            'timezone': timezone, 'user_id': user_id})
+        engine.execute(main.models.Crontab.__table__.insert(), crontabs)
 
 
 @MANAGER.shell

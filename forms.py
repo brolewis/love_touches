@@ -108,9 +108,9 @@ class ContactForm(flask.ext.wtf.Form, ContactFormMixin,
 
 hour_validator = wtforms.validators.NumberRange(min=1, max=12)
 minute_validator = wtforms.validators.NumberRange(min=0, max=59)
-weekday_choices = [(0, 'Sunday'), (1, 'Monday'), (2, 'Tuesday'),
-                   (3, 'Wednesday'), (4, 'Thursday'), (5, 'Friday'),
-                   (6, 'Saturday')]
+weekday_choices = [(6, 'Sunday'), (0, 'Monday'), (1, 'Tuesday'),
+                   (2, 'Wednesday'), (3, 'Thursday'), (4, 'Friday'),
+                   (5, 'Saturday')]
 timezone_choices = zip(pytz.common_timezones, pytz.common_timezones)
 timezone_choices.insert(0, ('', ''))
 

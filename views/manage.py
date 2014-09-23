@@ -125,8 +125,8 @@ def schedule():
         time = '{hour}:{minute} {am_pm}'.format(**form.data)
         time = datetime.datetime.strptime(time, '%I:%M %p').time()
         schedule = []
-        for day_of_week in form.days_of_week.data:
-            crontab = models.Crontab(day_of_week=day_of_week, time=time,
+        for weekday in form.days_of_week.data:
+            crontab = models.Crontab(weekday=weekday, time=time,
                                      timezone=form.timezone.data)
             schedule.append(crontab)
 
@@ -136,7 +136,7 @@ def schedule():
             models.db.session.commit()
             flask.flash('Schedule saved.', 'success')
     if user.schedule:
-        form.days_of_week.data = [x.day_of_week for x in user.schedule]
+        form.days_of_week.data = [x.weekday for x in user.schedule]
         time_str = user.schedule[0].time.strftime('%I:%M %p')
         form.hour.data = int(time_str[:2])
         form.minute.data = time_str[3:5]

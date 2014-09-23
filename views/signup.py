@@ -95,7 +95,7 @@ def _days_label():
         days_label = days_dict[days_of_week[0]]
     elif len(days_of_week) == 2:
         days_label = ' and '.join(days_dict[x] for x in days_of_week)
-    elif len(days_of_week) == 5 and {1, 2, 3, 4, 5} == set(days_of_week):
+    elif len(days_of_week) == 5 and {0, 1, 2, 3, 4} == set(days_of_week):
         days_label = 'Weekdays'
     elif len(days_of_week) == 7:
         days_label = 'Every day'
@@ -139,8 +139,8 @@ def confirm(action=None):
             user.method = method
         time = '{hour}:{minute} {am_pm}'.format(**flask.session)
         time = datetime.datetime.strptime(time, '%I:%M %p').time()
-        for day_of_week in flask.session['days_of_week']:
-            crontab = models.Crontab(day_of_week=day_of_week, time=time,
+        for weekday in flask.session['days_of_week']:
+            crontab = models.Crontab(weekday=weekday, time=time,
                                      timezone=flask.session['timezone'])
             user.schedule.append(crontab)
         user.secret = pyotp.random_base32()
