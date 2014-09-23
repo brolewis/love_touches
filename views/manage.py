@@ -126,7 +126,7 @@ def schedule():
         time = datetime.datetime.strptime(time, '%I:%M %p').time()
         schedule = []
         for weekday in form.days_of_week.data:
-            crontab = models.Crontab(weekday=weekday, time=time,
+            crontab = models.Crontab(local_weekday=weekday, local_time=time,
                                      timezone=form.timezone.data)
             schedule.append(crontab)
 

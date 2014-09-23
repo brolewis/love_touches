@@ -72,11 +72,35 @@ class User(db.Model, flask.ext.security.UserMixin):
         return methods
 
 
+def utc_weekday(context):
+    local_time = context.current_parameters['local_time']
+    local_weekday = context.current_parameters['local_weekday']
+    local_dt = datetime.datetime.now()
+    local_dt = local_dt.replace(hour=local_time.hour, minute=local_time.minute)
+    days = (local_weekday - local_dt.weekday()) % 7
+    weekday_dt = local_dt + datetime.timedelta(days=days)
+    tz = pytz.timezone(context.current_parameters['timezone'])
+    return tz.localize(weekday_dt).weekday()
+
+
+def utc_hour(context):
+    local_time = context.current_parameters['local_time']
+    local_weekday = context.current_parameters['local_weekday']
+    local_dt = datetime.datetime.now()
+    local_dt = local_dt.replace(hour=local_time.hour, minute=local_time.minute)
+    days = (local_weekday - local_dt.weekday()) % 7
+    weekday_dt = local_dt + datetime.timedelta(days=days)
+    tz = pytz.timezone(context.current_parameters['timezone'])
+    return tz.localize(weekday_dt).utctimetuple.tm_hour
+
+
 class Crontab(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    weekday = db.Column(db.Integer)
-    time = db.Column(db.Time)
+    local_weekday = db.Column(db.Integer)
+    local_time = db.Column(db.Time)
+    utc_weekday = db.Column(db.Integer, default=utc_weekday)
+    utc_hour = db.Column(db.Integer, default=utc_hour)
     timezone = db.Column(db.String)
 
     def __repr__(self):

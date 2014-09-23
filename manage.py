@@ -109,9 +109,18 @@ def create_crontabs():
     for user_id in xrange(1, 100001):
         name = random.choice(names)
         names.remove(name)
-        email = '{}@love-touches.org'.format(name)
-        users.append({'email': email, 'active': True, 'method_id': 1,
-                      'email_confirmed_at': utc_now, 'id': user_id})
+        active = bool(random.randint(0, 5))
+        if random.randint(0, 1):
+            email = '{}@love-touches.org'.format(name)
+            user = {'email': email, 'active': active, 'method_id': 1,
+                    'email_confirmed_at': utc_now, 'id': user_id}
+        else:
+            phone = '+1 {}-{}-{}'.format(random.randint(100, 999),
+                                         random.randint(100, 999),
+                                         random.randint(1000, 9999))
+            user = {'phone': phone, 'active': active, 'method_id': 1,
+                    'phone_confirmed_at': utc_now, 'id': user_id}
+        users.append(user)
     engine.execute(main.models.User.__table__.insert(), users)
     for user_id in xrange(1, 100001):
         crontabs = []
@@ -119,8 +128,8 @@ def create_crontabs():
             time = datetime.time(random.randint(0, 23), random.randint(0, 59))
             weekday = random.randint(0, 6)
             timezone = random.choice(pytz.common_timezones)
-            crontabs.append({'time': time, 'weekday': weekday,
-                            'timezone': timezone, 'user_id': user_id})
+            crontabs.append({'time': time, 'local_weekday': weekday,
+                            'local_timezone': timezone, 'user_id': user_id})
         engine.execute(main.models.Crontab.__table__.insert(), crontabs)
 
 

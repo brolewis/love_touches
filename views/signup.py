@@ -140,7 +140,7 @@ def confirm(action=None):
         time = '{hour}:{minute} {am_pm}'.format(**flask.session)
         time = datetime.datetime.strptime(time, '%I:%M %p').time()
         for weekday in flask.session['days_of_week']:
-            crontab = models.Crontab(weekday=weekday, time=time,
+            crontab = models.Crontab(local_weekday=weekday, local_time=time,
                                      timezone=flask.session['timezone'])
             user.schedule.append(crontab)
         user.secret = pyotp.random_base32()
