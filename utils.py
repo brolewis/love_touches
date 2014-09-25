@@ -1,13 +1,32 @@
 # Standard Library
+import datetime
 import os
 # Third Party
 import flask
 import flask.ext.security
 import phonenumbers
 import pyotp
+import pytz
 import telapi.rest
 # Local
 import models
+
+
+def add_schedule(user, dct):
+    user.timezone = dct['timezone']
+    user.check_hour = dct['hour'] + 12 if dct['am_pm'] == 'pm' else dct['hour']
+    user.check_minute = dct['minute']
+    tz = pytz.timezone(dct['timezone'])
+    check_dt = datetime.datetime.now().replace(hour=dct['hour'],
+                                               minute=dct['minute'])
+    user.utc_hour = tz.localize(check_dt).utctimetuple()[3]
+    weekdays = []
+    for local_weekday in dct['days_of_week']:
+        days = (local_weekday - check_dt.weekday()) % 7
+        weekday_dt = check_dt + datetime.timedelta(days=days)
+        utc_weekday = tz.localize(weekday_dt).weekday()
+        weekdays.append(models.Weekday(utc_weekday=utc_weekday))
+    user._weekdays = weekdays
 
 
 def format_phone(dct):
@@ -31,6 +50,15 @@ def send_code(user):
     account = client.accounts[client.account_sid]
     from_number = account.incoming_phone_numbers[0].phone_number
     account.sms_messages.create(to_number=user.phone, from_number=from_number,
+                                body=message)
+
+
+def send_sms(to_number, message):
+    client = telapi.rest.Client(os.getenv('ACCOUNT_SID'),
+                                os.getenv('AUTH_TOKEN'))
+    account = client.accounts[client.account_sid]
+    from_number = account.incoming_phone_numbers[0].phone_number
+    account.sms_messages.create(to_number=to_number, from_number=from_number,
                                 body=message)
 
 

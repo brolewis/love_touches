@@ -100,37 +100,67 @@ def create_defaults():
     main.models.db.session.commit()
 
 
-def create_crontabs():
+@MANAGER.command
+def create_dummy_data(max_id):
     engine = main.db.engine
     names = set(open('/usr/share/dict/words').read().lower().splitlines())
     names = list(names)
     utc_now = datetime.datetime.utcnow()
-    users = []
-    for user_id in xrange(1, 100001):
+    email_users = []
+    phone_users = []
+    for user_id in xrange(1, int(max_id)+1):
         name = random.choice(names)
         names.remove(name)
         active = bool(random.randint(0, 5))
+        check_hour = random.randint(0, 23)
+        check_minute = random.randint(0, 59)
+        timezone = random.choice(pytz.common_timezones)
+        tz = pytz.timezone(timezone)
+        check_dt = datetime.datetime.now().replace(hour=check_hour,
+                                                   minute=check_minute)
+        utc_hour = tz.localize(check_dt).utctimetuple()[3]
+        days_of_week = []
+        weekdays = range(0, 7)
+        for _ in xrange(random.randint(2, 7)):
+            days_of_week.append(random.choice(weekdays))
+            weekdays.remove(days_of_week[-1])
+        schedule = []
+        for local_weekday in days_of_week:
+            days = (local_weekday - check_dt.weekday()) % 7
+            weekday_dt = check_dt + datetime.timedelta(days=days)
+            utc_weekday = tz.localize(weekday_dt).weekday()
+            schedule.append({'utc_weekday': utc_weekday, 'user_id': user_id})
+        engine.execute(main.models.Weekday.__table__.insert(), schedule)
+
+
+        possible_actions = range(1, 23)
+        action_ids = []
+        for _ in xrange(3, random.randint(5, 10)):
+            action_ids.append(random.choice(possible_actions))
+            possible_actions.remove(action_ids[-1])
+        actions = []
+        for action_id in action_ids:
+            actions.append({'user_id': user_id, 'action_id': action_id})
+        engine.execute(main.models.users_actions.insert(), actions)
+
+
+        user = {'active': active, 'method_id': 1, 'id': user_id,
+                'check_hour': check_hour, 'check_minute': check_minute,
+                'timezone': timezone, 'utc_hour': utc_hour}
         if random.randint(0, 1):
-            email = '{}@love-touches.org'.format(name)
-            user = {'email': email, 'active': active, 'method_id': 1,
-                    'email_confirmed_at': utc_now, 'id': user_id}
+            user['email'] = '{}@love-touches.org'.format(name)
+            user['email_confirmed_at'] = utc_now
+            email_users.append(user)
         else:
-            phone = '+1 {}-{}-{}'.format(random.randint(100, 999),
-                                         random.randint(100, 999),
-                                         random.randint(1000, 9999))
-            user = {'phone': phone, 'active': active, 'method_id': 1,
-                    'phone_confirmed_at': utc_now, 'id': user_id}
-        users.append(user)
-    engine.execute(main.models.User.__table__.insert(), users)
-    for user_id in xrange(1, 100001):
-        crontabs = []
-        for _ in xrange(10):
-            time = datetime.time(random.randint(0, 23), random.randint(0, 59))
-            weekday = random.randint(0, 6)
-            timezone = random.choice(pytz.common_timezones)
-            crontabs.append({'time': time, 'local_weekday': weekday,
-                            'local_timezone': timezone, 'user_id': user_id})
-        engine.execute(main.models.Crontab.__table__.insert(), crontabs)
+            user['phone'] = '+1 {}-{}-{}'.format(random.randint(100, 999),
+                                                 random.randint(100, 999),
+                                                 random.randint(1000, 9999))
+            user['phone_confirmed_at'] = utc_now
+            phone_users.append(user)
+    if email_users:
+        engine.execute(main.models.User.__table__.insert(), email_users)
+    if phone_users:
+        engine.execute(main.models.User.__table__.insert(), phone_users)
 
 
 @MANAGER.shell

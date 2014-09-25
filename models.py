@@ -3,7 +3,6 @@
 import datetime
 # Third Party
 import flask.ext.security
-import pytz
 import sqlalchemy
 import sqlalchemy.ext.hybrid
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -39,6 +38,10 @@ class User(db.Model, flask.ext.security.UserMixin):
     active = db.Column(db.Boolean)
     email = db.Column(db.String, unique=True, nullable=True)
     phone = db.Column(db.String)
+    timezone = db.Column(db.String)
+    check_hour = db.Column(db.Integer)
+    check_minute = db.Column(db.Integer)
+    utc_hour = db.Column(db.Integer)
     secret = db.Column(db.String)
     email_hotp = db.Column(db.Integer, default=0)
     phone_hotp = db.Column(db.Integer, default=0)
@@ -56,7 +59,7 @@ class User(db.Model, flask.ext.security.UserMixin):
     method_id = db.Column(db.Integer, db.ForeignKey('method.id'))
     method = db.relationship('Method', foreign_keys=[method_id])
     actions = db.relationship('Action', secondary=users_actions)
-    schedule = db.relationship('Crontab', backref='user')
+    _weekdays = db.relationship('Weekday', backref='user')
     messages = db.relationship('Message')
     active_index = db.Index(email_confirmed_at, phone_confirmed_at)
 
@@ -71,54 +74,15 @@ class User(db.Model, flask.ext.security.UserMixin):
                 methods.append(method)
         return methods
 
-
-def utc_weekday(context):
-    local_time = context.current_parameters['local_time']
-    local_weekday = context.current_parameters['local_weekday']
-    local_dt = datetime.datetime.now()
-    local_dt = local_dt.replace(hour=local_time.hour, minute=local_time.minute)
-    days = (local_weekday - local_dt.weekday()) % 7
-    weekday_dt = local_dt + datetime.timedelta(days=days)
-    tz = pytz.timezone(context.current_parameters['timezone'])
-    return tz.localize(weekday_dt).weekday()
+    @sqlalchemy.ext.hybrid.hybrid_property
+    def weekdays(self):
+        return [x.utc_weekday for x in self._weekdays]
 
 
-def utc_hour(context):
-    local_time = context.current_parameters['local_time']
-    local_weekday = context.current_parameters['local_weekday']
-    local_dt = datetime.datetime.now()
-    local_dt = local_dt.replace(hour=local_time.hour, minute=local_time.minute)
-    days = (local_weekday - local_dt.weekday()) % 7
-    weekday_dt = local_dt + datetime.timedelta(days=days)
-    tz = pytz.timezone(context.current_parameters['timezone'])
-    return tz.localize(weekday_dt).utctimetuple.tm_hour
-
-
-class Crontab(db.Model):
+class Weekday(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    local_weekday = db.Column(db.Integer)
-    local_time = db.Column(db.Time)
-    utc_weekday = db.Column(db.Integer, default=utc_weekday)
-    utc_hour = db.Column(db.Integer, default=utc_hour)
-    timezone = db.Column(db.String)
-
-    def __repr__(self):
-        return '{} at {:%I:%M %p} ({})'.format(self.day_label, self.time,
-                                               self.timezone)
-
-    @sqlalchemy.ext.hybrid.hybrid_property
-    def day_label(self):
-        day_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
-                     'Saturday', 'Sunday']
-        return day_names[self.weekday]
-
-    @sqlalchemy.ext.hybrid.hybrid_property
-    def is_ready(self):
-        utc_dt = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
-        local_dt = utc_dt.astimezone(pytz.timezone(self.timezone))
-        local_time = local_dt.time().replace(second=0, microsecond=0)
-        return self.time == local_time and self.weekday == local_dt.weekday()
+    utc_weekday = db.Column(db.Integer)
 
 
 class Status(db.Model):

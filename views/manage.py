@@ -1,5 +1,3 @@
-# Standard Library
-import datetime
 # Third Party
 import flask
 import pyotp
@@ -83,7 +81,6 @@ def disable_tfa():
     return flask.redirect(flask.url_for('.contact'))
 
 
-
 @manage.route('/actions', methods=['GET', 'POST'])
 @flask.ext.security.login_required
 def actions():
@@ -122,26 +119,17 @@ def schedule():
     user = flask.ext.security.current_user
     form = forms.ScheduleForm()
     if form.validate_on_submit():
-        time = '{hour}:{minute} {am_pm}'.format(**form.data)
-        time = datetime.datetime.strptime(time, '%I:%M %p').time()
-        schedule = []
-        for weekday in form.days_of_week.data:
-            crontab = models.Crontab(local_weekday=weekday, local_time=time,
-                                     timezone=form.timezone.data)
-            schedule.append(crontab)
-
-        if {str(x) for x in user.schedule} != {str(x) for x in schedule}:
-            user.schedule = schedule
-            models.db.session.add(user)
-            models.db.session.commit()
-            flask.flash('Schedule saved.', 'success')
-    if user.schedule:
-        form.days_of_week.data = [x.weekday for x in user.schedule]
-        time_str = user.schedule[0].time.strftime('%I:%M %p')
-        form.hour.data = int(time_str[:2])
-        form.minute.data = time_str[3:5]
-        form.am_pm.data = time_str[-2:].lower()
-        form.timezone.data = user.schedule[0].timezone
+        utils.add_schedule(user, form.data)
+        models.db.session.add(user)
+        models.db.session.commit()
+        flask.flash('Schedule saved.', 'success')
+    if user.weekdays:
+        hour = user.check_hour
+        form.days_of_week.data = user.weekdays
+        form.hour.data = hour if 1 <= hour <= 12 else abs(hour - 12)
+        form.minute.data = user.check_minute
+        form.am_pm.data = 'am' if 1 <= hour <= 12 else 'pm'
+        form.timezone.data = user.timezone
     return flask.render_template('schedule.html', form=form)
 
 
