@@ -111,7 +111,9 @@ def create_dummy_data(max_id):
     phone_users = []
     query = main.db.create_scoped_session().query
     min_id = query(sqlalchemy.sql.func.max(main.models.User.id)).first()[0]
-    for user_id in xrange((min_id or 0) + 1, min_id + int(max_id) + 1):
+    schedules = []
+    actions = []
+    for user_id in xrange((min_id or 0) + 1, (min_id or 0) + int(max_id) + 1):
         name = '{}{}'.format(random.choice(names), user_id)
         active = bool(random.randint(0, 5))
         check_hour = random.randint(0, 23)
@@ -126,22 +128,18 @@ def create_dummy_data(max_id):
         for _ in xrange(random.randint(2, 7)):
             days_of_week.append(random.choice(weekdays))
             weekdays.remove(days_of_week[-1])
-        schedule = []
         for local_weekday in days_of_week:
             days = (local_weekday - check_dt.weekday()) % 7
             weekday_dt = check_dt + datetime.timedelta(days=days)
             utc_weekday = tz.localize(weekday_dt).weekday()
-            schedule.append({'utc_weekday': utc_weekday, 'user_id': user_id})
-        engine.execute(main.models.Weekday.__table__.insert(), schedule)
+            schedules.append({'utc_weekday': utc_weekday, 'user_id': user_id})
         possible_actions = range(1, 23)
         action_ids = []
         for _ in xrange(3, random.randint(5, 10)):
             action_ids.append(random.choice(possible_actions))
             possible_actions.remove(action_ids[-1])
-        actions = []
         for action_id in action_ids:
             actions.append({'user_id': user_id, 'action_id': action_id})
-        engine.execute(main.models.users_actions.insert(), actions)
         user = {'active': active, 'method_id': 1, 'id': user_id,
                 'check_hour': check_hour, 'check_minute': check_minute,
                 'timezone': timezone, 'utc_hour': utc_hour}
@@ -159,6 +157,8 @@ def create_dummy_data(max_id):
         engine.execute(main.models.User.__table__.insert(), email_users)
     if phone_users:
         engine.execute(main.models.User.__table__.insert(), phone_users)
+    engine.execute(main.models.Weekday.__table__.insert(), schedules)
+    engine.execute(main.models.users_actions.insert(), actions)
 
 
 @MANAGER.shell

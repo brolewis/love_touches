@@ -25,7 +25,8 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', DEV_SECRET_KEY)
 if not app.debug:
     raven.contrib.flask.Sentry(app)
 # SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///love_touches.sqlite'
+DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///love_touches.sqlite')
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 db = flask.ext.sqlalchemy.SQLAlchemy(app)
 migrate = flask.ext.migrate.Migrate(app, db)
 # Bootstrap
