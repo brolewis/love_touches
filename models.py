@@ -61,6 +61,7 @@ class User(db.Model, flask.ext.security.UserMixin):
     actions = db.relationship('Action', secondary=users_actions)
     _weekdays = db.relationship('Weekday', backref='user')
     messages = db.relationship('Message')
+    history = db.relationship('History')
     active_index = db.Index(email_confirmed_at, phone_confirmed_at)
 
     def __repr__(self):
@@ -173,3 +174,13 @@ class Message(db.Model):
     children = db.relationship('Message',
                                cascade='all, delete-orphan',
                                backref=db.backref('parent', remote_side=id))
+
+
+class History(db.Model):
+    __tablename__ = 'history'
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    user = db.relationship('User')
+    action_id = db.Column(db.Integer, db.ForeignKey('action.id'),
+                          primary_key=True)
+    action = db.relationship('Action')
+    sent_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)

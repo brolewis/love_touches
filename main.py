@@ -71,6 +71,9 @@ app.config['MAIL_SERVER'] = 'smtp.postmarkapp.com'
 app.config['MAIL_USERNAME'] = 'a032c02e-a437-472f-b666-6a1dd8db40fe'
 app.config['MAIL_PASSWORD'] = 'a032c02e-a437-472f-b666-6a1dd8db40fe'
 flask.ext.mail.Mail(app)
+# Celery
+app.config['CELERY_ACCEPT_CONTENT'] = ['json']
+app.config['CELERY_TASK_SERIALIZER'] = 'json'
 
 
 # Local
