@@ -124,8 +124,8 @@ class ScheduleForm(flask.ext.wtf.Form, flask.ext.security.forms.NextFormMixin):
     minute = wtforms.SelectField(choices=minutes, coerce=int)
     am_pm = wtforms.RadioField('Time of Day',
                                choices=[('am', 'am'), ('pm', 'pm')])
-    timezone = wtforms.SelectField('Time Zone', choices=timezone_choices,
-                                   validators=[REQUIRED])
+    timezone = flask.ext.admin.form.Select2Field(choices=timezone_choices,
+                                                 validators=[REQUIRED])
 
     def __init__(self, *args, **kwargs):
         if 'next' in flask.session:

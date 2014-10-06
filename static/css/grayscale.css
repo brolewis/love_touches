@@ -668,3 +668,24 @@ select {
 #am_pm > .btn {
     margin-top: 1px;
 }
+
+input#s2id_autogen1_search.select2-input {
+    font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.select2-result-label {
+    font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.select2-container .select2-choice > .select2-chosen {
+    color: #28c3ab;
+    font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    text-align: left;
+    padding-top: 7px;
+}
