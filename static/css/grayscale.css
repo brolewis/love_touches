@@ -664,3 +664,7 @@ select {
 .img-responsive {
     margin: 0 auto;
 }
+
+#am_pm > .btn {
+    margin-top: 1px;
+}

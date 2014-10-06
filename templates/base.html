@@ -202,35 +202,25 @@
     </div>
     <div class="form-group">
         {% if form.hour.errors %}
-        {{ form.hour(maxlength='2', size='2', class='error-border') }}
+        {{ form.hour(class='error-border') }}
         {% else %}
-        {{ form.hour(maxlength='2', size='2') }}
+        {{ form.hour() }}
         {% endif %}
         {% if form.minute.errors %}
-        {{ form.minute(maxlength='2', size='2', class='error-border') }}
+        {{ form.minute(class='error-border') }}
         {% else %}
-        {{ form.minute(maxlength='2', size='2') }}
+        {{ form.minute() }}
         {% endif %}
-        <div class="btn-group" data-toggle="buttons" id="ap_pm">
+        <div class="btn-group" data-toggle="buttons" id="am_pm">
             {% for subfield in form.am_pm %}
             <label class="btn btn-default{% if subfield.checked %} active{% endif %}{% if form.am_pm.errors %} error-border{% endif %}">
                 {{ subfield }}{{ subfield.label.text }}
             </label>
             {% endfor %}
         </div>
-        {% if form.hour.errors or form.minute.errors or form.am_pm.errors %}
+        {% if form.am_pm.errors %}
         <span class="help-block help-error">
-            {% if form.hour.errors %}
-                Please enter an hour between '1' and '12'.
-            {% endif %}
-            {% if form.minute.errors %}
-                {% if form.hour.errors %}<br />{% endif %}
-                Please enter a minute between '00', and '59'.
-            {% endif %}
-            {% if form.am_pm.errors %}
-                {% if form.hour.errors or form.minute.errors %}<br />{% endif %}
-                Please select either 'AM' or 'PM'.
-            {% endif %}
+            Please select either 'AM' or 'PM'.
         </span>
         {% endif %}
     </div>

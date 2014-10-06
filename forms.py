@@ -106,8 +106,7 @@ class ContactForm(flask.ext.wtf.Form, ContactFormMixin,
         return True
 
 
-hour_validator = wtforms.validators.NumberRange(min=1, max=12)
-minute_validator = wtforms.validators.NumberRange(min=0, max=59)
+minutes = [(x, '{:02d}'.format(x)) for x in xrange(0, 60, 15)]
 weekday_choices = [(6, 'Sunday'), (0, 'Monday'), (1, 'Tuesday'),
                    (2, 'Wednesday'), (3, 'Thursday'), (4, 'Friday'),
                    (5, 'Saturday')]
@@ -120,8 +119,9 @@ class ScheduleForm(flask.ext.wtf.Form, flask.ext.security.forms.NextFormMixin):
                                                [REQUIRED],
                                                choices=weekday_choices,
                                                coerce=int)
-    hour = wtforms.IntegerField(validators=[hour_validator])
-    minute = wtforms.IntegerField(validators=[minute_validator], default='00')
+    hour = wtforms.SelectField(choices=[(x, x) for x in range(1, 13)],
+                               validators=[REQUIRED], default=6, coerce=int)
+    minute = wtforms.SelectField(choices=minutes, coerce=int)
     am_pm = wtforms.RadioField('Time of Day',
                                choices=[('am', 'am'), ('pm', 'pm')])
     timezone = wtforms.SelectField('Time Zone', choices=timezone_choices,
