@@ -15,6 +15,11 @@ signup = flask.Blueprint('signup', __name__, url_prefix='/signup',
 _security = werkzeug.local.LocalProxy(lambda: main.app.extensions['security'])
 
 
+@signup.route('/')
+def index():
+    return flask.redirect(flask.url_for('.step_one'))
+
+
 @signup.route('/step_one', methods=['GET', 'POST'])
 def step_one():
     user = flask.ext.security.current_user
