@@ -149,7 +149,7 @@ a:focus {
 
 @media(min-width: 767px) {
     .intro {
-        background: url(../img/intro-bg.jpg) no-repeat bottom center scroll;
+        background: url(../img/intro-bg.jpg) no-repeat fixed top left;
         -webkit-background-size: cover;
         -moz-background-size: cover;
         background-size: cover;
