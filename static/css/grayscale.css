@@ -170,6 +170,10 @@ a:focus {
     font-size: 18px;
 }
 
+.about-body p {
+    text-align: left;
+}
+
 @media(min-width:767px) {
     .intro {
         height: 100%;
@@ -688,4 +692,12 @@ input#s2id_autogen1_search.select2-input {
     text-transform: uppercase;
     text-align: left;
     padding-top: 7px;
+}
+
+h1[id]:before {
+    display: block;
+    content: " ";
+    margin-top: -75px;
+    height: 75px;
+    visibility: hidden;
 }
