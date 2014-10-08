@@ -22,6 +22,10 @@ def index():
         return flask.render_template('index.html')
 
 
+@main.app.route('/about')
+def about():
+    return flask.render_template('about.html')
+
 @main.app.route('/login', methods=['GET', 'POST'])
 @flask.ext.security.decorators.anonymous_user_required
 def login():

@@ -40,12 +40,6 @@
             </div>
             <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
                 <ul class="nav navbar-nav">
-                    {% if 'signup' not in request.path %}
-                    <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
-                    <li class="hidden">
-                        <a href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#page-top"></a>
-                    </li>
-                    {% endif %}
                     {% if current_user.has_role('admin') %}
                     <li class="page-scroll">
                         <a href="{{ url_for('admin.index') }}">Admin</a>
@@ -61,11 +55,8 @@
                         <a href="{{ url_for_security('logout') }}">Logout</a>
                     </li>
                     {% else %}
-                    <li class="page-scroll">
-                    <a href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#details">About</a>
-                    </li>
-                    <li class="page-scroll">
-                        <a href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#steps">Steps</a>
+                    <li class="page-scroll{% if 'about' in request.path %} active{% endif %}">
+                        <a href="{{ url_for('about') }}">About</a>
                     </li>
                     <li class="page-scroll{% if 'signup' in request.path %} active{% endif %}">
                         <a href="{{ url_for('signup.step_one') }}">Get Started</a>
