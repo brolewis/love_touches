@@ -76,7 +76,8 @@ def step_three():
     previous = False
     if form.validate_on_submit():
         query = models.User.query
-        if query.filter_by(phone=form.data['phone']).first():
+        phone = utils.format_phone(form.data)
+        if phone and query.filter_by(phone=phone).first():
             previous = True
         if form.data['email'] and not previous:
             if query.filter_by(email=form.data['email']).first():

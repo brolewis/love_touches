@@ -109,6 +109,38 @@ def confirm_mobile(action=None):
     return flask.render_template('confirm_mobile.html', form=form)
 
 
+@main.app.route('/inbound_email', methods=['POST'])
+def inbound_email():
+    inbound = flask.request.get_json()
+    user = models.User.query.filter_by(email=inbound['Form']).one()
+    if utils.unsubscribe_test(inbound['StrippedTextReply']):
+        user.email_confirmed_at = None
+        subject = 'Unsubcription Request Received'
+        flask.ext.security.utils.send_mail(subject, user.email, 'cancel')
+    else:
+        message = models.Message(message=inbound['StrippedTextReply'])
+        user.messages.append(message)
+    models.db.session.add(user)
+    models.db.session.commit()
+    return flask.jsonify({'status': 'ok'})
+
+
+@main.app.route('/inbound_phone', methods=['POST'])
+def inbound_phone():
+    phone = utils.format_phone(flask.request.form)
+    user = models.User.query.filter_by(phone=phone).one()
+    if utils.unsubscribe_test(flask.request.form['Body']):
+        user.phone_confirmed_at = None
+        message = 'You will no longer receive messages from Love Touches'
+        utils.send_sms(phone, message)
+    else:
+        message = models.Message(message=flask.request.form['Body'])
+        user.messages.append(message)
+    models.db.session.add(user)
+    models.db.session.commit()
+    return flask.jsonify({'status': 'ok'})
+
+
 @main.app.route('/cancel')
 def cancel():
     for key in (x for x in flask.session.keys() if not x.startswith('_')):

@@ -30,8 +30,12 @@ def add_schedule(user, dct):
 
 
 def format_phone(dct):
+    num_obj = None
     if dct.get('country_code') and dct.get('phone'):
         num_obj = phonenumbers.parse('+{country_code} {phone}'.format(**dct))
+    elif dct.get('From'):
+        num_obj = phonenumbers.parse(dct.get('From'))
+    if num_obj:
         number = phonenumbers.format_number_for_mobile_dialing(num_obj, 'us',
                                                                True)
         return number
@@ -89,3 +93,12 @@ def get_redirect(endpoint):
     for url in urls:
         if flask.ext.security.utils.validate_redirect_url(url):
             return url
+
+
+def unsubscribe_test(message):
+    message = message.lower()
+    for keyword in ('unsubscribe', 'quit', 'cancel', 'remove', 'delete',
+                    'stop'):
+        if keyword in message:
+            return True
+    return False
