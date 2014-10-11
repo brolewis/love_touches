@@ -56,13 +56,13 @@ class User(db.Model, flask.ext.security.UserMixin):
     login_count = db.Column(db.Integer)
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users', lazy='dynamic'))
-    method_id = db.Column(db.Integer, db.ForeignKey('method.id'))
+    method_id = db.Column(db.Integer, db.ForeignKey('method.id',
+                                                    ondelete='CASCADE'))
     method = db.relationship('Method', foreign_keys=[method_id])
     actions = db.relationship('Action', secondary=users_actions)
     _weekdays = db.relationship('Weekday', backref='user')
     messages = db.relationship('Message')
     history = db.relationship('History')
-    active_index = db.Index(email_confirmed_at, phone_confirmed_at)
 
     def __repr__(self):
         return self.email or self.phone
