@@ -30,7 +30,8 @@
 .select2-container .select2-choices {
   background: none;
   padding: 0;
-  border-color: #28c3ab;
+  border-color: #FFF;
+  border-width: 2px;
   border-radius: 4px;
   color: #555555;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -359,7 +360,7 @@
  */
 .select2-results .select2-highlighted {
   color: white;
-  background-color: #428bca;
+  background-color: #CC6698;
 }
 
 /**

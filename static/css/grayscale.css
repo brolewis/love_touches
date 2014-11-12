@@ -3,8 +3,7 @@ body {
     height: 100%;
     font-family: 'Yanone Kaffeesatz', sans-serif;
     font-size: 20px;
-    color: #fff;
-    background-color: #000;
+    color: #666;
 }
 
 html {
@@ -18,7 +17,6 @@ h3,
 h4,
 h5,
 h6 {
-    margin: 0 0 35px;
     font-family: 'Yanone Kaffeesatz', sans-serif;
     font-weight: 700;
     letter-spacing: 1px;
@@ -48,10 +46,24 @@ p.last {
 }
 
 a {
-    color: #28c3ab;
+    color: #6B396C;
     -webkit-transition: all .2s ease-in-out;
     -moz-transition: all .2s ease-in-out;
     transition: all .2s ease-in-out;
+}
+
+.inverse a {
+    color: #FFF;
+}
+
+.btn.inverse {
+    border: 2px solid #FFF;
+}
+
+.btn.inverse:hover,
+.btn.inverse:focus {
+    border: 2px solid #FFF;
+    color: #FFF;
 }
 
 a:hover,
@@ -69,7 +81,7 @@ a:focus {
     border-bottom: 1px solid rgba(255, 255, 255, .3);
     text-transform: uppercase;
     font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    background-color: #000;
+    background-color: rgba(255, 255, 255, .2);
 }
 
 .navbar-brand {
@@ -122,39 +134,34 @@ a:focus {
 
     .top-nav-collapse {
         padding: 0;
-        background-color: #000;
+        background: rgba(255, 255, 255, 0.8);
     }
 
     .navbar-custom.top-nav-collapse {
-        border-bottom: 1px solid rgba(255, 255, 255, .3);
+        border-bottom: 3px solid #6b396c;
+    }
+
+    .top-nav-collapse ul.navbar-nav li a, .top-nav-collapse a.navbar-brand {
+        color: #6b396c;
     }
 }
 
 .intro {
+    background-color: #CC6698;
+    background: url("../img/bk-berry.jpg");
     display: table;
     width: 100%;
     height: auto;
     padding-top: 100px;
+    padding-bottom: 10px;
     text-align: center;
     color: #fff;
-    background-color: #333;
     text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
-    box-shadow: inset 0 0 100px rgba(0, 0, 0, .5);
     opacity: 0.9;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     background-size: cover;
     -o-background-size: cover;
-}
-
-@media(min-width: 767px) {
-    .intro {
-        background: url(../img/intro-bg.jpg) no-repeat fixed top left;
-        -webkit-background-size: cover;
-        -moz-background-size: cover;
-        background-size: cover;
-        -o-background-size: cover;
-    }
 }
 
 .intro-body {
@@ -197,7 +204,7 @@ a:focus {
     height: 70px;
     margin-top: 15px;
     padding: 7px 16px;
-    border: 2px solid #fff;
+    border: 2px solid #FFF;
     border-radius: 35px;
     font-size: 40px;
     color: #fff;
@@ -205,6 +212,11 @@ a:focus {
     -webkit-transition: background .3s ease-in-out;
     -moz-transition: background .3s ease-in-out;
     transition: background .3s ease-in-out;
+}
+
+.btn-circle.inverse {
+    color: #CC6698;
+    border: 2px solid #CC6698;
 }
 
 .btn-circle-right {
@@ -278,8 +290,22 @@ a:focus {
     width: 100%;
     padding: 50px 0;
     color: #fff;
-    background: url(../img/steps-bg.jpg) no-repeat center center scroll;
-    background-color: #000;
+    background: #CC6698;
+    /* Old browsers */
+    background: -moz-linear-gradient(-45deg, #CC6698 0%, #6b396c 100%);
+    /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, right bottom, color-stop(0%, #CC6698), color-stop(100%, #6b396c));
+    /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(-45deg, #CC6698 0%, #6b396c 100%);
+    /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(-45deg, #CC6698 0%, #6b396c 100%);
+    /* Opera 11.10+ */
+    background: -ms-linear-gradient(-45deg, #CC6698 0%, #6b396c 100%);
+    /* IE10+ */
+    background: linear-gradient(-45deg, #CC6698 0%, #6b396c 100%);
+    /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#CC6698, endColorstr=#6b396c, GradientType=1);
+    /* IE6-9 fallback on horizontal gradient */
     -webkit-background-size: cover;
     -moz-background-size: cover;
     background-size: cover;
@@ -291,8 +317,12 @@ a:focus {
         padding-top: 250px;
     }
 
+    #details.content-section {
+        padding-top: 60px;
+    }
+
     .steps-section {
-        padding: 100px 0;
+        padding: 60px 0;
     }
 }
 
@@ -325,7 +355,7 @@ a:focus {
 }
 
 .footer a {
-    color: #1FA4B6;
+    color: #CCC;
 }
 
 .btn {
@@ -340,29 +370,28 @@ a:focus {
 
 .btn:hover,
 .btn:focus {
-    color: #28c3ab;
+    color: #FFF;
     outline: 0;
-    background-color: rgba(255, 255, 255, .2);
+    background-color: rgba(204, 102, 152, .8);
 }
 
 .btn-clear {
-    color: #28c3ab;
+    color: #6B396C;
     background-color: transparent;
     border: none;
 }
 
 .btn-default {
-    border: 1px solid #28c3ab;
-    color: #28c3ab;
-    background-color: transparent;
+    border: 2px solid #FFF;
+    background: none;
+    color: #FFF;
 }
 
 .btn-default:hover,
 .btn-default:focus {
-    border: 1px solid #28c3ab;
-    outline: 0;
-    color: #000;
-    background-color: #28c3ab;
+    color: #FFF;
+    background: #CC6698;
+    border-color: #CC6698;
 }
 
 .btn-huge {
@@ -474,8 +503,8 @@ textarea.form-textarea,
 input[type="number"],
 input[type="password"] {
     font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    border: 1px solid #28c3ab;
-    color: #28c3ab;
+    border: 2px solid #FFF;
+    color: #FFF;
     background-color: transparent;
     padding: 6px 12px;
     font-size: 14px;
@@ -489,13 +518,21 @@ input[type="password"] {
 
 .modal-header,
 .modal-footer {
-    background-color: #5A5A5A;
+    background-color: #6B396C;
+}
+
+.modal-header h4 {
+    color: #FFF;
+}
+
+.modal-body {
+    color: #F6F6F6;
 }
 
 select {
     font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    border: 1px solid #28c3ab;
-    color: #28c3ab;
+    border: 2px solid #FFF;
+    color: #FFF;
     background-color: transparent;
     padding: 6px 12px;
     font-size: 14px;
@@ -513,9 +550,9 @@ select {
 }
 
 .input-group-addon {
-    background-color: #7A7A7A;
-    border: 1px solid #28c3ab;
-    color: #FFFFFF;
+    background-color: #6B396C;
+    border: 2px solid #FFF;
+    color: #FFF;
 }
 
 .form-horizontal .control-label {
@@ -544,8 +581,12 @@ select {
 }
 
 .methods-dialog {
-    background-color: #555;
+    background-color: #6B396C;
     border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.methods-dialog h1 {
+    color: #FFF;
 }
 
 .or-circle {
@@ -553,7 +594,7 @@ select {
     height: 80px;
     margin-top: 35px;
     padding: 15px 15px;
-    border: 2px solid #fff;
+    border: 2px solid #FFF;
     border-radius: 45px;
     font-size: 40px;
     color: #fff;
@@ -606,7 +647,7 @@ select {
     height: 50px;
     margin-top: 4px;
     padding: 10px 13px;
-    border: 2px solid #fff;
+    border: 2px solid #FFF;
     border-radius: 45px;
     color: #fff;
     background: 0 0;
@@ -621,9 +662,9 @@ select {
     height: 50px;
     margin-top: 4px;
     padding: 9px 15px;
-    border: 2px solid #fff;
+    border: 2px solid #FFF;
     border-radius: 45px;
-    color: #fff;
+    color: #FFF;
     background: 0 0;
     -webkit-transition: background .3s ease-in-out;
     -moz-transition: background .3s ease-in-out;
@@ -655,7 +696,7 @@ input#s2id_autogen1_search.select2-input {
 }
 
 .select2-container .select2-choice > .select2-chosen {
-    color: #28c3ab;
+    color: #FFF;
     font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 14px;
     text-transform: uppercase;
@@ -669,4 +710,67 @@ h1[id]:before {
     margin-top: -75px;
     height: 75px;
     visibility: hidden;
+}
+
+.divider:after {
+    content: "";
+    position: relative;
+    height: 4px;
+    width: 60px;
+    display: block;
+    text-align: center;
+    margin: 13px auto;
+    -webkit-border-radius: 5em;
+    -moz-border-radius: 5em;
+    -ms-border-radius: 5em;
+    -o-border-radius: 5em;
+    border-radius: 5em;
+}
+
+.container .divider:after {
+    background: #CC6698;
+}
+
+.container.inverse .divider:after {
+    background: #ffffff;
+}
+
+.btn.btn-primary {
+    background-color: #FFF;
+    color: #CC6698;
+    border-color: #CC6698;
+}
+
+.btn.btn-primary:hover {
+    color: #FFF;
+    background: #CC6698;
+    border-color: #CC6698;
+}
+
+.btn.btn-primary.inverse {
+    color: #FFF;
+    border-color: #FFF;
+}
+
+.btn.btn-primary.inverse:hover {
+    color: #FFF;
+    background: #CC6698;
+    border-color: #CC6698;
+}
+
+.about-well {
+    background-color: #FFF;
+    border-radius: 10px;
+}
+
+.about-well h1 {
+    color: #CC6698;
+}
+
+.about-well p {
+    color: #666;
+}
+
+.text-muted {
+    color: #454545;
 }
