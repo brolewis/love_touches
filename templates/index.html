@@ -17,8 +17,6 @@
                         {% for message in messages %}
                         <li>{{ message|safe }}</li>
                         {% endfor %}
-                        <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
-                        <li>Proin nunc quam, feugiat at elit at, dapibus mollis dolor.</li>
                     </ul>
                 </div>
                 <div class="modal-footer">
@@ -50,11 +48,10 @@
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2">
                 <h2 class="intro-header">About Love Touches</h2>
-                <div class="divider"></div>
                 <p>Relationships take work. They need attention, proding, improving. It is easy to fall into a rut and to take your relationship for granted rather than pursing the best possible relationship.</p>
                 <p>Love Touches exists to provide you with a simple scheduled set of reminders, giving you a diversity of ideas to help you revitalize or enhance your relationship. You select the actions you would like to do, set a schedule, and we will send a random action to you based on your schedule.</p>
                 <div class="page-scroll">
-                    <a href="#steps" class="btn btn-circle inverse">
+                    <a href="#steps" class="btn btn-circle">
                         <i class="fa fa-angle-double-down animated"></i>
                     </a>
                 </div>
@@ -62,11 +59,10 @@
         </div>
     </section>
     <section class="content-section text-center">
-        <div id="steps" class="steps-section">
-            <div class="container inverse">
+        <div class="steps-section">
+            <div class="container">
                 <div class="col-lg-8 col-lg-offset-2">
-                    <h2 class="intro-header">Getting Started</h2>
-                    <div class="divider"></div>
+                    <h2 id="steps" class="intro-header">Getting Started</h2>
                     <p>Getting started only takes three steps:</p>
                     <p>
                         <span class="fa fa-check-circle-o"></span> Pick your activities. We'll use those activities to send you a daily suggestion.
@@ -75,7 +71,7 @@
                         <br />
                         <span class="fa fa-check-circle-o"></span> Tell us how you want to be notified. We can handle email or SMS.
                     </p>
-                    <a href="{{ url_for('signup.step_one') }}" class="btn inverse btn-lg">Get Started</a>
+                    <a href="{{ url_for('signup.step_one') }}" class="btn btn-default btn-lg">Get Started</a>
                 </div>
                 <div class="col-lg-10 col-lg-offset-1">
                     <div class="footer">

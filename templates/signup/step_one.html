@@ -26,6 +26,7 @@
             $(".face.back").html(data.actions);
             $(".face.front").hide();
             $("#messages").hide();
+            $(".intro").css('background-image', 'none');
         }
         $(".toggle").click(function(){
                 $.getJSON($SCRIPT_ROOT + '/_get_actions', {method_name: $(this).attr('id'), 'header': 'signup', 'back': $SCRIPT_ROOT, 'next': '{{ request.args.get('next', '') }}'},

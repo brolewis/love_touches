@@ -57,7 +57,7 @@
 .sidebar-nav li a {
     display: block;
     text-decoration: none;
-    color: #FFF;
+    color: #28c3ab;
     padding: 4px 15px;
 }
 
@@ -67,8 +67,8 @@
 }
 
 .sidebar-nav li.active a {
-    color: #FFF;
-    background-color: #CC6698;
+    color: #fff;
+    background-color: #428bca;
 }
 
 .sidebar-nav li a:active,
@@ -87,7 +87,7 @@
 }
 
 .sidebar-nav > .sidebar-brand a:hover {
-    color: #FFF;
+    color: #fff;
     background: none;
 }
 
