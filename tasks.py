@@ -45,7 +45,6 @@ def send_sms(user_id):
                                 os.getenv('AUTH_TOKEN'))
     account = client.accounts[client.account_sid]
     from_number = account.incoming_phone_numbers[0].phone_number
-    print from_number, user.phone
     account.sms_messages.create(to_number=user.phone, from_number=from_number,
                                 body=action)
     history = main.models.History(user=user, action=action)
