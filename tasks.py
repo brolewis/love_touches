@@ -32,7 +32,7 @@ def send_email(user_id):
     subject = "Love Touches - Today's Action"
     with main.app.app_context():
         flask.ext.security.utils.send_mail(subject, user.email, 'action',
-                                        user=user, action=action)
+                                           user=user, action=action)
     history = main.models.History(user=user, action=action)
     session.add(history)
     session.commit()

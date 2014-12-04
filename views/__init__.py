@@ -27,6 +27,11 @@ def about():
     return flask.render_template('about.html')
 
 
+@main.app.route('/privacy')
+def privacy():
+    return flask.render_template('privacy.html')
+
+
 @main.app.route('/login', methods=['GET', 'POST'])
 @flask.ext.security.decorators.anonymous_user_required
 def login():

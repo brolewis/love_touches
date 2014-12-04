@@ -12,7 +12,7 @@ import main
 import tasks
 
 
-def find_email(hour=None, minute=None, dry_run=False):
+def find_email(hour=None, minute=None, dry_run=False, local=False):
     if dry_run:
         session = main.db.create_scoped_session()
     prop = main.models.User.email_confirmed_at
@@ -21,10 +21,13 @@ def find_email(hour=None, minute=None, dry_run=False):
             user = session.query(main.models.User).get(user.id)
             print user.email
         else:
-            tasks.send_email.delay(user.id)
+            if local:
+                tasks.send_email(user.id)
+            else:
+                tasks.send_email.delay(user.id)
 
 
-def find_phone(hour=None, minute=None, dry_run=False):
+def find_phone(hour=None, minute=None, dry_run=False, local=False):
     if dry_run:
         session = main.db.create_scoped_session()
     prop = main.models.User.phone_confirmed_at
@@ -33,7 +36,10 @@ def find_phone(hour=None, minute=None, dry_run=False):
             user = session.query(main.models.User).get(user.id)
             print user.phone
         else:
-            tasks.send_sms.delay(user.id)
+            if local:
+                tasks.send_sms(user.id)
+            else:
+                tasks.send_sms.delay(user.id)
 
 
 def _find_user(prop, hour=None, minute=None):
@@ -71,12 +77,15 @@ def _find_user(prop, hour=None, minute=None):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Cron Job for Love Touches')
     parser.add_argument('--dry_run', action='store_true')
+    parser.add_argument('--local', action='store_true')
     parser.add_argument('--hour', type=int)
     parser.add_argument('--minute', type=int)
     args = parser.parse_args()
     try:
-        find_email(hour=args.hour, minute=args.minute, dry_run=args.dry_run)
-        find_phone(hour=args.hour, minute=args.minute, dry_run=args.dry_run)
+        find_email(hour=args.hour, minute=args.minute, dry_run=args.dry_run,
+                   local=args.local)
+        find_phone(hour=args.hour, minute=args.minute, dry_run=args.dry_run,
+                   local=args.local)
     except:
         client = raven.Client(os.environ['SENTRY_DSN'])
         client.captureException()

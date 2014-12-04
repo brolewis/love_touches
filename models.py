@@ -178,9 +178,9 @@ class Message(db.Model):
 
 class History(db.Model):
     __tablename__ = 'history'
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User')
-    action_id = db.Column(db.Integer, db.ForeignKey('action.id'),
-                          primary_key=True)
+    action_id = db.Column(db.Integer, db.ForeignKey('action.id'))
     action = db.relationship('Action')
     sent_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)

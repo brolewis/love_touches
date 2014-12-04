@@ -661,3 +661,11 @@ h1[id]:before {
     height: 75px;
     visibility: hidden;
 }
+
+ul.privacy {
+    margin-bottom: 35px;
+}
+
+ul.privacy li {
+    text-align: left;
+}
