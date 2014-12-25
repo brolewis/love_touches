@@ -21,6 +21,7 @@ app = flask.Flask(__name__)
 app.config['DEBUG'] = str(os.getenv('DEBUG', False)).lower() == 'true'
 DEV_SECRET_KEY = 'v=&3w2fsnn+all#(av21nbj9w&w5+$yd71tg*(zng_qwrw=)k*'
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', DEV_SECRET_KEY)
+app.config['TRACKING_ID'] = os.getenv('TRACKING_ID', '')
 # Raven
 if not app.debug:
     raven.contrib.flask.Sentry(app)
