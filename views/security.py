@@ -37,13 +37,14 @@ def register(code=None):
             url = flask.url_for('confirm_mobile', action='login_confirm')
             return flask.redirect(url)
         elif user.email:
-            if code == pyotp.HOTP(user.secret).at(user.email_hotp):
-                if user.confirmed_at is None:
-                    user.confirmed_at = datetime.datetime.utcnow()
-                    models.db.session.add(user)
-                    models.db.session.commit()
-                flask.ext.security.utils.login_user(user)
-                return flask.redirect(flask.url_for('post_login'))
+            if user.secret and code:
+                if code == pyotp.HOTP(user.secret).at(user.email_hotp):
+                    if user.confirmed_at is None:
+                        user.confirmed_at = datetime.datetime.utcnow()
+                        models.db.session.add(user)
+                        models.db.session.commit()
+                    flask.ext.security.utils.login_user(user)
+                    return flask.redirect(flask.url_for('post_login'))
             url = flask.ext.security.utils.get_post_register_redirect()
             confirmable = flask.ext.security.confirmable
             link, token = confirmable.generate_confirmation_link(user)
