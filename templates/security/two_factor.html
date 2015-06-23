@@ -2,7 +2,7 @@
 {% block sub_title %}Token{% endblock %}
 {% block main %}
     <h1>Enter Token</h1>
-    <form role="form" class="form-horizontal" action="{{ request.path }}" method="POST">
+    <form role="form" class="form-horizontal" action="{{ request.script_root }}{{ request.path }}" method="POST">
         {{ security_form(form, _or=True) }}
     </form>
 {% endblock %}

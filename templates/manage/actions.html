@@ -4,7 +4,7 @@
     {{ modal|safe }}
 {% endblock %}
 {% block main %}
-    <form id="actions-form" method="post" role="form" class="form-horizontal" action="{{ request.path }}">
+    <form id="actions-form" method="post" role="form" class="form-horizontal" action="{{ request.script_root }}{{ request.path }}">
         <div class="flip">
             <div class="card">
                 <div class="face front">

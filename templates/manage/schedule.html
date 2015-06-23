@@ -7,7 +7,7 @@
 {% endblock %}
 {% block main %}
     <h1>Schedule</h1>
-    <form role="form" method="post" class="form-horizontal" action="{{ request.path }}">
+    <form role="form" method="post" class="form-horizontal" action="{{ request.script_root }}{{ request.path }}">
         {{ schedule_form(form) }}
     </form>
 {% endblock %}

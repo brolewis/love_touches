@@ -13,7 +13,7 @@
         {% endif %}
     {% endfor %}
     </ul>
-    <form id="feedback-form" method="post" role="form" class="form-horizontal" action="{{ request.path }}">
+    <form id="feedback-form" method="post" role="form" class="form-horizontal" action="{{ request.script_root }}{{ request.path }}">
         {{ manage_form(form) }}
     </form>
 {% endblock %}

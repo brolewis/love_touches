@@ -14,7 +14,7 @@
     </div>
     <div class="row">
         <h2>Enter the Token</h2>
-        <form role="form" method="post" class="form-horizontal" action="{{ request.path }}">
+        <form role="form" method="post" class="form-horizontal" action="{{ request.script_root }}{{ request.path }}">
             {{ manage_form(form) }}
         </form>
     </div>

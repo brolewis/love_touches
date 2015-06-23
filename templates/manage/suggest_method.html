@@ -15,7 +15,7 @@
     </div>
     {% endif %}
     <h1>Suggest a Method</h1>
-    <form id="suggest_form" role="form" method="post" class="form-horizontal" action="{{ request.path }}">
+    <form id="suggest_form" role="form" method="post" class="form-horizontal" action="{{ request.script_root }}{{ request.path }}">
         <p>Provide a method name and sections. You need to provide at least two sections, but you may add as many as you need.</p>
         {{ manage_form(form) }}
     </form>

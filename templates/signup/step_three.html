@@ -3,7 +3,7 @@
 {% block main %}
     <h1>Step Three: Contact Info</h1>
     <p>How do you want the reminders sent to you?</p>
-    <form method="post" role="form" class="form-horizontal" action="{{ request.path }}">
+    <form method="post" role="form" class="form-horizontal" action="{{ request.script_root }}{{ request.path }}">
         {{ signup_form(form) }}
     </form>
     <div class="info-footer">

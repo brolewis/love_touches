@@ -17,7 +17,7 @@
     <p>The success of Love Touches comes from the depth of choices available. You can help improve the site by suggesting new actions for each section. If you
     start typing in the box, the form will suggest any action that isn't associated with that section. You can also enter your own. Make as many suggestions
     as you would like. To see the actions currently associated with a section, click "<span class="fa fa-list"></span>".</p>
-    <form id="suggest_form" role="form" method="post" class="form-horizontal" action="{{ request.path }}">
+    <form id="suggest_form" role="form" method="post" class="form-horizontal" action="{{ request.script_root }}{{ request.path }}">
         {% for section in actions %}
         {{ form_dict[section].hidden_tag() }}
         {% for field in form_dict[section] %}

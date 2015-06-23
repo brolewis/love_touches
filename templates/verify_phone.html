@@ -3,7 +3,7 @@
 {% block main %}
     <h1>Verify Mobile Number</h1>
     <p>Please enter the verification code sent to your phone.</p>
-    <form method="post" role="form" class="form-horizontal" action="{{ request.path }}">
+    <form method="post" role="form" class="form-horizontal" action="{{ request.script_root }}{{ request.path }}">
         {{ verify_form.hidden_tag() }}
         {% for field in verify_form %}
         {% if field|simple_field_filter and field.name != 'country_code' %}

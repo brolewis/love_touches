@@ -2,7 +2,7 @@
 {% block sub_title %}Contact Information{% endblock %}
 {% block main %}
     <h1>Contact Information</h1>
-    <form role="form" method="post" class="form-horizontal" action="{{ request.path }}">
+    <form role="form" method="post" class="form-horizontal" action="{{ request.script_root }}{{ request.path }}">
         {{ base_form(form) }}
         <div>
             {% if current_user.totp_enabled %}
