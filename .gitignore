@@ -17,3 +17,6 @@ develop-eggs
 
 # Installer logs
 pip-log.txt
+
+# Debug scripts
+debug*.sh

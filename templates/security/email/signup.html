@@ -1,25 +1,31 @@
 {% extends "security/email/base.html" %}
 {% block title %}Signup Confirmation{% endblock %}
 {% block body %}
-    <h1 class="null" style="text-align: center;margin: 0;padding: 0;display: block;font-family: Helvetica;font-size: 40px;font-style: normal;font-weight: bold;line-height: 125%;letter-spacing: -1px;color: #ffffff !important;">Signup Confirmation</h1>
-    Thank you for signing up for Love Touches. We sincerely hope that these emails will serve as a gentle reminder. Before we can get started sending emails, we ask that you confirm your email account. Once this is done, we can start sending reminders.
+<h1 class="null" style="text-align: center;margin: 0;padding: 0;display: block;font-family: Helvetica;font-size: 40px;font-style: normal;font-weight: bold;line-height: 125%;letter-spacing: -1px;color: #ffffff !important;">Signup
+    Confirmation</h1>
+Thank you for signing up for Love Touches. We sincerely hope that these emails will serve as a gentle reminder. Before
+we can get started sending emails, we ask that you confirm your email account. Once this is done, we can start sending
+reminders.
 {% endblock %}
 {% block button %}
-    <table border="0" cellpadding="0" cellspacing="0" width="100%" class="ltButtonBlock" style="border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
-        <tbody class="ltButtonBlockOuter">
-            <tr>
-                <td style="padding-top: 0;padding-right: 18px;padding-bottom:18px;padding-left: 18px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" valign="top" align="center" class="ltButtonBlockInner">
-                    <table border="0" cellpadding="0" cellspacing="0" class="ltButtonContentContainer" style="border-collapse: separate !important;border: 2px solid #28C3AB;border-radius: 5px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
-                        <tbody>
-                            <tr>
-                                <td align="center" valign="middle" class="ltButtonContent" style="font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;font-size: 16px;padding: 10px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
-                                    <a class="ltButton" title="Confirm Account" href="https://love-touches.org" target="_blank" style="letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #28C3AB;word-wrap: break-word;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 18px;">CONFIRM ACCOUNT</a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%" class="ltButtonBlock" style="border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+    <tbody class="ltButtonBlockOuter">
+        <tr>
+            <td style="padding-top: 0;padding-right: 18px;padding-bottom:18px;padding-left: 18px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;"
+                valign="top" align="center" class="ltButtonBlockInner">
+                <table border="0" cellpadding="0" cellspacing="0" class="ltButtonContentContainer" style="border-collapse: separate !important;border: 2px solid #28C3AB;border-radius: 5px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                    <tbody>
+                        <tr>
+                            <td align="center" valign="middle" class="ltButtonContent" style="font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;font-size: 16px;padding: 10px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                                <a class="ltButton" title="Confirm Account" href="{{ confirmation_link }}" target="_blank"
+                                    style="letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #28C3AB;word-wrap: break-word;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 18px;">CONFIRM
+                                    ACCOUNT</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </tbody>
+</table>
 {% endblock %}

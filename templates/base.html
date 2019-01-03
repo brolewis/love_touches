@@ -1,277 +1,282 @@
 {% extends "bootstrap/base.html" %}
-{% block title %}Love Touches{% if request.path != url_for('index') %} - {% block sub_title %}{% endblock %}{% endif %}{% endblock %}
+{% block title %}Love Touches{% if request.path != url_for('index') %} - {% block sub_title %}{% endblock %}{% endif
+%}{% endblock %}
 {% block styles %}
-    {{ super() }}
-    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
-    <meta name="apple-mobile-web-app-title" content="Love Touches">
-    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
-    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
-    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
-    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
-    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
-    <meta name="msapplication-TileColor" content="#00a300">
-    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
-    <meta name="application-name" content="Love Touches">
-    {% if config['BOOTSTRAP_SERVE_LOCAL'] %}
-    <link href="{{ url_for('static', filename='css/font-awesome.min.css') }}" rel="stylesheet" type="text/css">
-    <link href="{{ url_for('static', filename='css/montserrat.css') }}" rel="stylesheet" type="text/css">
-    <link href="{{ url_for('static', filename='css/yanone_kaffeesatz.css') }}" rel="stylesheet" type="text/css">
-    {% else %}
-    <link href="//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    <link href='//fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-    <link href='//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400' rel='stylesheet' type='text/css'>
-    {% endif %}
-    <link href="{{ url_for('static', filename='css/grayscale.css') }}" rel="stylesheet">
+{{ super() }}
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+<meta name="apple-mobile-web-app-title" content="Love Touches">
+<link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+<link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+<link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+<meta name="msapplication-TileColor" content="#00a300">
+<meta name="msapplication-TileImage" content="/mstile-144x144.png">
+<meta name="application-name" content="Love Touches">
+{% if config['BOOTSTRAP_SERVE_LOCAL'] %}
+<link href="{{ url_for('static', filename='css/font-awesome.min.css') }}" rel="stylesheet" type="text/css">
+<link href="{{ url_for('static', filename='css/montserrat.css') }}" rel="stylesheet" type="text/css">
+<link href="{{ url_for('static', filename='css/yanone_kaffeesatz.css') }}" rel="stylesheet" type="text/css">
+{% else %}
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+<link href='//fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+<link href='//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400' rel='stylesheet' type='text/css'>
+{% endif %}
+<link href="{{ url_for('static', filename='css/grayscale.css') }}" rel="stylesheet">
 {% endblock %}
 {% block scripts %}
-    {{ super() }}
-    {% if config['BOOTSTRAP_SERVE_LOCAL'] %}
-    <script src="{{ url_for('static', filename='js/jquery.easing.min.js') }}"></script>
-    {% else %}
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
-    {% endif %}
-    <script src="{{ url_for('static', filename='js/grayscale.js') }}"></script>
-    <script>
-        $(document).ready(function() {
-            $('form').find('input[type=text],textarea,select,input[type=password]').filter(':visible:first').focus();
-        });
-    </script>
-    {% if config['TRACKING_ID'] %}
-    <script>
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-        ga('create', '{{ config["TRACKING_ID"] }}', 'auto');
-        ga('send', 'pageview');
-    </script>
+{{ super() }}
+{% if config['BOOTSTRAP_SERVE_LOCAL'] %}
+<script src="{{ url_for('static', filename='js/jquery.easing.min.js') }}"></script>
+{% else %}
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+{% endif %}
+<script src="{{ url_for('static', filename='js/grayscale.js') }}"></script>
+<script>
+    $(document).ready(function () {
+        $('form').find('input[type=text],textarea,select,input[type=password]').filter(':visible:first').focus();
+    });
+</script>
+{% if config['TRACKING_ID'] %}
+<script>
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date(); a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+    ga('create', '{{ config["TRACKING_ID"] }}', 'auto');
+    ga('send', 'pageview');
+</script>
 {% endif %}
 {% endblock %}
 {% block body_attribs %} id="page-top" data-spy="scroll" data-target=".navbar-custom"{% endblock %}
 {% block navbar %}
-    <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
-        <div class="container">
-            <div class="navbar-header page-scroll">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
-                    <i class="fa fa-bars"></i>
-                </button>
-                <a class="navbar-brand" href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#page-top"><span class="fa fa-heart-o"></span>Love Touches</a>
-            </div>
-            <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
-                <ul class="nav navbar-nav">
-                    {% if current_user.has_role('admin') %}
-                    <li class="page-scroll">
-                        <a href="{{ url_for('admin.index') }}">Admin</a>
-                    </li>
-                    <li class="page-scroll">
-                        <a href="{{ url_for_security('logout') }}">Logout</a>
-                    </li>
-                    {% elif current_user.is_authenticated() %}
-                    <li class="page-scroll{% if 'manage' in request.path or request.path == url_for_security('change_password') %} active{% endif %}">
-                        <a href="{{ url_for('manage.actions') }}">Manage</a>
-                    </li>
-                    <li class="page-scroll">
-                        <a href="{{ url_for_security('logout') }}">Logout</a>
-                    </li>
-                    {% else %}
-                    <li class="page-scroll{% if 'about' in request.path %} active{% endif %}">
-                        <a href="{{ url_for('about') }}">About</a>
-                    </li>
-                    <li class="page-scroll{% if 'signup' in request.path %} active{% endif %}">
-                        <a href="{{ url_for('signup.step_one') }}">Get Started</a>
-                    </li>
-                    <li class="page-scroll{% if request.path == url_for('login') %} active{% endif %}">
-                        <a href="{{ url_for('login') }}">Login</a>
-                    </li>
-                    {% endif %}
-                    </li>
-                </ul>
-            </div>
+<nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
+                <i class="fa fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="{% if request.path != url_for('index') %}{{ url_for('index') }}{% endif %}#page-top"><span
+                    class="fa fa-heart-o"></span>Love Touches</a>
         </div>
-    </nav>
+        <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
+            <ul class="nav navbar-nav">
+                {% if current_user.has_role('admin') %}
+                <li class="page-scroll">
+                    <a href="{{ url_for('admin.index') }}">Admin</a>
+                </li>
+                <li class="page-scroll">
+                    <a href="{{ url_for_security('logout') }}">Logout</a>
+                </li>
+                {% elif current_user.is_authenticated %}
+                <li class="page-scroll{% if 'manage' in request.path or request.path == url_for_security('change_password') %} active{% endif %}">
+                    <a href="{{ url_for('manage.actions') }}">Manage</a>
+                </li>
+                <li class="page-scroll">
+                    <a href="{{ url_for_security('logout') }}">Logout</a>
+                </li>
+                {% else %}
+                <li class="page-scroll{% if 'about' in request.path %} active{% endif %}">
+                    <a href="{{ url_for('about') }}">About</a>
+                </li>
+                <li class="page-scroll{% if 'signup' in request.path %} active{% endif %}">
+                    <a href="{{ url_for('signup.step_one') }}">Get Started</a>
+                </li>
+                <li class="page-scroll{% if request.path == url_for('login') %} active{% endif %}">
+                    <a href="{{ url_for('login') }}">Login</a>
+                </li>
+                {% endif %}
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
 {% endblock %}
 {% macro base_form(form, _or=False) %}
-    {{ form.hidden_tag() }}
-    {% for field in form %}
-    {% if field|simple_field_filter and field.name != 'country_code' %}
-    {% if field.type == 'FieldList' %}
-        {% for entry in field.entries %}
-        <div class="form-group">
-            {% if loop.first %}
-            {{ field.label(class='col-sm-3 control-label') }}
-            {% endif %}
-            <div class="{% if not loop.first %}col-sm-offset-3 {% endif %}col-sm-8{% if field.errors %} has-error{% endif %}">
-                {{ entry(class='form-control {}'.format(field.name)) }}
-            </div>
-            {% if loop.first %}
-            <div class="col-sm-1">
-                <button type="button" class="btn btn-default add-btn">
-                    <i class="fa fa-plus"></i>
-                </button>
-            </div>
-            {% else %}
-            <div class="col-sm-1">
-                <button type="button" class="btn btn-default remove-btn">
-                    <i class="fa fa-minus"></i>
-                </button>
-            </div>
-            {% endif %}
-            {% if entry.description %}
-                <span class="help-block">{{ field.description|safe }}</span>
-            {% endif %}
-            {% if entry.errors and loop.last %}
-            <span class="help-block help-error">
-                {{ entry.errors|join('<br />')|safe }}
-            </span>
-            {% endif %}
-        </div>
-        {% endfor %}
-        <div class="form-group hide" id="section_template">
-            <div class="col-sm-offset-3 col-sm-8">
-                <input type="text" class="form-control" />
-            </div>
-            <div class="col-sm-1">
-                <button type="button" class="btn btn-default remove-btn">
-                    <i class="fa fa-minus"></i>
-                </button>
-            </div>
-        </div>
-    {% elif field.type == 'TextAreaField' %}
-    <div class="form-group">
-        <div class="col-sm-12{% if field.errors %} has-error{% endif %}">
-            {{ field(class='form-control form-textarea') }}
-            {% if field.description %}
-                <span class="help-block">{{ field.description|safe }}</span>
-            {% endif %}
-            {% if field.errors %}
-            <span class="help-block help-error">
-                {{ field.errors|join('<br />')|safe }}
-            </span>
-            {% endif %}
-        </div>
+{{ form.hidden_tag() }}
+{% for field in form %}
+{% if field|simple_field_filter and field.name != 'country_code' %}
+{% if field.type == 'FieldList' %}
+{% for entry in field.entries %}
+<div class="form-group">
+    {% if loop.first %}
+    {{ field.label(class='col-sm-3 control-label') }}
+    {% endif %}
+    <div class="{% if not loop.first %}col-sm-offset-3 {% endif %}col-sm-8{% if field.errors %} has-error{% endif %}">
+        {{ entry(class='form-control {}'.format(field.name)) }}
+    </div>
+    {% if loop.first %}
+    <div class="col-sm-1">
+        <button type="button" class="btn btn-default add-btn">
+            <i class="fa fa-plus"></i>
+        </button>
     </div>
     {% else %}
-    <div class="form-group">
-        {{ field.label(class='col-sm-3 control-label') }}
-        <div class="col-sm-9{% if field.errors %} has-error{% endif %}">
-            {% if field.name == 'phone' %}
-            <div class="row">
-                <div class="col-xs-4">
-                    <div class="input-group">
-                        <div class="input-group-addon">+</div>
-                        {{ form.country_code(maxlength='4', class='form-control col-xs-2') }}
-                    </div>
-                </div>
-                <div class="col-xs-8">
-                    {{ field(class='form-control col-xs-9') }}
+    <div class="col-sm-1">
+        <button type="button" class="btn btn-default remove-btn">
+            <i class="fa fa-minus"></i>
+        </button>
+    </div>
+    {% endif %}
+    {% if entry.description %}
+    <span class="help-block">{{ field.description|safe }}</span>
+    {% endif %}
+    {% if entry.errors and loop.last %}
+    <span class="help-block help-error">
+        {{ entry.errors|join('<br />')|safe }}
+    </span>
+    {% endif %}
+</div>
+{% endfor %}
+<div class="form-group hide" id="section_template">
+    <div class="col-sm-offset-3 col-sm-8">
+        <input type="text" class="form-control" />
+    </div>
+    <div class="col-sm-1">
+        <button type="button" class="btn btn-default remove-btn">
+            <i class="fa fa-minus"></i>
+        </button>
+    </div>
+</div>
+{% elif field.type == 'TextAreaField' %}
+<div class="form-group">
+    <div class="col-sm-12{% if field.errors %} has-error{% endif %}">
+        {{ field(class='form-control form-textarea') }}
+        {% if field.description %}
+        <span class="help-block">{{ field.description|safe }}</span>
+        {% endif %}
+        {% if field.errors %}
+        <span class="help-block help-error">
+            {{ field.errors|join('<br />')|safe }}
+        </span>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<div class="form-group">
+    {{ field.label(class='col-sm-3 control-label') }}
+    <div class="col-sm-9{% if field.errors %} has-error{% endif %}">
+        {% if field.name == 'phone' %}
+        <div class="row">
+            <div class="col-xs-4">
+                <div class="input-group">
+                    <div class="input-group-addon">+</div>
+                    {{ form.country_code(maxlength='4', class='form-control col-xs-2') }}
                 </div>
             </div>
-            {% else %}
-                {% if field.name in disabled %}
-                {{ field(class='form-control', disabled=True) }}
-                {% elif field.select2_choices %}
-                {{ field(class='form-control', select2_choices=field.select2_choices) }}
-                {% else %}
-                {{ field(class='form-control') }}
-                {% endif %}
-            {% endif %}
-            {% if field.description %}
-                <span class="help-block">{{ field.description|safe }}</span>
-            {% endif %}
-            {% if field.errors %}
-            <span class="help-block help-error">
-                {{ field.errors|join('<br />')|safe }}
-            </span>
-            {% endif %}
+            <div class="col-xs-8">
+                {{ field(class='form-control col-xs-9') }}
+            </div>
         </div>
+        {% else %}
+        {% if field.name in disabled %}
+        {{ field(class='form-control', disabled=True) }}
+        {% elif field.select2_choices %}
+        {{ field(class='form-control', select2_choices=field.select2_choices) }}
+        {% else %}
+        {{ field(class='form-control') }}
+        {% endif %}
+        {% endif %}
+        {% if field.description %}
+        <span class="help-block">{{ field.description|safe }}</span>
+        {% endif %}
+        {% if field.errors %}
+        <span class="help-block help-error">
+            {{ field.errors|join('<br />')|safe }}
+        </span>
+        {% endif %}
     </div>
-    {% endif %}
-    {% if _or and field.name == 'phone' %}
-    <div class="form-group">
-        <div class="col-sm-12">-&nbsp;OR&nbsp;-</div>
-    </div>
-    {% endif %}
-    {% endif %}
-    {% endfor %}
+</div>
+{% endif %}
+{% if _or and field.name == 'phone' %}
+<div class="form-group">
+    <div class="col-sm-12">-&nbsp;OR&nbsp;-</div>
+</div>
+{% endif %}
+{% endif %}
+{% endfor %}
 {% endmacro %}
 {% macro base_schedule_form(form) %}
-    {{ form.hidden_tag() }}
-    <div class="form-group">
-        <div class="btn-group" data-toggle="buttons">
-            {% for subfield in form.days_of_week %}
-                <label class="btn btn-default{% if subfield.checked %} active{% endif %}{% if form.days_of_week.errors %} error-border{% endif %}">
-                <input type="checkbox" name="{{ form.days_of_week.id }}" value="{{ subfield._value() }}"{% if subfield.checked %} checked="checked"{% endif %}>{{ subfield.label.text }}
-            </label>
-            {% endfor %}
-        </div>
-        {% if form.days_of_week.errors %}
-        <span class="help-block help-error">
-            Please select at least one day of the week.
-        </span>
-        {% endif %}
+{{ form.hidden_tag() }}
+<div class="form-group">
+    <div class="btn-group" data-toggle="buttons">
+        {% for subfield in form.days_of_week %}
+        <label class="btn btn-default{% if subfield.checked %} active{% endif %}{% if form.days_of_week.errors %} error-border{% endif %}">
+            <input type="checkbox" name="{{ form.days_of_week.id }}" value="{{ subfield._value() }}" {% if
+                subfield.checked %} checked="checked" {% endif %}>{{ subfield.label.text }}
+        </label>
+        {% endfor %}
     </div>
-    <div class="form-group">
-        {% if form.hour.errors %}
-        {{ form.hour(class='error-border') }}
-        {% else %}
-        {{ form.hour() }}
-        {% endif %}
-        {% if form.minute.errors %}
-        {{ form.minute(class='error-border') }}
-        {% else %}
-        {{ form.minute() }}
-        {% endif %}
-        <div class="btn-group" data-toggle="buttons" id="am_pm">
-            {% for subfield in form.am_pm %}
-            <label class="btn btn-default{% if subfield.checked %} active{% endif %}{% if form.am_pm.errors %} error-border{% endif %}">
-                {{ subfield }}{{ subfield.label.text }}
-            </label>
-            {% endfor %}
-        </div>
-        {% if form.am_pm.errors %}
-        <span class="help-block help-error">
-            Please select either 'AM' or 'PM'.
-        </span>
-        {% endif %}
+    {% if form.days_of_week.errors %}
+    <span class="help-block help-error">
+        Please select at least one day of the week.
+    </span>
+    {% endif %}
+</div>
+<div class="form-group">
+    {% if form.hour.errors %}
+    {{ form.hour(class='error-border') }}
+    {% else %}
+    {{ form.hour() }}
+    {% endif %}
+    {% if form.minute.errors %}
+    {{ form.minute(class='error-border') }}
+    {% else %}
+    {{ form.minute() }}
+    {% endif %}
+    <div class="btn-group" data-toggle="buttons" id="am_pm">
+        {% for subfield in form.am_pm %}
+        <label class="btn btn-default{% if subfield.checked %} active{% endif %}{% if form.am_pm.errors %} error-border{% endif %}">
+            {{ subfield }}{{ subfield.label.text }}
+        </label>
+        {% endfor %}
     </div>
-    <div class="form-group">
-        <div class="styled">
-            {% if form.timezone.errors %}
-                {{ form.timezone(class='error-border') }}
-            {% else %}
-                {{ form.timezone() }}
-            {% endif %}
-        </div>
+    {% if form.am_pm.errors %}
+    <span class="help-block help-error">
+        Please select either 'AM' or 'PM'.
+    </span>
+    {% endif %}
+</div>
+<div class="form-group">
+    <div class="styled">
         {% if form.timezone.errors %}
-        <span class="help-block help-error">
-            Please select your current timezone.
-        </span>
+        {{ form.timezone(class='error-border') }}
+        {% else %}
+        {{ form.timezone() }}
         {% endif %}
     </div>
+    {% if form.timezone.errors %}
+    <span class="help-block help-error">
+        Please select your current timezone.
+    </span>
+    {% endif %}
+</div>
 {% endmacro %}
 {% macro messages() %}
-    {% with messages = get_flashed_messages(with_categories=True) %}
-    {% if messages %}
-    {% for category, m in messages %}
-    <div class="row" id="messages">
-        <div class="col-md-8 col-md-offset-2">
-            <div class="alert alert-{{ category }}" role="alert">
-                <button type="button" class="close" data-dismiss="alert">
-                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
-                </button>
-                {{ m|safe }}
-            </div>
+{% with messages = get_flashed_messages(with_categories=True) %}
+{% if messages %}
+{% for category, m in messages %}
+<div class="row" id="messages">
+    <div class="col-md-8 col-md-offset-2">
+        <div class="alert alert-{{ category }}" role="alert">
+            <button type="button" class="close" data-dismiss="alert">
+                <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+            </button>
+            {{ m|safe }}
         </div>
     </div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
 {% endmacro %}

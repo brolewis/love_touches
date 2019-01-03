@@ -1,40 +1,42 @@
-'''Database model object'''
+"""Database model object."""
 # Standard Library
 import datetime
+
 # Third Party
-import flask.ext.security
+import flask_security
 import sqlalchemy
 import sqlalchemy.ext.hybrid
 from sqlalchemy.ext.associationproxy import association_proxy
+
 # Local
 from main import db
 
 
 # Users and Roles
-roles_users = db.Table('roles_users',
-                       db.Column('user_id', db.Integer,
-                                 db.ForeignKey('user.id')),
-                       db.Column('role_id', db.Integer,
-                                 db.ForeignKey('role.id')))
-users_actions = db.Table('users_actions',
-                         db.Column('user_id', db.Integer,
-                                   db.ForeignKey('user.id')),
-                         db.Column('action_id', db.Integer,
-                                   db.ForeignKey('action.id')))
+roles_users = db.Table(
+    "roles_users",
+    db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
+    db.Column("role_id", db.Integer, db.ForeignKey("role.id")),
+)
+users_actions = db.Table(
+    "users_actions",
+    db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
+    db.Column("action_id", db.Integer, db.ForeignKey("action.id")),
+)
 
 
-class Role(db.Model, flask.ext.security.RoleMixin):
-    id = db.Column(db.Integer, primary_key=True)
+class Role(db.Model, flask_security.RoleMixin):
+    id = db.Column(db.Integer, primary_key=True)  # noqa: A003,B001
     name = db.Column(db.String, unique=True)
     description = db.Column(db.String)
 
-    def __repr__(self):
+    def __repr__(self):  # noqa: D105
         return self.name
 
 
-class User(db.Model, flask.ext.security.UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    password = db.Column(db.String, default='')
+class User(db.Model, flask_security.UserMixin):
+    id = db.Column(db.Integer, primary_key=True)  # noqa: A003,B001
+    password = db.Column(db.String, default="")
     active = db.Column(db.Boolean)
     email = db.Column(db.String, unique=True, nullable=True)
     phone = db.Column(db.String)
@@ -54,24 +56,24 @@ class User(db.Model, flask.ext.security.UserMixin):
     last_login_ip = db.Column(db.String)
     current_login_ip = db.Column(db.String)
     login_count = db.Column(db.Integer)
-    roles = db.relationship('Role', secondary=roles_users,
-                            backref=db.backref('users', lazy='dynamic'))
-    method_id = db.Column(db.Integer, db.ForeignKey('method.id',
-                                                    ondelete='CASCADE'))
-    method = db.relationship('Method', foreign_keys=[method_id])
-    actions = db.relationship('Action', secondary=users_actions)
-    _weekdays = db.relationship('Weekday', backref='user')
-    messages = db.relationship('Message')
-    history = db.relationship('History')
+    roles = db.relationship(
+        "Role", secondary=roles_users, backref=db.backref("users", lazy="dynamic")
+    )
+    method_id = db.Column(db.Integer, db.ForeignKey("method.id", ondelete="CASCADE"))
+    method = db.relationship("Method", foreign_keys=[method_id])
+    actions = db.relationship("Action", secondary=users_actions)
+    _weekdays = db.relationship("Weekday", backref="user")
+    messages = db.relationship("Message")
+    history = db.relationship("History")
 
-    def __repr__(self):
+    def __repr__(self):  # noqa: D105
         return self.email or self.phone
 
     @sqlalchemy.ext.hybrid.hybrid_property
     def suggested_methods(self):
         methods = []
         for method in self.authored_methods:
-            if method.status.name == 'Proposed':
+            if method.status.name == "Proposed":
                 methods.append(method)
         return methods
 
@@ -81,48 +83,51 @@ class User(db.Model, flask.ext.security.UserMixin):
 
 
 class Weekday(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    id = db.Column(db.Integer, primary_key=True)  # noqa: A003,B001
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     utc_weekday = db.Column(db.Integer)
 
 
 class Status(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)  # noqa: A003,B001
     name = db.Column(db.String)
 
-    def __repr__(self):
+    def __repr__(self):  # noqa: D105
         return self.name
 
 
 class Method(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)  # noqa: A003,B001
     name = db.Column(db.String)
-    status_id = db.Column(db.Integer, db.ForeignKey('status.id'))
-    status = db.relationship('Status', backref='methods')
-    sections = db.relationship('Section', backref='method',
-                               cascade='all, delete-orphan')
-    author_id = db.Column(db.Integer, db.ForeignKey('user.id', use_alter=True,
-                                                    name='fk_author_id'))
-    author = db.relationship('User', foreign_keys=[author_id],
-                             backref='authored_methods')
+    status_id = db.Column(db.Integer, db.ForeignKey("status.id"))
+    status = db.relationship("Status", backref="methods")
+    sections = db.relationship(
+        "Section", backref="method", cascade="all, delete-orphan"
+    )
+    author_id = db.Column(
+        db.Integer, db.ForeignKey("user.id", use_alter=True, name="fk_author_id")
+    )
+    author = db.relationship(
+        "User", foreign_keys=[author_id], backref="authored_methods"
+    )
 
-    def __repr__(self):
+    def __repr__(self):  # noqa: D105
         return self.name
 
 
 class Section(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    method_id = db.Column(db.Integer, db.ForeignKey('method.id'))
+    id = db.Column(db.Integer, primary_key=True)  # noqa: A003,B001
+    method_id = db.Column(db.Integer, db.ForeignKey("method.id"))
     name = db.Column(db.String)
-    actions = db.relationship('SectionActions', backref='sections')
+    actions = db.relationship("SectionActions", backref="sections")
 
-    def __repr__(self):
+    def __repr__(self):  # noqa: D105
         return self.name
 
     @sqlalchemy.ext.hybrid.hybrid_property
     def approved_actions(self):
         actions = []
-        approved = Status.query.filter_by(name='Approved').first()
+        approved = Status.query.filter_by(name="Approved").first()
         for assoc in self.actions:
             if assoc.status == approved and assoc.action.status == approved:
                 actions.append(assoc.action)
@@ -130,57 +135,61 @@ class Section(db.Model):
 
 
 class SectionActions(db.Model):
-    __tablename__ = 'section_actions'
-    section_id = db.Column(db.Integer, db.ForeignKey('section.id'),
-                           primary_key=True)
-    section = db.relationship('Section', backref=db.backref('section_actions'))
-    action_id = db.Column(db.Integer, db.ForeignKey('action.id'),
-                          primary_key=True)
-    action = db.relationship('Action', backref=db.backref('section_actions'))
-    status_id = db.Column(db.Integer, db.ForeignKey('status.id'))
-    status = db.relationship('Status', backref='section_actions')
-    author_id = db.Column(db.Integer, db.ForeignKey('user.id', use_alter=True,
-                                                    name='fk_author_id'))
-    author = db.relationship('User', foreign_keys=[author_id],
-                             backref='authored_accociations')
+    __tablename__ = "section_actions"
+    section_id = db.Column(db.Integer, db.ForeignKey("section.id"), primary_key=True)
+    section = db.relationship("Section", backref=db.backref("section_actions"))
+    action_id = db.Column(db.Integer, db.ForeignKey("action.id"), primary_key=True)
+    action = db.relationship("Action", backref=db.backref("section_actions"))
+    status_id = db.Column(db.Integer, db.ForeignKey("status.id"))
+    status = db.relationship("Status", backref="section_actions")
+    author_id = db.Column(
+        db.Integer, db.ForeignKey("user.id", use_alter=True, name="fk_author_id")
+    )
+    author = db.relationship(
+        "User", foreign_keys=[author_id], backref="authored_accociations"
+    )
 
 
 class Action(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)  # noqa: A003,B001
     label = db.Column(db.String)
-    status_id = db.Column(db.Integer, db.ForeignKey('status.id'))
-    status = db.relationship('Status', backref='actions')
-    author_id = db.Column(db.Integer, db.ForeignKey('user.id', use_alter=True,
-                                                    name='fk_author_id'))
-    author = db.relationship('User', foreign_keys=[author_id],
-                             backref='authored_actions')
-    sections = association_proxy('section_actions', 'section')
+    status_id = db.Column(db.Integer, db.ForeignKey("status.id"))
+    status = db.relationship("Status", backref="actions")
+    author_id = db.Column(
+        db.Integer, db.ForeignKey("user.id", use_alter=True, name="fk_author_id")
+    )
+    author = db.relationship(
+        "User", foreign_keys=[author_id], backref="authored_actions"
+    )
+    sections = association_proxy("section_actions", "section")
 
-    def __repr__(self):
+    def __repr__(self):  # noqa: D105
         return self.label
 
 
 def approved_methods():
-    return Method.query.filter(Status.name == 'Approved')
+    return Method.query.filter(Status.name == "Approved")
 
 
 class Message(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    sender = db.relationship('User', foreign_keys=[sender_id])
+    id = db.Column(db.Integer, primary_key=True)  # noqa: A003,B001
+    sender_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    sender = db.relationship("User", foreign_keys=[sender_id])
     message = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    parent_id = db.Column(db.Integer, db.ForeignKey('message.id'))
-    children = db.relationship('Message',
-                               cascade='all, delete-orphan',
-                               backref=db.backref('parent', remote_side=id))
+    parent_id = db.Column(db.Integer, db.ForeignKey("message.id"))
+    children = db.relationship(
+        "Message",
+        cascade="all, delete-orphan",
+        backref=db.backref("parent", remote_side=id),
+    )
 
 
 class History(db.Model):
-    __tablename__ = 'history'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship('User')
-    action_id = db.Column(db.Integer, db.ForeignKey('action.id'))
-    action = db.relationship('Action')
+    __tablename__ = "history"
+    id = db.Column(db.Integer, primary_key=True)  # noqa: A003,B001
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    user = db.relationship("User")
+    action_id = db.Column(db.Integer, db.ForeignKey("action.id"))
+    action = db.relationship("Action")
     sent_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
